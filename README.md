@@ -15,11 +15,11 @@ configurations supported are fairly limited but that is also going to change.
 encfs-java uses [Maven](http://maven.apache.org) for building. Assuming you
 have a working installation, simply run the following to build the code:
 
-  $ mvn compile
+    $ mvn compile
 
 To create a JAR file for using encfs-java from another application, do:
 
-  $ mvn package
+    $ mvn package
 
 Which will create a JAR file in the {$PROJECT_ROOT}/target/ directory.
 
@@ -30,13 +30,13 @@ simple shell supporting a few commands such as 'ls', 'cd' and 'cat' on an EncFS
 volume. After building the library, add the {$PROJECT_ROOT}/target/classes/
 directory to your CLASSPATH, and run like so:
 
-  $ java -classpath ${PROJECT_ROOT}/target/classes EncFSShell /path/to/an/encfs/volume
+    $ java -classpath ${PROJECT_ROOT}/target/classes EncFSShell /path/to/an/encfs/volume
 
 For using the library from another project, include the .JAR file in your
 classpath and import the org.mrpdaemon.encfs.sec package. For API documentation,
 you can generate JavaDoc's using Maven:
 
-  $ mvn javadoc:javadoc
+    $ mvn javadoc:javadoc
 
 Which will place your documentation in ${PROJECT_ROOT}/target/site/apidocs/
 
