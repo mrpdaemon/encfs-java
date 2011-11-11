@@ -32,6 +32,14 @@ directory to your CLASSPATH, and run like so:
 
   $ java -classpath ${PROJECT_ROOT}/target/classes EncFSShell /path/to/an/encfs/volume
 
+For using the library from another project, include the .JAR file in your
+classpath and import the org.mrpdaemon.encfs.sec package. For API documentation,
+you can generate JavaDoc's using Maven:
+
+  $ mvn javadoc:javadoc
+
+Which will place your documentation in ${PROJECT_ROOT}/target/site/apidocs/
+
 ## Licensing
 
 encfs-java is licensed under the Lesser GNU Public License, which allows non-GPL
@@ -39,7 +47,7 @@ applications to make use of the library with the restriction that the source cod
 for any modifications to the library itself need to be made available to be able
 to legally redistribute the modified library. For more information, please see the
 LICENSE file and the Free Software Foundation
-(website)[http://www.gnu.org/licenses/lgpl.html].
+[website](http://www.gnu.org/licenses/lgpl.html).
 
 ## TODO
 * Post JavaDoc on GitHub
