@@ -105,7 +105,7 @@ public class EncFSFile {
 			                         String volumePath) throws EncFSCorruptDataException,
 			                                                   EncFSChecksumException
 	{
-		byte[] base256FileName = EncFSBase64.decode(fileName.getBytes());
+		byte[] base256FileName = EncFSBase64.decodeEncfs(fileName.getBytes());
 
 		byte[] encFileName = Arrays.copyOfRange(base256FileName, 2,
 				                                base256FileName.length);

@@ -15,6 +15,7 @@
 
 package org.mrpdaemon.sec.encfs;
 
+import java.io.IOException;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.Key;
@@ -262,10 +263,20 @@ public class EncFSCrypto {
 	{
 		// Decode Base64 encoded salt/ciphertext data
 		//TODO: validate key/IV lengths
-		byte[] cipherSaltData = DatatypeConverter.parseBase64Binary(
-				                   config.getSaltStr());
-		byte[] cipherVolKeyData = DatatypeConverter.parseBase64Binary(
-				                      config.getEncodedKeyStr());
+		
+		byte[] cipherSaltData;
+		try {
+			cipherSaltData = EncFSBase64.decode(config.getSaltStr());
+		} catch (IOException e) {
+			throw new EncFSInvalidConfigException("Corrupt salt data in config");
+		}
+		byte[] cipherVolKeyData;
+		try {
+			cipherVolKeyData = EncFSBase64.decode(config.getEncodedKeyStr());
+		} catch (IOException e) {
+			throw new EncFSInvalidConfigException("Corrupt key data in config");
+		}
+
 		byte[] encryptedVolKey = Arrays.copyOfRange(cipherVolKeyData, 4,
 				                                    cipherVolKeyData.length);
 
