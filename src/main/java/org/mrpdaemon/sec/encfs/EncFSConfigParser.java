@@ -72,32 +72,32 @@ public class EncFSConfigParser {
 			Node cfgNode = cfgNodeList.item(i);
 			
 			if (cfgNode.getNodeType() == Node.ELEMENT_NODE) {
-				if (cfgNode.getNodeName() == "keySize") {
+				if (cfgNode.getNodeName().equals("keySize")) {
 					config.setVolumeKeySize(Integer.parseInt(
 							                    getNodeValue(cfgNode)));
-				} else if (cfgNode.getNodeName() == "blockSize") {
+				} else if (cfgNode.getNodeName().equals("blockSize")) {
 					config.setBlockSize(Integer.parseInt(
 							                getNodeValue(cfgNode)));
-				} else if (cfgNode.getNodeName() == "uniqueIV") {
+				} else if (cfgNode.getNodeName().equals("uniqueIV")) {
 					config.setUniqueIV(Integer.parseInt(
 							               getNodeValue(cfgNode)) == 1);
-				} else if (cfgNode.getNodeName() == "chainedNameIV") {
+				} else if (cfgNode.getNodeName().equals("chainedNameIV")) {
 					config.setChainedNameIV(Integer.parseInt(
 							                    getNodeValue(cfgNode)) == 1);
-				} else if (cfgNode.getNodeName() == "allowHoles") {
+				} else if (cfgNode.getNodeName().equals("allowHoles")) {
 					config.setHolesAllowed(Integer.parseInt(
 		                                       getNodeValue(cfgNode)) == 1);
-				} else if (cfgNode.getNodeName() == "encodedKeySize") {
+				} else if (cfgNode.getNodeName().equals("encodedKeySize")) {
 					config.setEncodedKeyLength(Integer.parseInt(
 		                                           getNodeValue(cfgNode)));
-				} else if (cfgNode.getNodeName() == "encodedKeyData") {
+				} else if (cfgNode.getNodeName().equals("encodedKeyData")) {
 					config.setEncodedKeyStr(getNodeValue(cfgNode));
-				} else if (cfgNode.getNodeName() == "saltLen") {
+				} else if (cfgNode.getNodeName().equals("saltLen")) {
 					config.setSaltLength(Integer.parseInt(
                                              getNodeValue(cfgNode)));
-				} else if (cfgNode.getNodeName() == "saltData") {
+				} else if (cfgNode.getNodeName().equals("saltData")) {
 					config.setSaltStr(getNodeValue(cfgNode));
-				} else if (cfgNode.getNodeName() == "kdfIterations") {
+				} else if (cfgNode.getNodeName().equals("kdfIterations")) {
 					config.setIterationCount(Integer.parseInt(
                                                  getNodeValue(cfgNode)));
 				}
