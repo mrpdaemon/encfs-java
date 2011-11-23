@@ -111,7 +111,7 @@ public class EncFSFileInputStream extends FileInputStream {
 	                                EncFSUnsupportedException
 	{
 		byte[] cipherBuf = new byte[blockSize];
-		int bytesRead = super.read(cipherBuf);
+		int bytesRead = super.read(cipherBuf, 0, blockSize);
 		if (bytesRead == blockSize) { // block decode
 			try {
 				blockBuf = EncFSCrypto.blockDecode(volume, getBlockIV(),
@@ -165,16 +165,9 @@ public class EncFSFileInputStream extends FileInputStream {
 	 */
 	@Override
 	public int read(byte[] b) throws IOException {
-		return this.read(b, 0, b.length);
-	}
-
-	/* (non-Javadoc)
-	 * @see java.io.FileInputStream#read(byte[], int, int)
-	 */
-	@Override
-	public int read(byte[] b, int off, int len) throws IOException {
+		int len = b.length;
 		int bytesRead = 0;
-		int destOffset = off;
+		int destOffset = 0;
 		int bytesToCopy;
 		int ret;
 		
