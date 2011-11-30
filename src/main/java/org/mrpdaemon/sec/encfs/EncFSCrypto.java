@@ -253,32 +253,19 @@ public class EncFSCrypto {
 		byte[] result = cipher.doFinal(data);
 		return result;
 	}
-	
-	public static byte[] deriveVolumeKey(EncFSConfig config, String password)
-			throws EncFSChecksumException,
-			       EncFSInvalidConfigException,
-			       EncFSCorruptDataException,
-			       EncFSUnsupportedException
+
+	// Derive password-based key from input/config parameters using PBKDF2
+	public static byte[] derivePasswordKey(EncFSConfig config, String password)
+			throws EncFSInvalidConfigException, EncFSUnsupportedException
 	{
-		// Decode Base64 encoded salt/ciphertext data
-		//TODO: validate key/IV lengths
-		
+		// Decode base 64 salt data
 		byte[] cipherSaltData;
 		try {
 			cipherSaltData = EncFSBase64.decode(config.getSaltStr());
 		} catch (IOException e) {
 			throw new EncFSInvalidConfigException("Corrupt salt data in config");
 		}
-		byte[] cipherVolKeyData;
-		try {
-			cipherVolKeyData = EncFSBase64.decode(config.getEncodedKeyStr());
-		} catch (IOException e) {
-			throw new EncFSInvalidConfigException("Corrupt key data in config");
-		}
-
-		byte[] encryptedVolKey = Arrays.copyOfRange(cipherVolKeyData, 4,
-				                                    cipherVolKeyData.length);
-
+		
 		// Execute PBKDF2 to derive key data from the password
 		SecretKeyFactory f;
 		try {
@@ -297,7 +284,28 @@ public class EncFSCrypto {
 		} catch (InvalidKeySpecException e) {
 			throw new EncFSInvalidConfigException(e.getMessage());
 		}
-        byte[] pbkdf2Data = pbkdf2Key.getEncoded();
+        
+		return pbkdf2Key.getEncoded();
+	}
+
+	// Derive volume key for the given config and password-based key/IV data
+	public static byte[] decryptVolumeKey(EncFSConfig config, byte[] pbkdf2Data)
+			throws EncFSChecksumException,
+			       EncFSInvalidConfigException,
+			       EncFSCorruptDataException,
+			       EncFSUnsupportedException
+	{
+		// Decode Base64 encoded ciphertext data
+		//TODO: validate key/IV lengths
+		byte[] cipherVolKeyData;
+		try {
+			cipherVolKeyData = EncFSBase64.decode(config.getEncodedKeyStr());
+		} catch (IOException e) {
+			throw new EncFSInvalidConfigException("Corrupt key data in config");
+		}
+
+		byte[] encryptedVolKey = Arrays.copyOfRange(cipherVolKeyData, 4,
+				                                    cipherVolKeyData.length);
 
         // Prepare key/IV for decryption
         //TODO: (*) Are these lengths hardcoded? Or depend on volume key size???

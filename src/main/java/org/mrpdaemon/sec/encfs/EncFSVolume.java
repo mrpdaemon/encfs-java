@@ -64,6 +64,9 @@ public class EncFSVolume {
 
 	// Volume initialization vector for use with the volume key
 	private byte[] iv;
+	
+	// Password-based key/IV
+	private byte[] passwordKey;
 
 	// Volume MAC object to use for checksum computations
 	private Mac mac;
@@ -76,30 +79,11 @@ public class EncFSVolume {
 	
 	// Root directory object
 	private EncFSFile rootDir;
-	
-	/**
-	 * Creates a new object representing an existing EncFS volume
-	 * 
-	 * @param rootDir Root directory of the EncFS volume
-	 * @param configFile Configuration file of the EncFS volume
-	 * @param password User supplied password to decrypt volume key
-	 * 
-	 * @throws FileNotFoundException Root directory or configuration
-	 *                               file not found 
-	 * @throws EncFSInvalidPasswordException Given password is
-	 *                                       incorrect
-	 * @throws EncFSCorruptDataException Corrupt data detected (checksum
-	 *                                   error)
-	 * @throws EncFSInvalidConfigException Configuration file format not
-	 *                                     recognized
-	 * @throws EncFSUnsupportedException Unsupported EncFS version or
-	 *                                   options
-	 */
-	public EncFSVolume(File rootDir, File configFile, String password)
-			throws FileNotFoundException, EncFSInvalidPasswordException,
-			       EncFSInvalidConfigException, EncFSCorruptDataException,
-			       EncFSUnsupportedException
-	{
+
+	// Parse the configuration file - common step for constructor functions
+	private void parseConfig(File rootDir, File configFile)
+			throws FileNotFoundException, EncFSUnsupportedException,
+			EncFSInvalidConfigException {
 		if (!rootDir.exists()) {
 			throw new FileNotFoundException("Root path doesn't exist " +
 					rootDir.getAbsolutePath());
@@ -128,11 +112,17 @@ public class EncFSVolume {
 		} catch (IOException e2) {
 			throw new EncFSInvalidConfigException("Couldn't open config file");
 		}
-
+	}
+	
+	// Finish volume creation - common step for constructor functions
+	private void createVolume(File rootDir)
+			throws EncFSInvalidPasswordException, EncFSInvalidConfigException,
+			EncFSCorruptDataException, EncFSUnsupportedException {
 		// Derive volume key from the supplied password
 		byte[] keyData = null;
 		try {
-			keyData = EncFSCrypto.deriveVolumeKey(this.config, password);
+			keyData = EncFSCrypto.decryptVolumeKey(this.config,
+					this.passwordKey);
 		} catch (EncFSChecksumException e) {
 			throw new EncFSInvalidPasswordException(e.getMessage());
 		}
@@ -177,6 +167,70 @@ public class EncFSVolume {
 	 * Creates a new object representing an existing EncFS volume
 	 * 
 	 * @param rootDir Root directory of the EncFS volume
+	 * @param configFile Configuration file of the EncFS volume
+	 * @param password User supplied password to decrypt volume key
+	 * 
+	 * @throws FileNotFoundException Root directory or configuration
+	 *                               file not found 
+	 * @throws EncFSInvalidPasswordException Given password is
+	 *                                       incorrect
+	 * @throws EncFSCorruptDataException Corrupt data detected (checksum
+	 *                                   error)
+	 * @throws EncFSInvalidConfigException Configuration file format not
+	 *                                     recognized
+	 * @throws EncFSUnsupportedException Unsupported EncFS version or
+	 *                                   options
+	 */
+	public EncFSVolume(File rootDir, File configFile, String password)
+			throws FileNotFoundException, EncFSInvalidPasswordException,
+			       EncFSInvalidConfigException, EncFSCorruptDataException,
+			       EncFSUnsupportedException
+	{
+		parseConfig(rootDir, configFile);
+
+		this.passwordKey = EncFSCrypto.derivePasswordKey(this.config, password);
+
+		createVolume(rootDir);
+	}
+	
+	/**
+	 * Creates a new object representing an existing EncFS volume
+	 * 
+	 * @param rootDir Root directory of the EncFS volume
+	 * @param configFile Configuration file of the EncFS volume
+	 * @param passwordKey Cached password-based key/IV data. Can be
+	 *                    obtained using getPasswordKey() on a volume
+	 *                    created with a regular password. Caching
+	 *                    the password-based key data can significantly
+	 *                    speed up volume creation.
+	 * 
+	 * @throws FileNotFoundException Root directory or configuration
+	 *                               file not found 
+	 * @throws EncFSInvalidPasswordException Given password is
+	 *                                       incorrect
+	 * @throws EncFSCorruptDataException Corrupt data detected (checksum
+	 *                                   error)
+	 * @throws EncFSInvalidConfigException Configuration file format not
+	 *                                     recognized
+	 * @throws EncFSUnsupportedException Unsupported EncFS version or
+	 *                                   options
+	 */
+	public EncFSVolume(File rootDir, File configFile, byte[] passwordKey)
+			throws FileNotFoundException, EncFSInvalidPasswordException,
+			       EncFSInvalidConfigException, EncFSCorruptDataException,
+			       EncFSUnsupportedException
+	{
+		parseConfig(rootDir, configFile);
+
+		this.passwordKey = passwordKey;
+
+		createVolume(rootDir);
+	}
+
+	/**
+	 * Creates a new object representing an existing EncFS volume
+	 * 
+	 * @param rootDir Root directory of the EncFS volume
 	 * @param password User supplied password to decrypt volume key
 	 * 
 	 * @throws FileNotFoundException Root directory or configuration
@@ -195,15 +249,44 @@ public class EncFSVolume {
 			       EncFSInvalidConfigException, EncFSCorruptDataException,
 			       EncFSUnsupportedException
 	{
-		this(rootDir, new File(rootDir.getAbsolutePath() + File.separator +
+		this(rootDir, new File(rootDir.getAbsolutePath(),
 				ENCFS_VOLUME_CONFIG_FILE_NAME), password);
 	}
 
 	/**
 	 * Creates a new object representing an existing EncFS volume
 	 * 
+	 * @param rootDir Root directory of the EncFS volume
+	 * @param passwordKey Cached password-based key/IV data. Can be
+	 *                    obtained using getPasswordKey() on a volume
+	 *                    created with a regular password. Caching
+	 *                    the password-based key data can significantly
+	 *                    speed up volume creation.
+	 * 
+	 * @throws FileNotFoundException Root directory or configuration
+	 *                               file not found 
+	 * @throws EncFSInvalidPasswordException Given password is
+	 *                                       incorrect
+	 * @throws EncFSCorruptDataException Corrupt data detected (checksum
+	 *                                   error)
+	 * @throws EncFSInvalidConfigException Configuration file format not
+	 *                                     recognized
+	 * @throws EncFSUnsupportedException Unsupported EncFS version or
+	 *                                   options
+	 */
+	public EncFSVolume(File rootDir, byte[] passwordKey)
+			throws FileNotFoundException, EncFSInvalidPasswordException,
+			       EncFSInvalidConfigException, EncFSCorruptDataException,
+			       EncFSUnsupportedException
+	{
+		this(rootDir, new File(rootDir.getAbsolutePath(),
+				ENCFS_VOLUME_CONFIG_FILE_NAME), passwordKey);
+	}
+
+	/**
+	 * Creates a new object representing an existing EncFS volume
+	 * 
 	 * @param rootPath Path of the root directory of the EncFS volume
-	 * @param configFile Configuration file of the EncFS volume
 	 * @param password User supplied password to decrypt volume key
 	 * 
 	 * @throws FileNotFoundException Root directory or configuration
@@ -223,6 +306,35 @@ public class EncFSVolume {
 		       EncFSUnsupportedException
 	{
 		this(new File(rootPath), password);
+	}
+	
+	/**
+	 * Creates a new object representing an existing EncFS volume
+	 * 
+	 * @param rootPath Path of the root directory of the EncFS volume
+	 * @param passwordKey Cached password-based key/IV data. Can be
+	 *                    obtained using getPasswordKey() on a volume
+	 *                    created with a regular password. Caching
+	 *                    the password-based key data can significantly
+	 *                    speed up volume creation.
+	 * 
+	 * @throws FileNotFoundException Root directory or configuration
+	 *                               file not found 
+	 * @throws EncFSInvalidPasswordException Given password is
+	 *                                       incorrect
+	 * @throws EncFSCorruptDataException Corrupt data detected (checksum
+	 *                                   error)
+	 * @throws EncFSInvalidConfigException Configuration file format not
+	 *                                     recognized
+	 * @throws EncFSUnsupportedException Unsupported EncFS version or
+	 *                                   options
+	 */
+	public EncFSVolume(String rootPath, byte[] passwordKey)
+		throws FileNotFoundException, EncFSInvalidPasswordException,
+		       EncFSInvalidConfigException, EncFSCorruptDataException,
+		       EncFSUnsupportedException
+	{
+		this(new File(rootPath), passwordKey);
 	}
 
 	/**
@@ -244,6 +356,13 @@ public class EncFSVolume {
 	 */
 	public byte[] getIV() {
 		return iv;
+	}
+
+	/**
+	 * @return Password-based key/IV data for this volume
+	 */
+	public byte[] getPasswordKey() {
+		return passwordKey;
 	}
 
 	/**
