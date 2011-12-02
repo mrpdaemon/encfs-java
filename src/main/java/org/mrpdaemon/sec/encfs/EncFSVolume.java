@@ -80,6 +80,17 @@ public class EncFSVolume {
 	// Root directory object
 	private EncFSFile rootDir;
 
+	/**
+	 * Returns the name of the EncFS volume configuration file present in the
+	 * root directory of every EncFS volume
+	 * 
+	 * @return Standard name of the EncFS volume config file
+	 */
+	public static String getConfigFileName()
+	{
+		return ENCFS_VOLUME_CONFIG_FILE_NAME;
+	}
+
 	// Parse the configuration file - common step for constructor functions
 	private void parseConfig(File rootDir, File configFile)
 			throws FileNotFoundException, EncFSUnsupportedException,
