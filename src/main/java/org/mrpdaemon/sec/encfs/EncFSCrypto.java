@@ -308,9 +308,11 @@ public class EncFSCrypto {
 				                                    cipherVolKeyData.length);
 
         // Prepare key/IV for decryption
-        //TODO: (*) Are these lengths hardcoded? Or depend on volume key size???
-	    byte[] passKeyData = Arrays.copyOfRange(pbkdf2Data, 0, 32);
-	    byte[] passIvData = Arrays.copyOfRange(pbkdf2Data, 32, 48);
+		int keySizeInBytes = config.getVolumeKeySize() / 8;
+	    byte[] passKeyData = Arrays.copyOfRange(pbkdf2Data, 0, keySizeInBytes);
+	    byte[] passIvData = Arrays.copyOfRange(pbkdf2Data, keySizeInBytes,
+	    		keySizeInBytes + EncFSVolume.ENCFS_VOLUME_IV_LENGTH);
+
         Key passKey = newKey(passKeyData);
 	    byte[] ivSeed = Arrays.copyOfRange(cipherVolKeyData, 0, 4);
 	    
