@@ -72,7 +72,26 @@ public class EncFSConfigParser {
 			Node cfgNode = cfgNodeList.item(i);
 			
 			if (cfgNode.getNodeType() == Node.ELEMENT_NODE) {
-				if (cfgNode.getNodeName().equals("keySize")) {
+				if (cfgNode.getNodeName().equals("nameAlg")) {
+					NodeList nameAlgNodeList = cfgNode.getChildNodes();
+					for (int j = 0; j < nameAlgNodeList.getLength(); j++) {
+						Node nameAlgChildNode = nameAlgNodeList.item(j);
+						if (nameAlgChildNode.getNodeName().equals("name")) {
+							String algName = getNodeValue(nameAlgChildNode);
+							if (algName.equals("nameio/block")) {
+								config.setNameAlgorithm(
+										EncFSConfig.ENCFS_CONFIG_NAME_ALG_BLOCK);
+							} else if (algName.equals("nameio/stream")) {
+								config.setNameAlgorithm(
+										EncFSConfig.ENCFS_CONFIG_NAME_ALG_STREAM);
+							} else {
+								throw new EncFSInvalidConfigException(
+										"Unknown name algorithm in config file: " +
+										algName);
+							}
+						}
+					}
+				} else if (cfgNode.getNodeName().equals("keySize")) {
 					config.setVolumeKeySize(Integer.parseInt(
 							                    getNodeValue(cfgNode)));
 				} else if (cfgNode.getNodeName().equals("blockSize")) {

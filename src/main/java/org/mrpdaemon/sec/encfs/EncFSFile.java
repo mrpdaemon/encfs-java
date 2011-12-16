@@ -149,32 +149,63 @@ public class EncFSFile {
 			fileIv[i] = (byte) (macBytes[i] ^ chainIv[i]);
 		}
 
-		// Decrypt filename
-		Cipher blockCipher= volume.getBlockCipher();
-		try {
-			EncFSCrypto.cipherInit(volume, Cipher.DECRYPT_MODE,
-					blockCipher, fileIv);	
-		} catch (InvalidAlgorithmParameterException e) {
-			throw new EncFSCorruptDataException(e.getMessage());
-		}
-
+		Cipher cipher;
 		byte[] decFileName;
-		try {
-			decFileName = blockCipher.doFinal(encFileName);
-		} catch (IllegalBlockSizeException e) {
-			throw new EncFSCorruptDataException(e.getMessage());
-		} catch (BadPaddingException e) {
-			throw new EncFSCorruptDataException(e.getMessage());
+		
+		if (volume.getConfig().getNameAlgorithm() == 
+				EncFSConfig.ENCFS_CONFIG_NAME_ALG_BLOCK) {
+			//Block decryption
+			cipher = volume.getBlockCipher();
+			
+			try {
+				EncFSCrypto.cipherInit(volume, Cipher.DECRYPT_MODE,
+						cipher, fileIv);	
+			} catch (InvalidAlgorithmParameterException e) {
+				throw new EncFSCorruptDataException(e.getMessage());
+			}
+
+			try {
+				decFileName = cipher.doFinal(encFileName);
+			} catch (IllegalBlockSizeException e) {
+				throw new EncFSCorruptDataException(e.getMessage());
+			} catch (BadPaddingException e) {
+				throw new EncFSCorruptDataException(e.getMessage());
+			}
+			
+		} else {
+			// Stream decryption
+			try {
+				decFileName = EncFSCrypto.streamDecode(volume, fileIv, encFileName);
+			} catch (InvalidAlgorithmParameterException e) {
+				throw new EncFSCorruptDataException(e.getMessage());
+			} catch (IllegalBlockSizeException e) {
+				throw new EncFSCorruptDataException(e.getMessage());
+			} catch (BadPaddingException e) {
+				throw new EncFSCorruptDataException(e.getMessage());
+			} catch (EncFSUnsupportedException e) {
+				throw new EncFSCorruptDataException(e.getMessage());
+			}
 		}
 
 		// Verify decryption worked
-		byte[] mac16 = EncFSCrypto.mac16(volume.getMac(), decFileName,
-				                         chainIv);
+		byte[] mac16;
+		if (volume.getConfig().isChainedNameIV()) {
+			mac16 = EncFSCrypto.mac16(volume.getMac(), decFileName, chainIv);
+		} else {
+			mac16 = EncFSCrypto.mac16(volume.getMac(), decFileName);
+		}
 		byte[] expectedMac = Arrays.copyOfRange(base256FileName, 0, 2);
 		if (!Arrays.equals(mac16, expectedMac)) {
 			throw new EncFSChecksumException("Mismatch in file checksum");
 		}
-		
+
+		// For the stream cipher directly return the result
+		if (volume.getConfig().getNameAlgorithm() == 
+				EncFSConfig.ENCFS_CONFIG_NAME_ALG_STREAM) {
+			return new String(decFileName);
+		}
+
+		// For the block cipher remove padding before returning the result
 		int padLen = decFileName[decFileName.length - 1];
 		
 		return new String(Arrays.copyOfRange(decFileName, 0,

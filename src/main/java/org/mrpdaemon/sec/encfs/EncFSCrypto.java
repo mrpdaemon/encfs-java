@@ -129,6 +129,36 @@ public class EncFSCrypto {
 				volume.getIV(), ivSeed);
 	}
 
+	public static byte[] mac64(Mac mac, byte[] input) {
+
+		byte[] macResult = mac.doFinal(input);
+		byte[] mac64 = new byte[8];
+		for (int i = 0; i < 19; i++) // Note the 19 not 20
+			mac64[i % 8] ^= macResult[i];
+
+		return mac64;
+	}
+
+	public static byte[] mac32(Mac mac, byte[] input) {
+		byte[] mac64 = mac64(mac, input);
+		byte[] mac32 = new byte[4];
+	    mac32[0] = (byte) (mac64[4] ^ mac64[0]);
+	    mac32[1] = (byte) (mac64[5] ^ mac64[1]);
+	    mac32[2] = (byte) (mac64[6] ^ mac64[2]);
+	    mac32[3] = (byte) (mac64[7] ^ mac64[3]);
+
+	    return mac32;
+	}
+
+	public static byte[] mac16(Mac mac, byte[] input) {
+		byte[] mac32 = mac32(mac, input);
+		byte[] mac16 = new byte[2];
+	    mac16[0] = (byte) (mac32[2] ^ mac32[0]);
+	    mac16[1] = (byte) (mac32[3] ^ mac32[1]);
+	    
+	    return mac16;
+	}
+	
 	public static byte[] mac64(Mac mac, byte[] input, byte[] chainedIv) {
 		byte[] concat = new byte[input.length + chainedIv.length];
 		for (int i = 0; i < input.length; i++) {
@@ -197,7 +227,7 @@ public class EncFSCrypto {
 		return result;
 	}
 	
-	private static byte[] streamDecode(Cipher cipher, Mac mac, Key key,
+	public static byte[] streamDecode(Cipher cipher, Mac mac, Key key,
 			byte[] iv, byte[] ivSeed, byte[] data)
 					throws EncFSUnsupportedException,
 					InvalidAlgorithmParameterException,

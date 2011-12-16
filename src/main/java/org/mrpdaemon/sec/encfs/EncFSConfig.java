@@ -20,6 +20,16 @@ package org.mrpdaemon.sec.encfs;
  */
 public class EncFSConfig {
 	
+	/**
+	 * Volume configuration uses nameio/block for filename encryption
+	 */
+	public static final int ENCFS_CONFIG_NAME_ALG_BLOCK = 1;
+	
+	/**
+	 * Volume configuration uses nameio/stream for filename encryption
+	 */
+	public static final int ENCFS_CONFIG_NAME_ALG_STREAM = 2;
+
 	// Size of the volume encryption key in bits.
 	private int volumeKeySize;
 	
@@ -59,6 +69,9 @@ public class EncFSConfig {
 
 	// Iteration count used in the generation of the password derived key.
 	private int iterationCount;
+
+	// Algorithm used for file name encryption
+	private int nameAlgorithm;
 
 	/**
 	 * @return the size of the volume encryption key in bits.
@@ -211,5 +224,19 @@ public class EncFSConfig {
 	 */
 	public void setIterationCount(int iterationCount) {
 		this.iterationCount = iterationCount;
+	}
+
+	/**
+	 * @return algorithm used for filename encryption
+	 */
+	public int getNameAlgorithm() {
+		return nameAlgorithm;
+	}
+
+	/**
+	 * @param nameAlgorithm algorithm used for filename encryption
+	 */
+	public void setNameAlgorithm(int nameAlgorithm) {
+		this.nameAlgorithm = nameAlgorithm;
 	}
 }
