@@ -73,23 +73,28 @@ public class EncFSFileInputStream extends FileInputStream {
 		this.bufCursor = 0;
 		this.blockNum = 0;
 		
-		// Compute file IV
-		byte[] fileHeader = new byte[8];
-	    try {
-			super.read(fileHeader);
-		} catch (IOException e) {
-			throw new EncFSCorruptDataException("Could't read file IV");
-		}
-	    byte[] zeroIv = new byte[8];
-	    //TODO: external IV chaining changes zeroIv
-	    try {
-			this.fileIv = EncFSCrypto.streamDecode(volume, zeroIv, fileHeader);
-		} catch (InvalidAlgorithmParameterException e) {
-			e.printStackTrace();
-		} catch (IllegalBlockSizeException e) {
-			throw new EncFSCorruptDataException(e.getMessage());
-		} catch (BadPaddingException e) {
-			throw new EncFSCorruptDataException(e.getMessage());
+		if (config.isUniqueIV()) {
+			// Compute file IV
+			byte[] fileHeader = new byte[8];
+		    try {
+				super.read(fileHeader);
+			} catch (IOException e) {
+				throw new EncFSCorruptDataException("Could't read file IV");
+			}
+		    byte[] zeroIv = new byte[8];
+		    //TODO: external IV chaining changes zeroIv
+		    try {
+				this.fileIv = EncFSCrypto.streamDecode(volume, zeroIv, fileHeader);
+			} catch (InvalidAlgorithmParameterException e) {
+				e.printStackTrace();
+			} catch (IllegalBlockSizeException e) {
+				throw new EncFSCorruptDataException(e.getMessage());
+			} catch (BadPaddingException e) {
+				throw new EncFSCorruptDataException(e.getMessage());
+			}
+		} else {
+			// No unique IV per file, just use 0
+			this.fileIv = new byte[8];
 		}
 	}
 	
