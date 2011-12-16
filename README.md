@@ -40,6 +40,16 @@ you can generate JavaDoc's using Maven:
 
 Which will place your documentation in ${PROJECT_ROOT}/target/site/apidocs/
 
+## Common issues
+
+If you are getting an exception due to "Illegal key size" and you are using Sun's JDK,
+you need to install the Java Cryptography Extension (JCE) Unlimited Strength Jurisdiction
+Policy Files. See the following link for more information:
+
+http://www.oracle.com/technetwork/java/javase/downloads/jce-6-download-429243.html
+
+Thanks to aormerod for pointing this out!
+
 ## Licensing
 
 encfs-java is licensed under the Lesser GNU Public License, which allows non-GPL
