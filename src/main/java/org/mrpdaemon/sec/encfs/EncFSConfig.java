@@ -16,15 +16,15 @@
 package org.mrpdaemon.sec.encfs;
 
 /**
- * Class representing volume configuration data for an EncFS volume. 
+ * Class representing volume configuration data for an EncFS volume.
  */
 public class EncFSConfig {
-	
+
 	/**
 	 * Volume configuration uses nameio/block for filename encryption
 	 */
 	public static final int ENCFS_CONFIG_NAME_ALG_BLOCK = 1;
-	
+
 	/**
 	 * Volume configuration uses nameio/stream for filename encryption
 	 */
@@ -32,35 +32,35 @@ public class EncFSConfig {
 
 	// Size of the volume encryption key in bits.
 	private int volumeKeySize;
-	
+
 	// Size of encrypted file blocks in bytes.
 	private int blockSize;
 
 	// Whether unique IV is being used.
 	private boolean uniqueIV;
-	
-	/* 
+
+	/*
 	 * Whether name IV chaining is being used. When using IV chaining, each
 	 * parent element in a file's path contributes to the IV that is used to
 	 * encrypt the file's name.
 	 */
 	private boolean chainedNameIV;
-	
+
 	// Whether holes are allowed in files.
 	private boolean holesAllowed;
 
 	// Length of the encoded key data in bytes.
 	private int encodedKeyLength;
-	
+
 	/*
 	 * String containing the Base64 encoded representation of the volume
 	 * encryption key encrypted with the password generated key.
 	 */
 	private String encodedKeyStr;
 
-	// Length of the salt data in bytes. 
+	// Length of the salt data in bytes.
 	private int saltLength;
-	
+
 	/*
 	 * String containing the salt data applied to the password hash for
 	 * generating the password derived key.
@@ -81,7 +81,8 @@ public class EncFSConfig {
 	}
 
 	/**
-	 * @param volumeKeySize the size of the volume encryption key in bits.
+	 * @param volumeKeySize
+	 *            the size of the volume encryption key in bits.
 	 */
 	public void setVolumeKeySize(int volumeKeySize) {
 		this.volumeKeySize = volumeKeySize;
@@ -95,7 +96,8 @@ public class EncFSConfig {
 	}
 
 	/**
-	 * @param blockSize size of encrypted file blocks in bytes.
+	 * @param blockSize
+	 *            size of encrypted file blocks in bytes.
 	 */
 	public void setBlockSize(int blockSize) {
 		this.blockSize = blockSize;
@@ -109,7 +111,8 @@ public class EncFSConfig {
 	}
 
 	/**
-	 * @param uniqueIV whether unique IV is being used.
+	 * @param uniqueIV
+	 *            whether unique IV is being used.
 	 */
 	public void setUniqueIV(boolean uniqueIV) {
 		this.uniqueIV = uniqueIV;
@@ -129,7 +132,8 @@ public class EncFSConfig {
 	 * When using IV chaining, each parent element in a file's path contributes
 	 * to the IV that is used to encrypt the file's name.
 	 * 
-	 * @param chainedNameIV whether name IV chaining is being used.
+	 * @param chainedNameIV
+	 *            whether name IV chaining is being used.
 	 */
 	public void setChainedNameIV(boolean chainedNameIV) {
 		this.chainedNameIV = chainedNameIV;
@@ -143,7 +147,8 @@ public class EncFSConfig {
 	}
 
 	/**
-	 * @param holesAllowed whether holes are allowed in files.
+	 * @param holesAllowed
+	 *            whether holes are allowed in files.
 	 */
 	public void setHolesAllowed(boolean holesAllowed) {
 		this.holesAllowed = holesAllowed;
@@ -157,24 +162,26 @@ public class EncFSConfig {
 	}
 
 	/**
-	 * @param encodedKeyLength length of the encoded key data in bytes.
+	 * @param encodedKeyLength
+	 *            length of the encoded key data in bytes.
 	 */
 	public void setEncodedKeyLength(int encodedKeyLength) {
 		this.encodedKeyLength = encodedKeyLength;
 	}
 
 	/**
-	 * @return string containing the Base64 encoded representation of the
-	 *         volume encryption key encrypted with the password generated key.
+	 * @return string containing the Base64 encoded representation of the volume
+	 *         encryption key encrypted with the password generated key.
 	 */
 	public String getEncodedKeyStr() {
 		return encodedKeyStr;
 	}
 
 	/**
-	 * @param encodedKeyStr  string containing the Base64 encoded
-	 *                       representation of the volume encryption key
-	 *                       encrypted with the password generated key.
+	 * @param encodedKeyStr
+	 *            string containing the Base64 encoded representation of the
+	 *            volume encryption key encrypted with the password generated
+	 *            key.
 	 */
 	public void setEncodedKeyStr(String encodedKeyStr) {
 		this.encodedKeyStr = encodedKeyStr;
@@ -188,23 +195,25 @@ public class EncFSConfig {
 	}
 
 	/**
-	 * @param saltLength length of the salt data in bytes.
+	 * @param saltLength
+	 *            length of the salt data in bytes.
 	 */
 	public void setSaltLength(int saltLength) {
 		this.saltLength = saltLength;
 	}
 
 	/**
-	 * @return string containing the salt data applied to the password hash
-	 *         for generating the password derived key.
+	 * @return string containing the salt data applied to the password hash for
+	 *         generating the password derived key.
 	 */
 	public String getSaltStr() {
 		return saltStr;
 	}
 
 	/**
-	 * @param saltStr string containing the salt data applied to the
-	 *                 password hash for generating the password derived key.
+	 * @param saltStr
+	 *            string containing the salt data applied to the password hash
+	 *            for generating the password derived key.
 	 */
 	public void setSaltStr(String saltStr) {
 		this.saltStr = saltStr;
@@ -219,8 +228,9 @@ public class EncFSConfig {
 	}
 
 	/**
-	 * @param iterationCount iteration count used in the generation of the
-	 *                       password derived key.
+	 * @param iterationCount
+	 *            iteration count used in the generation of the password derived
+	 *            key.
 	 */
 	public void setIterationCount(int iterationCount) {
 		this.iterationCount = iterationCount;
@@ -234,9 +244,19 @@ public class EncFSConfig {
 	}
 
 	/**
-	 * @param nameAlgorithm algorithm used for filename encryption
+	 * @param nameAlgorithm
+	 *            algorithm used for filename encryption
 	 */
 	public void setNameAlgorithm(int nameAlgorithm) {
 		this.nameAlgorithm = nameAlgorithm;
 	}
+
+	@Override
+	public String toString() {
+		return "EncFSConfig [volumeKeySize=" + volumeKeySize + ", blockSize=" + blockSize + ", uniqueIV=" + uniqueIV
+				+ ", chainedNameIV=" + chainedNameIV + ", holesAllowed=" + holesAllowed + ", encodedKeyLength="
+				+ encodedKeyLength + ", encodedKeyStr=" + encodedKeyStr + ", saltLength=" + saltLength + ", saltStr="
+				+ saltStr + ", iterationCount=" + iterationCount + ", nameAlgorithm=" + nameAlgorithm + "]";
+	}
+
 }
