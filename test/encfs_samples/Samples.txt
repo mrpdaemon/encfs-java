@@ -1,0 +1,24 @@
+boxcryptor_1 -- A simple encfs sample with a single test file
+Enter password: test
+/ > ls
+.encfs6.xml
+testfile.txt
+/ > cat testfile.txt
+test file
+
+boxcryptor_2 -- Another sample with a different password & a nested folder
+Enter password: test2
+/ > ls
+.encfs6.xml
+Dir1/
+file1.txt
+/ > cat file1.txt
+Some contents for file
+
+boxcruptor_3 -- raw files contains a file that doens't belong to the encfs_volume (in this case desktop.ini from windows folder customisation)
+Enter password: test
+/ > ls
+.encfs6.xml
+testFileAlpha.txt.txt
+/ > cat testFileAlpha.txt.txt
+Contents for test fileAlpha.tx
