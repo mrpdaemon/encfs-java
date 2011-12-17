@@ -3,6 +3,7 @@ package org.mrpdaemon.sec.encfs;
 import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 
 import org.junit.After;
@@ -31,9 +32,27 @@ public class EncFSVolumeTest {
 	}
 
 	@Test
+	public void testBoxCryptor_1_badPassword() throws FileNotFoundException, EncFSInvalidConfigException,
+			EncFSCorruptDataException, EncFSUnsupportedException {
+		File encFSDir = new File("test/encfs_samples/boxcryptor_1");
+		Assert.assertTrue(encFSDir.exists());
+
+		String password = "badPassword";
+
+		try {
+			new EncFSVolume(encFSDir, password);
+			Assert.fail();
+		} catch (EncFSInvalidPasswordException e) {
+			// this is correct that we should have got this exception
+		}
+	}
+
+	@Test
 	public void testBoxCryptor_1() throws EncFSInvalidPasswordException, EncFSInvalidConfigException,
 			EncFSCorruptDataException, EncFSUnsupportedException, EncFSChecksumException, IOException {
 		File encFSDir = new File("test/encfs_samples/boxcryptor_1");
+		Assert.assertTrue(encFSDir.exists());
+
 		String password = "test";
 		EncFSVolume volume = new EncFSVolume(encFSDir, password);
 		EncFSFile rootDir = volume.getRootDir();
@@ -52,6 +71,8 @@ public class EncFSVolumeTest {
 	public void testBoxCryptor_2() throws EncFSInvalidPasswordException, EncFSInvalidConfigException,
 			EncFSCorruptDataException, EncFSUnsupportedException, EncFSChecksumException, IOException {
 		File encFSDir = new File("test/encfs_samples/boxcryptor_2");
+		Assert.assertTrue(encFSDir.exists());
+
 		String password = "test2";
 		EncFSVolume volume = new EncFSVolume(encFSDir, password);
 		EncFSFile rootDir = volume.getRootDir();
@@ -81,6 +102,8 @@ public class EncFSVolumeTest {
 	public void testBoxCryptor_3() throws EncFSInvalidPasswordException, EncFSInvalidConfigException,
 			EncFSCorruptDataException, EncFSUnsupportedException, EncFSChecksumException, IOException {
 		File encFSDir = new File("test/encfs_samples/boxcryptor_3");
+		Assert.assertTrue(encFSDir.exists());
+
 		String password = "test";
 		EncFSVolume volume = new EncFSVolume(encFSDir, password);
 		EncFSFile rootDir = volume.getRootDir();
