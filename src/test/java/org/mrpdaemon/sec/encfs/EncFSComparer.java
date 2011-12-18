@@ -93,15 +93,13 @@ public class EncFSComparer {
 					return -1;
 				}
 
-				// if (encFsFile.getContentsLength() != decodedFsFile.length())
-				// {
-				// logger.error(
-				// "File {} size miss match ({}, {})",
-				// new Object[] { decodedFsFile.getName(),
-				// encFsFile.getContentsLength(),
-				// decodedFsFile.length() });
-				// return -1;
-				// }
+				if (encFsFile.getContentsLength() != decodedFsFile.length()) {
+					logger.error(
+							"File {} size miss match ({}, {})",
+							new Object[] { decodedFsFile.getName(), encFsFile.getContentsLength(),
+									decodedFsFile.length() });
+					return -1;
+				}
 
 				if (decodedFsFile.isDirectory()) {
 					int subResult = compare(encFsFile, decodedFsFile);
