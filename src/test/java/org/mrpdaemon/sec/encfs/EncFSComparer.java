@@ -8,6 +8,11 @@ import java.util.Comparator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Simple tool that takes a raw encfs volume (& uses encfs-java to unencrypt it)
+ * and compares it to a the same mounted encfs volume to check they are the
+ * same.
+ */
 public class EncFSComparer {
 	private static final Logger logger = LoggerFactory.getLogger(EncFSComparer.class);
 
