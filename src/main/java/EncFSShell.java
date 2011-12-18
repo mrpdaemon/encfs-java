@@ -18,23 +18,32 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.Date;
 import java.util.Stack;
 import java.util.StringTokenizer;
 
-import org.mrpdaemon.sec.encfs.*;
+import org.mrpdaemon.sec.encfs.EncFSChecksumException;
+import org.mrpdaemon.sec.encfs.EncFSCorruptDataException;
+import org.mrpdaemon.sec.encfs.EncFSFile;
+import org.mrpdaemon.sec.encfs.EncFSFileInputStream;
+import org.mrpdaemon.sec.encfs.EncFSInvalidConfigException;
+import org.mrpdaemon.sec.encfs.EncFSInvalidPasswordException;
+import org.mrpdaemon.sec.encfs.EncFSUnsupportedException;
+import org.mrpdaemon.sec.encfs.EncFSVolume;
 
 public class EncFSShell {
 	// EncFSFile stack representing the current directory path
 	private static Stack<EncFSFile> dirStack = new Stack<EncFSFile>();
-			
+
 	// EncFSFile representing the current directory
 	private static EncFSFile curDir;
 
 	// Search method to find a child under the current directory
-	private static EncFSFile findChild(String childName)
-			throws EncFSCorruptDataException, EncFSChecksumException {
+	private static EncFSFile findChild(String childName) throws EncFSCorruptDataException, EncFSChecksumException {
 		EncFSFile[] files = curDir.listFiles();
-		for (EncFSFile file: files) {
+		for (EncFSFile file : files) {
 			if (file.getName().equals(childName)) {
 				return file;
 			}
@@ -44,10 +53,9 @@ public class EncFSShell {
 	}
 
 	public static void main(String[] args) {
-		
+
 		if (args.length != 1) {
-			System.out.println("This application takes one argument:" +
-			                   " path to an EncFS volume");
+			System.out.println("This application takes one argument:" + " path to an EncFS volume");
 			System.exit(1);
 		}
 
@@ -61,7 +69,7 @@ public class EncFSShell {
 			e.printStackTrace();
 			System.exit(1);
 		}
-		
+
 		// Create a new EncFS volume
 		EncFSVolume volume = null;
 		try {
@@ -85,7 +93,7 @@ public class EncFSShell {
 
 		// Start at the root of the EncFS volume
 		curDir = volume.getRootDir();
-		
+
 		// Shell loop
 		while (true) {
 			try {
@@ -93,15 +101,13 @@ public class EncFSShell {
 				if (curDir == volume.getRootDir()) {
 					System.out.print("/ > ");
 				} else {
-					if (curDir.getVolumePath().equals(
-							EncFSVolume.ENCFS_VOLUME_ROOT_PATH)) {
+					if (curDir.getVolumePath().equals(EncFSVolume.ENCFS_VOLUME_ROOT_PATH)) {
 						System.out.print("/" + curDir.getName() + " > ");
 					} else {
-						System.out.print(curDir.getVolumePath() + "/" +
-								         curDir.getName() + " > ");
+						System.out.print(curDir.getVolumePath() + "/" + curDir.getName() + " > ");
 					}
 				}
-				
+
 				// Read next command
 				String inputBuffer = null;
 				try {
@@ -110,23 +116,112 @@ public class EncFSShell {
 					e.printStackTrace();
 					System.exit(1);
 				}
-				
+
 				// Tokenize the input line
 				StringTokenizer st = new StringTokenizer(inputBuffer, " ");
 
 				if (!st.hasMoreTokens()) { // Just ENTER or some spaces
 					continue;
 				}
-				
+
 				// Command processing
 				String command = st.nextToken();
 				if (command.equals("ls")) { // list child directories
-					EncFSFile[] files = curDir.listFiles();
-					for (EncFSFile file : files) {
-						if (file.getFile().isDirectory()) {
-							System.out.println(file.getName() + "/");
-						} else {
-							System.out.println(file.getName());
+
+					final String options;
+					if (st.hasMoreTokens()) {
+						options = st.nextToken();
+					} else {
+						options = "";
+					}
+
+					if (options == null) {
+						EncFSFile[] files = curDir.listFiles();
+						for (EncFSFile file : files) {
+							if (file.getFile().isDirectory()) {
+								System.out.println(file.getName() + "/");
+							} else {
+								System.out.println(file.getName());
+							}
+						}
+					} else {
+						EncFSFile[] files = curDir.listFiles();
+
+						Comparator<EncFSFile> comparator = new Comparator<EncFSFile>() {
+
+							private final boolean reverse = (options.contains("r"));
+							private final boolean sortByTime = (options.contains("t"));
+
+							public int compare(EncFSFile arg0, EncFSFile arg1) {
+								int result;
+								if (sortByTime) {
+									long diff = arg0.getFile().lastModified() - arg1.getFile().lastModified();
+									if (diff > 0) {
+										result = -1;
+									} else if (diff == 0) {
+										result = 0;
+									} else {
+										result = 1;
+									}
+								} else {
+									result = arg0.getName().compareTo(arg1.getName());
+								}
+
+								if (reverse) {
+									result = -1 * result;
+								}
+
+								return result;
+							}
+
+						};
+
+						Arrays.sort(files, comparator);
+
+						boolean longListingFormat = options.contains("l");
+						for (EncFSFile file : files) {
+							if (longListingFormat) {
+								if (file.getFile().isDirectory()) {
+									System.out.print("d");
+								} else {
+									System.out.print("-");
+								}
+
+								if (file.getFile().canRead()) {
+									System.out.print("r");
+								} else {
+									System.out.print("-");
+								}
+
+								if (file.getFile().canWrite()) {
+									System.out.print("w");
+								} else {
+									System.out.print("-");
+								}
+
+								if (file.getFile().canExecute()) {
+									System.out.print("x");
+								} else {
+									System.out.print("-");
+								}
+
+								System.out.print("???");
+								System.out.print("???");
+
+								System.out.print(" ");
+								String tmpSize = "         " + file.getContentsLength();
+								System.out.print(tmpSize.substring(tmpSize.length() - 9));
+
+								System.out.print(" ");
+								System.out.print(new Date(file.getFile().lastModified()));
+
+								System.out.print(" ");
+								System.out.print(file.getName());
+
+								System.out.println();
+							} else {
+								System.out.println(file.getName());
+							}
 						}
 					}
 				} else if (command.equals("exit")) { // bail out
@@ -137,7 +232,7 @@ public class EncFSShell {
 						continue;
 					}
 					String dirName = st.nextToken();
-					
+
 					// .. handling
 					if (dirName.equals("..")) {
 						if (dirStack.empty()) {
@@ -147,7 +242,7 @@ public class EncFSShell {
 						curDir = dirStack.pop(); // go back one level
 						continue;
 					}
-					
+
 					// regular directory name, find and cd into it
 					EncFSFile file = findChild(dirName);
 					if (file != null) {
@@ -167,7 +262,7 @@ public class EncFSShell {
 						continue;
 					}
 					String fileName = st.nextToken();
-					
+
 					// Find and print file
 					EncFSFile file = findChild(fileName);
 					if (file != null) {
@@ -175,7 +270,7 @@ public class EncFSShell {
 							System.out.println("Not a file");
 							continue;
 						}
-						
+
 						EncFSFileInputStream efis = new EncFSFileInputStream(file);
 						int bytesRead = 0;
 						while (bytesRead >= 0) {
