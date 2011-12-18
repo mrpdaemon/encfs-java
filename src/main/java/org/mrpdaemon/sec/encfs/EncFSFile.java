@@ -25,6 +25,8 @@ import java.io.FileFilter;
  */
 public class EncFSFile {
 
+	private static final long HEADER_SIZE = 8; // 64 bit initialization vector..
+
 	// Volume path of this file
 	private final String volumePath;
 
@@ -212,5 +214,21 @@ public class EncFSFile {
 
 	public boolean isDirectory() {
 		return file.isDirectory();
+	}
+
+	public long getContentsLength() {
+		if (isDirectory()) {
+			return 0;
+		} else {
+			boolean haveHeader = volume.getConfig().isUniqueIV();
+
+			long size = file.length();
+
+			if (haveHeader && size > 0) {
+				size -= HEADER_SIZE;
+			}
+
+			return size;
+		}
 	}
 }
