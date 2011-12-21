@@ -1,6 +1,5 @@
 package org.mrpdaemon.sec.encfs;
 
-import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -45,6 +44,46 @@ public class EncFSVolumeTest {
 		} catch (EncFSInvalidPasswordException e) {
 			// this is correct that we should have got this exception
 		}
+	}
+
+	@Test
+	public void testDefaultVol() throws EncFSInvalidPasswordException, EncFSInvalidConfigException,
+			EncFSCorruptDataException, EncFSUnsupportedException, EncFSChecksumException, IOException {
+		File encFSDir = new File("test/encfs_samples/testvol-default");
+		Assert.assertTrue(encFSDir.exists());
+
+		String password = "test";
+		EncFSVolume volume = new EncFSVolume(encFSDir, password);
+		EncFSFile rootDir = volume.getRootDir();
+		EncFSFile[] files = rootDir.listFiles();
+		Assert.assertEquals(1, files.length);
+
+		EncFSFile encFSFile = files[0];
+		Assert.assertFalse(encFSFile.isDirectory());
+		Assert.assertEquals("test.txt", encFSFile.getName());
+
+		String contents = readInputStreamAsString(encFSFile);
+		Assert.assertEquals("This is a test file.", contents);
+	}
+
+	@Test
+	public void testNoUniqueIV() throws EncFSInvalidPasswordException, EncFSInvalidConfigException,
+			EncFSCorruptDataException, EncFSUnsupportedException, EncFSChecksumException, IOException {
+		File encFSDir = new File("test/encfs_samples/testvol-nouniqueiv");
+		Assert.assertTrue(encFSDir.exists());
+
+		String password = "test";
+		EncFSVolume volume = new EncFSVolume(encFSDir, password);
+		EncFSFile rootDir = volume.getRootDir();
+		EncFSFile[] files = rootDir.listFiles();
+		Assert.assertEquals(1, files.length);
+
+		EncFSFile encFSFile = files[0];
+		Assert.assertFalse(encFSFile.isDirectory());
+		Assert.assertEquals("testfile.txt", encFSFile.getName());
+
+		String contents = readInputStreamAsString(encFSFile);
+		Assert.assertEquals("Test file for non-unique-IV file.", contents);
 	}
 
 	@Test
