@@ -1,3 +1,22 @@
+Volumes created via EncFS 1.7.4:
+
+testvol-default -- Default parameters (non-expert mode)
+Enter password: test
+/ > ls
+test.txt
+/ > cat test.txt
+This is a test file.
+
+testvol-nouniqueiv -- Test volume without unique IV (no per-file IV header)
+Enter password: test
+/ > ls
+testfile.txt
+/ > cat testfile.txt
+Test file for non-unique-IV file.
+
+
+Volumes created via BoxCryptor:
+
 boxcryptor_1 -- A simple encfs sample with a single test file
 Enter password: test
 / > ls
@@ -15,7 +34,7 @@ file1.txt
 / > cat file1.txt
 Some contents for file
 
-boxcruptor_3 -- raw files contains a file that doens't belong to the encfs_volume (in this case desktop.ini from windows folder customisation)
+boxcryptor_3 -- raw files contains a file that doens't belong to the encfs_volume (in this case desktop.ini from windows folder customisation)
 Enter password: test
 / > ls
 .encfs6.xml

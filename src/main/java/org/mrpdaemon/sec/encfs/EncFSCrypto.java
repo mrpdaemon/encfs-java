@@ -20,7 +20,6 @@ import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.Key;
 import java.security.NoSuchAlgorithmException;
-import java.security.SecureRandom;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.KeySpec;
 import java.util.Arrays;
@@ -38,7 +37,6 @@ import javax.crypto.spec.PBEKeySpec;
 import javax.crypto.spec.SecretKeySpec;
 
 public class EncFSCrypto {
-	private static final SecureRandom secureRandom = new SecureRandom();
 
 	/**
 	 * Create a new Mac object for the given key.
@@ -203,11 +201,10 @@ public class EncFSCrypto {
 		return mac16;
 	}
 
-	private static void unshuffleBytes(byte[] buf) {
-		int size = buf.length;
-
-		for (int i = size - 1; i > 0; --i)
-			buf[i] ^= buf[i - 1];
+	private static void unshuffleBytes(byte[] input) {
+		for (int i = (input.length - 1); i > 0; i--)
+			// Note size - 1
+			input[i] ^= input[i - 1];
 	}
 
 	private static void shuffleBytes(byte[] buf) {
@@ -219,20 +216,17 @@ public class EncFSCrypto {
 	}
 
 	private static byte[] flipBytes(byte[] input) {
-		int size = input.length;
-		byte[] result = new byte[size];
+		byte[] result = new byte[input.length];
 
 		int offset = 0;
-		int bytesLeft = size;
+		int bytesLeft = input.length;
 
 		while (bytesLeft > 0) {
 			// TODO: 64 should be defined?
 			int toFlip = Math.min(64, bytesLeft);
 
-			int toFlipOffSet = offset + toFlip;
-			for (int i = 0; i < toFlip; i++) {
-				result[offset + i] = input[toFlipOffSet - (i + 1)];
-			}
+			for (int i = 0; i < toFlip; i++)
+				result[offset + i] = input[offset + toFlip - i - 1];
 
 			bytesLeft -= toFlip;
 			offset += toFlip;
@@ -254,7 +248,6 @@ public class EncFSCrypto {
 		} else {
 			throw new EncFSUnsupportedException("Unsupported IV length");
 		}
-		int size = data.length;
 
 		cipherInit(key, mac, Cipher.DECRYPT_MODE, cipher, iv, ivSeedPlusOne);
 		byte[] firstDecResult = cipher.doFinal(data);
@@ -275,6 +268,17 @@ public class EncFSCrypto {
 	public static byte[] streamDecode(EncFSVolume volume, byte[] ivSeed, byte[] data) throws EncFSUnsupportedException,
 			InvalidAlgorithmParameterException, IllegalBlockSizeException, BadPaddingException {
 		return streamDecode(volume.getStreamCipher(), volume.getMac(), volume.getKey(), volume.getIV(), ivSeed, data);
+	}
+
+	public static byte[] blockDecode(EncFSVolume volume, byte[] ivSeed, byte[] data)
+			throws InvalidAlgorithmParameterException, IllegalBlockSizeException, BadPaddingException {
+		if (data.length != volume.getConfig().getBlockSize()) {
+			throw new IllegalBlockSizeException();
+		}
+		Cipher cipher = volume.getBlockCipher();
+		cipherInit(volume, Cipher.DECRYPT_MODE, cipher, ivSeed);
+		byte[] result = cipher.doFinal(data);
+		return result;
 	}
 
 	public static byte[] streamEncode(EncFSVolume volume, byte[] ivSeed, byte[] data) throws EncFSUnsupportedException,
@@ -309,17 +313,6 @@ public class EncFSCrypto {
 		cipherInit(key, mac, Cipher.ENCRYPT_MODE, cipher, iv, ivSeedPlusOne);
 		byte[] result = cipher.doFinal(flipBytesResult);
 
-		return result;
-	}
-
-	public static byte[] blockDecode(EncFSVolume volume, byte[] ivSeed, byte[] data)
-			throws InvalidAlgorithmParameterException, IllegalBlockSizeException, BadPaddingException {
-		if (data.length != volume.getConfig().getBlockSize()) {
-			throw new IllegalBlockSizeException();
-		}
-		Cipher cipher = volume.getBlockCipher();
-		cipherInit(volume, Cipher.DECRYPT_MODE, cipher, ivSeed);
-		byte[] result = cipher.doFinal(data);
 		return result;
 	}
 
@@ -437,7 +430,6 @@ public class EncFSCrypto {
 	 */
 	public static String decodeName(EncFSVolume volume, String fileName, String volumePath)
 			throws EncFSCorruptDataException, EncFSChecksumException {
-
 		byte[] base256FileName = EncFSBase64.decodeEncfs(fileName.getBytes());
 
 		byte[] encFileName = Arrays.copyOfRange(base256FileName, 2, base256FileName.length);
@@ -525,7 +517,6 @@ public class EncFSCrypto {
 			mac16 = EncFSCrypto.mac16(volume.getMac(), decFileName);
 		}
 		byte[] expectedMac = Arrays.copyOfRange(base256FileName, 0, 2);
-
 		if (!Arrays.equals(mac16, expectedMac)) {
 			throw new EncFSChecksumException("Mismatch in file name checksum");
 		}

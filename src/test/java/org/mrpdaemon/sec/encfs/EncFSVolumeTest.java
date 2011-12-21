@@ -1,15 +1,9 @@
 package org.mrpdaemon.sec.encfs;
 
-import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.security.InvalidAlgorithmParameterException;
-import java.util.Arrays;
-
-import javax.crypto.BadPaddingException;
-import javax.crypto.IllegalBlockSizeException;
 
 import org.junit.After;
 import org.junit.AfterClass;
@@ -54,6 +48,46 @@ public class EncFSVolumeTest {
 	}
 
 	@Test
+	public void testDefaultVol() throws EncFSInvalidPasswordException, EncFSInvalidConfigException,
+			EncFSCorruptDataException, EncFSUnsupportedException, EncFSChecksumException, IOException {
+		File encFSDir = new File("test/encfs_samples/testvol-default");
+		Assert.assertTrue(encFSDir.exists());
+
+		String password = "test";
+		EncFSVolume volume = new EncFSVolume(encFSDir, password);
+		EncFSFile rootDir = volume.getRootDir();
+		EncFSFile[] files = rootDir.listFiles();
+		Assert.assertEquals(1, files.length);
+
+		EncFSFile encFSFile = files[0];
+		Assert.assertFalse(encFSFile.isDirectory());
+		Assert.assertEquals("test.txt", encFSFile.getName());
+
+		String contents = readInputStreamAsString(encFSFile);
+		Assert.assertEquals("This is a test file.", contents);
+	}
+
+	@Test
+	public void testNoUniqueIV() throws EncFSInvalidPasswordException, EncFSInvalidConfigException,
+			EncFSCorruptDataException, EncFSUnsupportedException, EncFSChecksumException, IOException {
+		File encFSDir = new File("test/encfs_samples/testvol-nouniqueiv");
+		Assert.assertTrue(encFSDir.exists());
+
+		String password = "test";
+		EncFSVolume volume = new EncFSVolume(encFSDir, password);
+		EncFSFile rootDir = volume.getRootDir();
+		EncFSFile[] files = rootDir.listFiles();
+		Assert.assertEquals(1, files.length);
+
+		EncFSFile encFSFile = files[0];
+		Assert.assertFalse(encFSFile.isDirectory());
+		Assert.assertEquals("testfile.txt", encFSFile.getName());
+
+		String contents = readInputStreamAsString(encFSFile);
+		Assert.assertEquals("Test file for non-unique-IV file.", contents);
+	}
+
+	@Test
 	public void testBoxCryptor_1() throws EncFSInvalidPasswordException, EncFSInvalidConfigException,
 			EncFSCorruptDataException, EncFSUnsupportedException, EncFSChecksumException, IOException {
 		File encFSDir = new File("test/encfs_samples/boxcryptor_1");
@@ -71,67 +105,6 @@ public class EncFSVolumeTest {
 
 		String contents = readInputStreamAsString(encFSFile);
 		Assert.assertEquals("test file\r", contents);
-	}
-
-	@Ignore("Still under development")
-	@Test
-	public void testBoxCryptor_1_encode() throws EncFSInvalidPasswordException, EncFSInvalidConfigException,
-			EncFSCorruptDataException, EncFSUnsupportedException, EncFSChecksumException, IOException {
-		File encFSDir = new File("test/encfs_samples/boxcryptor_1");
-		Assert.assertTrue(encFSDir.exists());
-
-		String password = "test";
-		EncFSVolume volume = new EncFSVolume(encFSDir, password);
-
-		String fileName = "W3gLoUqL-0YzUh8udP8";
-		String volumePath = "/";
-
-		String decName = EncFSCrypto.decodeName(volume, fileName, volumePath);
-
-		String encName = EncFSCrypto.encodeName(volume, decName, volumePath);
-		Assert.assertEquals(fileName, encName);
-	}
-
-	@Ignore("Still under development")
-	@Test
-	public void testBoxCryptor_1_encode2() throws EncFSInvalidPasswordException, EncFSInvalidConfigException,
-			EncFSCorruptDataException, EncFSUnsupportedException, EncFSChecksumException, IOException,
-			InvalidAlgorithmParameterException, IllegalBlockSizeException, BadPaddingException {
-		File encFSDir = new File("test/encfs_samples/boxcryptor_1");
-		Assert.assertTrue(encFSDir.exists());
-
-		String password = "test";
-		EncFSVolume volume = new EncFSVolume(encFSDir, password);
-
-		// byte[] ivSeed = new byte[4];
-		// byte[] orig = new byte[] { 1, 2, 3, 4 };
-
-		byte[] orig = new byte[] { 116, 101, 115, 116, 102, 105, 108, 101, 46, 116, 120, 116 };
-		byte[] ivSeed = new byte[] { 0, 0, 0, 0, 0, 0, 98, -63 };
-
-		byte[] b1 = EncFSCrypto.streamEncode(volume, ivSeed, Arrays.copyOf(orig, orig.length));
-		byte[] b2 = EncFSCrypto.streamDecode(volume, ivSeed, Arrays.copyOf(b1, b1.length));
-
-		Assert.assertArrayEquals(orig, b2);
-	}
-
-	@Ignore("Still under development")
-	@Test
-	public void testBoxCryptor_1_encode3() throws EncFSInvalidPasswordException, EncFSInvalidConfigException,
-			EncFSCorruptDataException, EncFSUnsupportedException, EncFSChecksumException, IOException,
-			InvalidAlgorithmParameterException, IllegalBlockSizeException, BadPaddingException {
-
-		byte[] in = new byte[] { 87, 51, 103, 76, 111, 85, 113, 76, 45, 48, 89, 122, 85, 104, 56, 117, 100, 80, 56 };
-		byte[] out = new byte[] { 98, -63, 94, 52, 104, 95, -127, 64, -2, 96, -85, -24, -23, -90 };
-
-		byte[] out1 = EncFSBase64.decodeEncfs(in);
-		Assert.assertArrayEquals(out, out1);
-
-		byte[] in1 = EncFSBase64.encodeEncfs(out);
-		String in1s = new String(in1);
-		String ins = new String(in);
-
-		Assert.assertArrayEquals(in, in1);
 	}
 
 	@Test
@@ -181,6 +154,25 @@ public class EncFSVolumeTest {
 		Assert.assertNotNull(dirListing);
 	}
 
+	@Ignore("Still under development")
+	@Test
+	public void testBoxCryptor_1_encode() throws EncFSInvalidPasswordException, EncFSInvalidConfigException,
+			EncFSCorruptDataException, EncFSUnsupportedException, EncFSChecksumException, IOException {
+		File encFSDir = new File("test/encfs_samples/boxcryptor_1");
+		Assert.assertTrue(encFSDir.exists());
+
+		String password = "test";
+		EncFSVolume volume = new EncFSVolume(encFSDir, password);
+
+		String fileName = "W3gLoUqL-0YzUh8udP8";
+		String volumePath = "/";
+
+		String decName = EncFSCrypto.decodeName(volume, fileName, volumePath);
+
+		String encName = EncFSCrypto.encodeName(volume, decName, volumePath);
+		Assert.assertEquals(fileName, encName);
+	}
+
 	private static String GetDirListing(EncFSFile rootDir, boolean recursive) throws EncFSCorruptDataException,
 			EncFSChecksumException {
 		StringBuilder sb = new StringBuilder();
@@ -213,18 +205,13 @@ public class EncFSVolumeTest {
 		ByteArrayOutputStream buf = new ByteArrayOutputStream();
 		EncFSFileInputStream efis = new EncFSFileInputStream(encFSFile);
 		try {
-			BufferedInputStream bis = new BufferedInputStream(efis);
-			try {
-				int bytesRead = 0;
-				while (bytesRead >= 0) {
-					byte[] readBuf = new byte[128];
-					bytesRead = bis.read(readBuf);
-					if (bytesRead >= 0) {
-						buf.write(readBuf, 0, bytesRead);
-					}
+			int bytesRead = 0;
+			while (bytesRead >= 0) {
+				byte[] readBuf = new byte[128];
+				bytesRead = efis.read(readBuf);
+				if (bytesRead >= 0) {
+					buf.write(readBuf, 0, bytesRead);
 				}
-			} finally {
-				bis.close();
 			}
 		} finally {
 			efis.close();

@@ -24,7 +24,7 @@ import java.io.FileFilter;
  * Useful for decryption of file names.
  */
 public class EncFSFile {
-
+	
 	private static final long HEADER_SIZE = 8; // 64 bit initialization vector..
 
 	// Volume path of this file
@@ -215,7 +215,7 @@ public class EncFSFile {
 	public boolean isDirectory() {
 		return file.isDirectory();
 	}
-
+	
 	public long getContentsLength() {
 		if (isDirectory()) {
 			return 0;
@@ -230,5 +230,5 @@ public class EncFSFile {
 
 			return size;
 		}
-	}
+	}	
 }
