@@ -146,19 +146,14 @@ public class EncFSVolumeTest {
 		ByteArrayOutputStream buf = new ByteArrayOutputStream();
 		EncFSFileInputStream efis = new EncFSFileInputStream(encFSFile);
 		try {
-			BufferedInputStream bis = new BufferedInputStream(efis);
-			try {
-				int bytesRead = 0;
-				while (bytesRead >= 0) {
-					byte[] readBuf = new byte[128];
-					bytesRead = bis.read(readBuf);
-					if (bytesRead >= 0) {
-						buf.write(readBuf, 0, bytesRead);
-					}
-				}
-			} finally {
-				bis.close();
-			}
+			int bytesRead = 0;
+ 			while (bytesRead >= 0) {
+ 				byte[] readBuf = new byte[128];
+ 				bytesRead = efis.read(readBuf);
+ 				if (bytesRead >= 0) {
+ 					buf.write(readBuf, 0, bytesRead);
+ 				}
+ 			}
 		} finally {
 			efis.close();
 		}
