@@ -510,6 +510,8 @@ public class EncFSCrypto {
 		}
 
 		// Verify decryption worked
+		// current versions store the checksum at the beginning (encfs 0.x
+		// stored checksums at the end)
 		byte[] mac16;
 		if (volume.getConfig().isChainedNameIV()) {
 			mac16 = EncFSCrypto.mac16(volume.getMac(), decFileName, chainIv);
@@ -620,6 +622,9 @@ public class EncFSCrypto {
 				throw new EncFSCorruptDataException(e.getMessage());
 			}
 		}
+
+		// current versions store the checksum at the beginning (encfs 0.x
+		// stored checksums at the end)
 
 		byte[] base256FileName = new byte[encFileName.length + 2];
 		base256FileName[0] = mac16[0];
