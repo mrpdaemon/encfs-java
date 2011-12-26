@@ -42,6 +42,9 @@ public class EncFSShell {
 
 	// Search method to find a child under the current directory
 	private static EncFSFile findChild(String childName) throws EncFSCorruptDataException, EncFSChecksumException {
+		// curDir.getVolume().getFile(curDir.getVolumePath() + "/" +
+		// curDir.getName(), childName);
+
 		EncFSFile[] files = curDir.listFiles();
 		for (EncFSFile file : files) {
 			if (file.getName().equals(childName)) {
@@ -223,6 +226,75 @@ public class EncFSShell {
 								System.out.println(file.getName());
 							}
 						}
+					}
+				} else if (command.equals("mkdir") || command.equals("mkdirs")) { // make
+																					// directory
+					String dirName = (st.hasMoreTokens() ? st.nextToken() : null);
+					if (dirName == null) {
+						System.out.println("mkdir {dirname}");
+						continue;
+					}
+
+					boolean result;
+					if (command.equals("mkdir")) {
+						result = curDir.mkdir(dirName);
+					} else {
+						result = curDir.mkdirs(dirName);
+					}
+
+					System.out.println(command + " " + dirName + " result was: " + result);
+
+				} else if (command.equals("rm")) { // make directory
+					String fileName = (st.hasMoreTokens() ? st.nextToken() : null);
+					if (fileName == null) {
+						System.out.println("rm {filename}");
+						continue;
+					}
+
+					boolean result = curDir.delete(fileName);
+
+					System.out.println("rm " + fileName + " result was: " + result);
+
+				} else if (command.equals("mv")) { // move / rename
+
+					String[] tokens = new String[3];
+					int tokenCount = 0;
+					for (int i = 0; i < tokens.length; i++) {
+						if (st.hasMoreTokens()) {
+							tokens[tokenCount++] = st.nextToken();
+						}
+
+					}
+
+					String fileName1 = null, fileName2 = null;
+					boolean force;
+					if (tokenCount == 2) {
+						force = false;
+						fileName1 = tokens[0];
+						fileName2 = tokens[1];
+					} else {
+						force = "/f".equals(tokens[0]);
+						fileName1 = tokens[1];
+						fileName2 = tokens[2];
+					}
+
+					if (fileName1 == null || fileName2 == null) {
+						System.out.println("mv {src} {dst}");
+					} else {
+						EncFSFile file1 = findChild(fileName1);
+						EncFSFile file2 = findChild(fileName2);
+
+						if (file1 == null) {
+							System.out.println("file " + fileName1 + " not found");
+							continue;
+						}
+						if (force == false && file2 != null) {
+							System.out.println("file " + fileName2 + " already exists, aborting");
+							continue;
+						}
+
+						boolean result = file1.renameTo(fileName2);
+						System.out.println("Result of move " + fileName1 + " to " + fileName2 + " was: " + result);
 					}
 				} else if (command.equals("exit")) { // bail out
 					System.exit(0);

@@ -534,11 +534,39 @@ public class EncFSCrypto {
 		return new String(Arrays.copyOfRange(decFileName, 0, decFileName.length - padLen));
 	}
 
+	public static String encodePath(EncFSVolume volume, String pathname, String volumePath)
+			throws EncFSCorruptDataException {
+		String[] pathParts = pathname.split("/");
+		String tmpVolumePath = volumePath;
+		String result = "";
+		if (pathname.startsWith("/")) {
+			result += "/";
+		}
+
+		for (int i = 0; i < pathParts.length; i++) {
+			String pathPart = pathParts[i];
+			String toEncFileName = EncFSCrypto.encodeName(volume, pathPart, tmpVolumePath);
+
+			if (result.length() > 0 && result.endsWith("/") == false) {
+				result += "/";
+			}
+
+			result += toEncFileName;
+
+			if (tmpVolumePath.endsWith("/") == false) {
+				tmpVolumePath += "/";
+			}
+			tmpVolumePath += pathPart;
+		}
+
+		return result;
+	}
+
 	/*
 	 * Encode the given fileName under the given volume and volume path
 	 */
 	public static String encodeName(EncFSVolume volume, String fileName, String volumePath)
-			throws EncFSCorruptDataException, EncFSChecksumException {
+			throws EncFSCorruptDataException {
 		Cipher cipher;
 		byte[] decFileName = fileName.getBytes();
 

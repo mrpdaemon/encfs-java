@@ -24,7 +24,7 @@ import java.io.FileFilter;
  * Useful for decryption of file names.
  */
 public class EncFSFile {
-	
+
 	private static final long HEADER_SIZE = 8; // 64 bit initialization vector..
 
 	// Volume path of this file
@@ -215,7 +215,7 @@ public class EncFSFile {
 	public boolean isDirectory() {
 		return file.isDirectory();
 	}
-	
+
 	public long getContentsLength() {
 		if (isDirectory()) {
 			return 0;
@@ -230,5 +230,79 @@ public class EncFSFile {
 
 			return size;
 		}
-	}	
+	}
+
+	public boolean renameTo(String fileName) throws EncFSCorruptDataException {
+		if (fileName.contains("/") == false) {
+			return renameTo(volumePath, fileName);
+		} else {
+			String tmpVolumePath = fileName.substring(0, fileName.lastIndexOf("/"));
+			if (tmpVolumePath.length() == 0) {
+				tmpVolumePath = volume.getRootDir().getVolumePath();
+			}
+			String tmpFileName = fileName.substring(fileName.lastIndexOf("/") + 1);
+
+			return renameTo(tmpVolumePath, tmpFileName);
+		}
+	}
+
+	public boolean renameTo(String targetVolumePath, String fileName) throws EncFSCorruptDataException {
+		if (fileName.contains("/")) {
+			throw new IllegalArgumentException("file name must not contain /");
+		}
+
+		String toEncFileName = EncFSCrypto.encodeName(volume, fileName, targetVolumePath);
+		String toEncVolumePath;
+		if (targetVolumePath.startsWith("/")) {
+			toEncVolumePath = EncFSCrypto.encodePath(volume, targetVolumePath, "/");
+		} else {
+			toEncVolumePath = EncFSCrypto.encodePath(volume, targetVolumePath, volumePath);
+		}
+
+		File toEncFile = new File(volume.getRootDir().getFile().getAbsolutePath() + "/" + toEncVolumePath,
+				toEncFileName);
+		return file.renameTo(toEncFile);
+	}
+
+	public boolean mkdir(String dirName) throws EncFSCorruptDataException {
+		if (!isDirectory()) {
+			throw new IllegalArgumentException("Files can't make directories");
+		}
+
+		if (dirName.startsWith("/")) {
+			return volume.getRootDir().mkdir(dirName.substring(1));
+		} else {
+			String toEncFileName = EncFSCrypto.encodePath(volume, dirName, volumePath);
+			File toEncFile = new File(file.getAbsolutePath(), toEncFileName);
+			boolean result = toEncFile.mkdir();
+			return result;
+		}
+	}
+
+	public boolean mkdirs(String dirName) throws EncFSCorruptDataException {
+		if (!isDirectory()) {
+			throw new IllegalArgumentException("Files can't make directories");
+		}
+
+		if (dirName.startsWith("/")) {
+			return volume.getRootDir().mkdirs(dirName.substring(1));
+		} else {
+			String toEncFileName = EncFSCrypto.encodePath(volume, dirName, volumePath);
+			File toEncFile = new File(file.getAbsolutePath(), toEncFileName);
+			boolean result = toEncFile.mkdirs();
+			return result;
+		}
+	}
+
+	public boolean delete(String fileName) throws EncFSCorruptDataException {
+		if (fileName.startsWith("/")) {
+			return volume.getRootDir().delete(fileName.substring(1));
+		} else {
+			String toEncFileName = EncFSCrypto.encodePath(volume, fileName, volumePath);
+			File toEncFile = new File(file.getAbsolutePath(), toEncFileName);
+			boolean result = toEncFile.delete();
+
+			return result;
+		}
+	}
 }
