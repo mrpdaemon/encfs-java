@@ -10,7 +10,6 @@ import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 
 public class EncFSVolumeTest {
@@ -154,7 +153,6 @@ public class EncFSVolumeTest {
 		Assert.assertNotNull(dirListing);
 	}
 
-	@Ignore("Still under development")
 	@Test
 	public void testBoxCryptor_1_encode() throws EncFSInvalidPasswordException, EncFSInvalidConfigException,
 			EncFSCorruptDataException, EncFSUnsupportedException, EncFSChecksumException, IOException {
@@ -168,6 +166,7 @@ public class EncFSVolumeTest {
 		String volumePath = "/";
 
 		String decName = EncFSCrypto.decodeName(volume, fileName, volumePath);
+		Assert.assertEquals("testfile.txt", decName);
 
 		String encName = EncFSCrypto.encodeName(volume, decName, volumePath);
 		Assert.assertEquals(fileName, encName);

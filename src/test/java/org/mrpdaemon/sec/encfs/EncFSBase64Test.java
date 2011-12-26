@@ -7,12 +7,10 @@ import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
 
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
 
 public class EncFSBase64Test {
 
-	@Ignore("Still under development")
 	@Test
 	public void testDecodeEncodeEncfs() throws EncFSInvalidPasswordException, EncFSInvalidConfigException,
 			EncFSCorruptDataException, EncFSUnsupportedException, EncFSChecksumException, IOException,
@@ -25,9 +23,36 @@ public class EncFSBase64Test {
 		Assert.assertArrayEquals(out, out1);
 
 		byte[] in1 = EncFSBase64.encodeEncfs(out);
-		String in1s = new String(in1);
-		String ins = new String(in);
 
 		Assert.assertArrayEquals(in, in1);
+	}
+
+	private static String printBits(byte byteVal) {
+		return printBits(new byte[] { byteVal });
+	}
+
+	private static String printBits(long byteVal) {
+		return printBits(new byte[] { (byte) byteVal });
+	}
+
+	private static String printBits(byte[] bytes) {
+		StringBuilder sb = new StringBuilder();
+		for (int i = 0; i < bytes.length; i++) {
+			if (i > 0) {
+				sb.append(' ');
+			}
+
+			int b = bytes[i];
+
+			long cv = (b & 0x00ff);
+
+			for (int bit = 7; bit >= 0; bit--) {
+				if ((cv & (int) Math.pow(2, bit)) > 0)
+					sb.append('1');
+				else
+					sb.append('0');
+			}
+		}
+		return sb.toString();
 	}
 }

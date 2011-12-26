@@ -15,6 +15,8 @@
 
 package org.mrpdaemon.sec.encfs;
 
+import java.util.Arrays;
+
 public class EncFSBase64 {
 
 	/* ******** P U B L I C F I E L D S ******** */
@@ -1306,8 +1308,94 @@ public class EncFSBase64 {
 		return bytes;
 	} // end decode
 
-	public static byte[] encodeEncfs(byte[] encFileName) {
-		throw new UnsupportedOperationException("Not implemented");
+	/*
+	 * EncFS variant of encode.
+	 * 
+	 * firstly converts the stream to base 64 by stored as the higher bits of
+	 * the last byte in the low bits of next byte (using only 6 bits per byte)
+	 * 
+	 * Input Bytes: aaAAAAAA bbbbBBBB ccccccCC
+	 * 
+	 * Output Bytes: 00AAAAAA 00BBBBaa 00CCbbbb 00ccccccc
+	 */
+	public static byte[] encodeEncfs(byte[] src) {
+		int origLength = src.length;
+
+		int resultSize = (src.length * 8 + 5) / 6;
+		byte[] result = new byte[resultSize];
+
+		int srcIdx = 0;
+		int dstIdx = 0;
+
+		long mask1 = (1 << 6) - 1; // 00111111
+		long mask1residual = 192; // 11000000
+		long mask2 = (1 << 4) - 1; // 00001111
+		long mask2residual = 240; // 11110000
+		long mask3 = (1 << 2) - 1; // 00000011
+		long mask3residual = 252; // 11111100
+
+		while (srcIdx < src.length) {
+			boolean buffer1Valid = srcIdx < origLength;
+			boolean buffer2Valid = srcIdx + 1 < origLength;
+			boolean buffer3Valid = srcIdx + 2 < origLength;
+
+			long buffer1 = 0, buffer2 = 0, buffer3 = 0;
+			if (buffer1Valid) {
+				buffer1 |= (src[srcIdx] & 0xff);
+			}
+			if (buffer2Valid) {
+				buffer2 |= (src[srcIdx + 1] & 0xff);
+			}
+			if (buffer3Valid) {
+				buffer3 |= (src[srcIdx + 2] & 0xff);
+			}
+
+			byte out1 = (byte) (buffer1 & mask1);
+			long buffer1Residual = (buffer1 & mask1residual);
+
+			byte out2 = (byte) ((buffer1Residual >> 6) & mask3 | (((byte) buffer2 & mask2) << 2));
+			long buffer2Residual = (byte) (buffer2 & mask2residual);
+
+			byte out3 = (byte) ((buffer2Residual >> 4) & mask2 | ((buffer3 & mask3) << 4));
+			long buffer3Residual = (byte) (buffer3 & mask3residual);
+
+			byte out4 = (byte) ((buffer3Residual >> 2) & mask1);
+
+			result[dstIdx++] = out1;
+			result[dstIdx++] = out2;
+			result[dstIdx++] = out3;
+			if (out4 != 0) {
+				result[dstIdx++] = out4;
+			}
+
+			srcIdx += 3;
+		}
+
+		if (dstIdx != result.length) {
+			result = Arrays.copyOfRange(result, 0, dstIdx);
+		}
+
+		B64ToAscii(result);
+
+		return result;
+	}
+
+	static final char B642AsciiTable[] = ",-0123456789".toCharArray();
+
+	private static void B64ToAscii(byte[] in) {
+		int length = in.length;
+		for (int offset = 0; offset < length; ++offset) {
+			int ch = in[offset];
+			if (ch > 11) {
+				if (ch > 37)
+					ch += 'a' - 38;
+				else
+					ch += 'A' - 12;
+			} else
+				ch = B642AsciiTable[ch];
+
+			in[offset] = (byte) ch;
+		}
 	}
 
 	// EncFS variant of decode

@@ -631,7 +631,7 @@ public class EncFSCrypto {
 		base256FileName[1] = mac16[1];
 		System.arraycopy(encFileName, 0, base256FileName, 2, encFileName.length);
 
-		byte[] fileNameOutput = EncFSBase64.encodeEncfs(encFileName);
+		byte[] fileNameOutput = EncFSBase64.encodeEncfs(base256FileName);
 
 		return new String(fileNameOutput);
 	}

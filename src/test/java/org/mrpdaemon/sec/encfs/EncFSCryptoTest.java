@@ -9,12 +9,10 @@ import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
 
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
 
 public class EncFSCryptoTest {
 
-	@Ignore("Still under development")
 	@Test
 	public void testStreamEncodeDecode() throws EncFSInvalidPasswordException, EncFSInvalidConfigException,
 			EncFSCorruptDataException, EncFSUnsupportedException, EncFSChecksumException, IOException,
