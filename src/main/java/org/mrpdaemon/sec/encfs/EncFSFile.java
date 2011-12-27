@@ -251,6 +251,10 @@ public class EncFSFile {
 			throw new IllegalArgumentException("file name must not contain /");
 		}
 
+		if (this.isDirectory() && volume.getConfig().isChainedNameIV()) {
+			throw new UnsupportedOperationException("Directory renames with changed name IV not yet supported");
+		}
+
 		String toEncFileName = EncFSCrypto.encodeName(volume, fileName, targetVolumePath);
 		String toEncVolumePath;
 		if (targetVolumePath.startsWith("/")) {
