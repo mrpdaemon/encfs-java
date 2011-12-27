@@ -253,6 +253,13 @@ public class EncFSFile {
 
 		if (this.isDirectory() && volume.getConfig().isChainedNameIV()) {
 			throw new UnsupportedOperationException("Directory renames with changed name IV not yet supported");
+
+			// To make this safe (for if we fail halfway through) we need to
+			// 1) create the new directory
+			// 2) Recursively move the sub directories / folders
+			// 3) Delete the original directory
+			// We can do it as a rename of the parent / original folder or we
+			// could be left with files we can't read
 		}
 
 		String toEncFileName = EncFSCrypto.encodeName(volume, fileName, targetVolumePath);
