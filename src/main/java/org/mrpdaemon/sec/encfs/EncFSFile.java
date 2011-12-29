@@ -267,8 +267,8 @@ public class EncFSFile {
 			File toEncFile = new File(volume.getRootDir().getFile().getAbsolutePath() + "/" + toEncVolumePath,
 					toEncFileName);
 
-			if (this.isDirectory()) {// && volume.getConfig().isChainedNameIV())
-										// {
+			if (this.isDirectory() && volume.getConfig().isChainedNameIV()) {
+				//
 				// To make this safe (for if we fail halfway through) we need to
 				// 1) create the new directory
 				// 2) Recursively move the sub directories / folders
@@ -277,9 +277,6 @@ public class EncFSFile {
 				// we
 				// could be left with files we can't read
 
-				// if (toEncFile.exists()) {
-				// toEncFile.delete();
-				// }
 				boolean result = true;
 				if (toEncFile.mkdir() == false) {
 					result = false;
@@ -294,11 +291,7 @@ public class EncFSFile {
 					}
 				}
 				if (result) {
-					if (file.list().length == 0) {
-						result = file.delete();
-					} else {
-						result = false;
-					}
+					result = file.delete();
 				}
 
 				return result;

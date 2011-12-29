@@ -15,7 +15,7 @@
 
 package org.mrpdaemon.sec.encfs;
 
-import java.util.Arrays;
+import java.math.BigInteger;
 
 public class EncFSBase64 {
 
@@ -1318,65 +1318,46 @@ public class EncFSBase64 {
 	 * 
 	 * Output Bytes: 00AAAAAA 00BBBBaa 00CCbbbb 00ccccccc
 	 */
+
 	public static byte[] encodeEncfs(byte[] src) {
-		int origLength = src.length;
+		int dstPower = 6;
+		int srcPower = 8;
 
-		int resultSize = (src.length * 8 + 5) / 6;
-		byte[] result = new byte[resultSize];
-
-		int srcIdx = 0;
-		int dstIdx = 0;
-
-		long mask1 = (1 << 6) - 1; // 00111111
-		long mask1residual = 192; // 11000000
-		long mask2 = (1 << 4) - 1; // 00001111
-		long mask2residual = 240; // 11110000
-		long mask3 = (1 << 2) - 1; // 00000011
-		long mask3residual = 252; // 11111100
-
-		while (srcIdx < src.length) {
-			boolean buffer1Valid = srcIdx < origLength;
-			boolean buffer2Valid = srcIdx + 1 < origLength;
-			boolean buffer3Valid = srcIdx + 2 < origLength;
-
-			long buffer1 = 0, buffer2 = 0, buffer3 = 0;
-			if (buffer1Valid) {
-				buffer1 |= (src[srcIdx] & 0xff);
-			}
-			if (buffer2Valid) {
-				buffer2 |= (src[srcIdx + 1] & 0xff);
-			}
-			if (buffer3Valid) {
-				buffer3 |= (src[srcIdx + 2] & 0xff);
-			}
-
-			byte out1 = (byte) (buffer1 & mask1);
-			long buffer1Residual = (buffer1 & mask1residual);
-
-			byte out2 = (byte) ((buffer1Residual >> 6) & mask3 | (((byte) buffer2 & mask2) << 2));
-			long buffer2Residual = (byte) (buffer2 & mask2residual);
-
-			byte out3 = (byte) ((buffer2Residual >> 4) & mask2 | ((buffer3 & mask3) << 4));
-			long buffer3Residual = (byte) (buffer3 & mask3residual);
-
-			byte out4 = (byte) ((buffer3Residual >> 2) & mask1);
-
-			result[dstIdx++] = out1;
-			result[dstIdx++] = out2;
-			result[dstIdx++] = out3;
-			if (out4 != 0) {
-				result[dstIdx++] = out4;
-			}
-
-			srcIdx += 3;
-		}
-
-		if (dstIdx != result.length) {
-			result = Arrays.copyOfRange(result, 0, dstIdx);
-		}
+		byte[] result = changeBase2(src, dstPower, srcPower);
 
 		B64ToAscii(result);
 
+		return result;
+	}
+
+	private static byte[] changeBase2(byte[] src, int dstPower, int srcPower) {
+		double tmpResultSize = (src.length * (double) srcPower) / dstPower;
+		int resultSize = (int) Math.ceil(tmpResultSize);
+		byte[] result = new byte[resultSize];
+
+		int dstIdx = 0;
+
+		long mask = (1 << dstPower) - 1; // 00111111
+
+		int workingBits = 0;
+		BigInteger buffer = BigInteger.valueOf(0);
+		for (int srcIdx = 0; srcIdx < src.length; srcIdx++) {
+			int unsignedIntValue = src[srcIdx] & 0xff;
+			buffer = buffer.or(BigInteger.valueOf(unsignedIntValue).shiftLeft(workingBits));
+
+			workingBits += srcPower;
+
+			while (workingBits > dstPower) {
+				result[dstIdx++] = buffer.and(BigInteger.valueOf(mask)).byteValue();
+				buffer = buffer.shiftRight(dstPower);
+				workingBits -= dstPower;
+			}
+		}
+
+		// now, we could have a partial value left in the work buffer..
+		if (workingBits > 0) {
+			result[dstIdx++] = buffer.and(BigInteger.valueOf(mask)).byteValue();
+		}
 		return result;
 	}
 
