@@ -545,18 +545,23 @@ public class EncFSCrypto {
 
 		for (int i = 0; i < pathParts.length; i++) {
 			String pathPart = pathParts[i];
-			String toEncFileName = EncFSCrypto.encodeName(volume, pathPart, tmpVolumePath);
 
-			if (result.length() > 0 && result.endsWith("/") == false) {
-				result += "/";
+			// Check that we have a valid pathPart (to handle cases of // in the
+			// path)
+			if (pathPart.length() > 0) {
+				String toEncFileName = EncFSCrypto.encodeName(volume, pathPart, tmpVolumePath);
+
+				if (result.length() > 0 && result.endsWith("/") == false) {
+					result += "/";
+				}
+
+				result += toEncFileName;
+
+				if (tmpVolumePath.endsWith("/") == false) {
+					tmpVolumePath += "/";
+				}
+				tmpVolumePath += pathPart;
 			}
-
-			result += toEncFileName;
-
-			if (tmpVolumePath.endsWith("/") == false) {
-				tmpVolumePath += "/";
-			}
-			tmpVolumePath += pathPart;
 		}
 
 		return result;

@@ -165,7 +165,7 @@ public class EncFSFile {
 	 * @throws EncFSChecksumException
 	 *             Filename checksum mismatch
 	 */
-	public EncFSFile[] listFiles() throws EncFSCorruptDataException, EncFSChecksumException {
+	public EncFSFile[] listFiles() throws EncFSCorruptDataException {
 		if (!file.isDirectory()) {
 			return null;
 		}
@@ -206,7 +206,13 @@ public class EncFSFile {
 
 		for (int i = 0; i < files.length; i++) {
 			File file = files[i];
-			encFSFiles[i] = new EncFSFile(volume, subVolumePath, file);
+			try {
+				encFSFiles[i] = new EncFSFile(volume, subVolumePath, file);
+			} catch (EncFSChecksumException e) {
+				// this shouldn't happen, as we skip them in the file list
+				// earlier...
+				throw new IllegalStateException(e);
+			}
 		}
 
 		return encFSFiles;
@@ -251,28 +257,55 @@ public class EncFSFile {
 			throw new IllegalArgumentException("file name must not contain /");
 		}
 
-		if (this.isDirectory() && volume.getConfig().isChainedNameIV()) {
-			throw new UnsupportedOperationException("Directory renames with changed name IV not yet supported");
-
-			// To make this safe (for if we fail halfway through) we need to
-			// 1) create the new directory
-			// 2) Recursively move the sub directories / folders
-			// 3) Delete the original directory
-			// We can do it as a rename of the parent / original folder or we
-			// could be left with files we can't read
-		}
-
-		String toEncFileName = EncFSCrypto.encodeName(volume, fileName, targetVolumePath);
-		String toEncVolumePath;
-		if (targetVolumePath.startsWith("/")) {
-			toEncVolumePath = EncFSCrypto.encodePath(volume, targetVolumePath, "/");
+		if (targetVolumePath.startsWith("/") == false) {
+			return renameTo(volumePath + "/" + targetVolumePath, fileName);
 		} else {
-			toEncVolumePath = EncFSCrypto.encodePath(volume, targetVolumePath, volumePath);
-		}
 
-		File toEncFile = new File(volume.getRootDir().getFile().getAbsolutePath() + "/" + toEncVolumePath,
-				toEncFileName);
-		return file.renameTo(toEncFile);
+			String toEncFileName = EncFSCrypto.encodeName(volume, fileName, targetVolumePath);
+			String toEncVolumePath = EncFSCrypto.encodePath(volume, targetVolumePath.substring(1), "/");
+
+			File toEncFile = new File(volume.getRootDir().getFile().getAbsolutePath() + "/" + toEncVolumePath,
+					toEncFileName);
+
+			if (this.isDirectory()) {// && volume.getConfig().isChainedNameIV())
+										// {
+				// To make this safe (for if we fail halfway through) we need to
+				// 1) create the new directory
+				// 2) Recursively move the sub directories / folders
+				// 3) Delete the original directory
+				// We can do it as a rename of the parent / original folder or
+				// we
+				// could be left with files we can't read
+
+				// if (toEncFile.exists()) {
+				// toEncFile.delete();
+				// }
+				boolean result = true;
+				if (toEncFile.mkdir() == false) {
+					result = false;
+				}
+				if (result) {
+					for (EncFSFile subFile : this.listFiles()) {
+						boolean subResult = subFile.renameTo(targetVolumePath + fileName, subFile.getName());
+						if (!subResult) {
+							result = false;
+							break;
+						}
+					}
+				}
+				if (result) {
+					if (file.list().length == 0) {
+						result = file.delete();
+					} else {
+						result = false;
+					}
+				}
+
+				return result;
+			} else {
+				return file.renameTo(toEncFile);
+			}
+		}
 	}
 
 	public boolean mkdir(String dirName) throws EncFSCorruptDataException {
