@@ -88,6 +88,15 @@ public class EncFSComparer {
 					return -1;
 				}
 
+				String reEncEncfsName = EncFSCrypto.encodeName(encFsFile.getVolume(), encFsFile.getName(),
+						encFsFile.getVolumePath());
+				String rawFileName = encFsFile.getFile().getName();
+				if (rawFileName.equals(reEncEncfsName) == false) {
+					logger.error("Re-encoded name miss match ({}, {}, {}, {})", new Object[] { i, encFsFile.getName(),
+							rawFileName, reEncEncfsName });
+					// return -1;
+				}
+
 				if (encFsFile.getFile().lastModified() != decodedFsFile.lastModified()) {
 					logger.error("File {} lastModified miss match", decodedFsFile.getName());
 					return -1;
