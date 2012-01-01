@@ -342,4 +342,12 @@ public class EncFSFile {
 			return result;
 		}
 	}
+
+	public String getAbsoluteName() {
+		if (volumePath.endsWith("/")) {
+			return volumePath + plaintextName;
+		} else {
+			return volumePath + "/" + plaintextName;
+		}
+	}
 }

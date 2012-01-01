@@ -1,9 +1,13 @@
 package org.mrpdaemon.sec.encfs;
 
+import java.io.BufferedOutputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 
 import org.junit.After;
 import org.junit.AfterClass;
@@ -43,6 +47,7 @@ public class EncFSVolumeTest {
 			Assert.fail();
 		} catch (EncFSInvalidPasswordException e) {
 			// this is correct that we should have got this exception
+			Assert.assertNotNull(e);
 		}
 	}
 
@@ -63,7 +68,10 @@ public class EncFSVolumeTest {
 		Assert.assertEquals("test.txt", encFSFile.getName());
 
 		String contents = readInputStreamAsString(encFSFile);
-		Assert.assertEquals("This is a test file.", contents);
+		Assert.assertEquals("This is a test file.\n", contents);
+
+		assertFileNameEncoding(rootDir);
+		assertEncFSFileRoundTrip(rootDir);
 	}
 
 	@Test
@@ -83,7 +91,10 @@ public class EncFSVolumeTest {
 		Assert.assertEquals("testfile.txt", encFSFile.getName());
 
 		String contents = readInputStreamAsString(encFSFile);
-		Assert.assertEquals("Test file for non-unique-IV file.", contents);
+		Assert.assertEquals("Test file for non-unique-IV file.\n", contents);
+
+		assertFileNameEncoding(rootDir);
+		assertEncFSFileRoundTrip(rootDir);
 	}
 
 	@Test
@@ -103,7 +114,10 @@ public class EncFSVolumeTest {
 		Assert.assertEquals("testfile.txt", encFSFile.getName());
 
 		String contents = readInputStreamAsString(encFSFile);
-		Assert.assertEquals("test file\r", contents);
+		Assert.assertEquals("test file\r\n", contents);
+
+		assertFileNameEncoding(rootDir);
+		assertEncFSFileRoundTrip(rootDir);
 	}
 
 	@Test
@@ -127,14 +141,17 @@ public class EncFSVolumeTest {
 		Assert.assertEquals("file1.txt", encFSFile.getName());
 
 		String contents = readInputStreamAsString(encFSFile);
-		Assert.assertEquals("Some contents for file", contents);
+		Assert.assertEquals("Some contents for file1", contents);
 
-		String dirListing = GetDirListing(rootDir, true);
+		String dirListing = getDirListing(rootDir, true);
 		String expectedListing = "";
 		expectedListing += "/Dir1" + "\n";
 		expectedListing += "/Dir1/file2.txt" + "\n";
 		expectedListing += "/file1.txt";
 		Assert.assertEquals(expectedListing, dirListing);
+
+		assertFileNameEncoding(rootDir);
+		assertEncFSFileRoundTrip(rootDir);
 	}
 
 	@Test
@@ -149,38 +166,120 @@ public class EncFSVolumeTest {
 		EncFSFile[] files = rootDir.listFiles();
 		Assert.assertEquals(1, files.length);
 
-		String dirListing = GetDirListing(rootDir, true);
+		String dirListing = getDirListing(rootDir, true);
 		Assert.assertNotNull(dirListing);
+
+		assertFileNameEncoding(rootDir);
+		assertEncFSFileRoundTrip(rootDir);
 	}
 
-	@Test
-	public void testBoxCryptor_1_encode() throws EncFSInvalidPasswordException, EncFSInvalidConfigException,
-			EncFSCorruptDataException, EncFSUnsupportedException, EncFSChecksumException, IOException {
-		File encFSDir = new File("test/encfs_samples/boxcryptor_1");
-		Assert.assertTrue(encFSDir.exists());
+	private void assertFileNameEncoding(EncFSFile encfsFileDir) throws EncFSCorruptDataException,
+			EncFSChecksumException {
+		for (EncFSFile encfFile : encfsFileDir.listFiles()) {
+			EncFSVolume volume = encfsFileDir.getVolume();
+			String decName = EncFSCrypto.decodeName(volume, encfFile.getFile().getName(), encfFile.getVolumePath());
+			Assert.assertEquals(encfFile.getAbsoluteName() + " decoded file name", encfFile.getName(), decName);
 
-		String password = "test";
-		EncFSVolume volume = new EncFSVolume(encFSDir, password);
+			String encName = EncFSCrypto.encodeName(volume, decName, encfFile.getVolumePath());
+			Assert.assertEquals(encfFile.getAbsoluteName() + " re-encoded file name", encfFile.getFile().getName(),
+					encName);
 
-		String fileName = "W3gLoUqL-0YzUh8udP8";
-		String volumePath = "/";
-
-		String decName = EncFSCrypto.decodeName(volume, fileName, volumePath);
-		Assert.assertEquals("testfile.txt", decName);
-
-		String encName = EncFSCrypto.encodeName(volume, decName, volumePath);
-		Assert.assertEquals(fileName, encName);
+			if (encfFile.isDirectory()) {
+				assertFileNameEncoding(encfFile);
+			}
+		}
 	}
 
-	private static String GetDirListing(EncFSFile rootDir, boolean recursive) throws EncFSCorruptDataException,
+	private void assertEncFSFileRoundTrip(EncFSFile encFsFile) throws IOException, EncFSUnsupportedException,
+			EncFSCorruptDataException, EncFSChecksumException {
+		if (encFsFile.isDirectory() == false) {
+			// Copy the file via input/output streams & then check that
+			// the file is the same
+			File t = File.createTempFile(this.getClass().getName(), ".tmp");
+			try {
+				EncFSFileOutputStream efos = new EncFSFileOutputStream(encFsFile.getVolume(), new BufferedOutputStream(
+						new FileOutputStream(t)));
+				try {
+					EncFSFileInputStream efis = new EncFSFileInputStream(encFsFile);
+					try {
+						int bytesRead = 0;
+						while (bytesRead >= 0) {
+							byte[] readBuf = new byte[(int) (encFsFile.getVolume().getConfig().getBlockSize() * 0.75)];
+							bytesRead = efis.read(readBuf);
+							if (bytesRead >= 0) {
+								efos.write(readBuf, 0, bytesRead);
+							}
+						}
+					} finally {
+						efis.close();
+					}
+
+				} finally {
+					efos.close();
+				}
+
+				if (encFsFile.getVolume().getConfig().isUniqueIV() == false) {
+					FileInputStream reEncFSIs = new FileInputStream(t);
+					try {
+						FileInputStream origEncFSIs = new FileInputStream(encFsFile.getFile());
+						try {
+							assertInputStreamsAreEqual(encFsFile.getAbsoluteName(), origEncFSIs, reEncFSIs);
+						} finally {
+							origEncFSIs.close();
+						}
+					} finally {
+						reEncFSIs.close();
+					}
+				} else {
+					EncFSFileInputStream efis = new EncFSFileInputStream(encFsFile);
+					try {
+						EncFSFileInputStream efisCopy = new EncFSFileInputStream(encFsFile.getVolume(),
+								new FileInputStream(t));
+						try {
+							assertInputStreamsAreEqual(encFsFile.getAbsoluteName(), efis, efisCopy);
+						} finally {
+							efisCopy.close();
+						}
+					} finally {
+						efis.close();
+					}
+				}
+
+			} finally {
+				if (t.exists()) {
+					t.delete();
+				}
+			}
+		} else {
+			for (EncFSFile subEncfFile : encFsFile.listFiles()) {
+				assertEncFSFileRoundTrip(subEncfFile);
+			}
+		}
+	}
+
+	private void assertInputStreamsAreEqual(String msg, InputStream encfsIs, InputStream decFsIs) throws IOException {
+		int bytesRead = 0, bytesRead2 = 0;
+		while (bytesRead >= 0) {
+			byte[] readBuf = new byte[128];
+			byte[] readBuf2 = new byte[128];
+
+			bytesRead = encfsIs.read(readBuf);
+			bytesRead2 = decFsIs.read(readBuf2);
+
+			Assert.assertEquals(msg, bytesRead, bytesRead2);
+			Assert.assertArrayEquals(msg, readBuf, readBuf2);
+		}
+	}
+
+	private static String getDirListing(EncFSFile rootDir, boolean recursive) throws EncFSCorruptDataException,
 			EncFSChecksumException {
 		StringBuilder sb = new StringBuilder();
-		GetDirListing(rootDir, recursive, sb);
+		getDirListing(rootDir, recursive, sb);
 		return sb.toString();
 
 	}
 
-	private static void GetDirListing(EncFSFile rootDir, boolean recursive, StringBuilder sb)
+	private static void getDirListing(EncFSFile rootDir, boolean recursive, StringBuilder sb)
 			throws EncFSCorruptDataException, EncFSChecksumException {
 
 		for (EncFSFile encFile : rootDir.listFiles()) {
@@ -193,7 +292,7 @@ public class EncFSVolumeTest {
 			}
 			sb.append(encFile.getName());
 			if (encFile.isDirectory() && recursive) {
-				GetDirListing(encFile, recursive, sb);
+				getDirListing(encFile, recursive, sb);
 			}
 		}
 	}
@@ -219,4 +318,27 @@ public class EncFSVolumeTest {
 		return new String(buf.toByteArray());
 	}
 
+	public static void copyViaStreams(EncFSFile srcEncFSFile, EncFSFile targetEncFSFile) throws IOException,
+			EncFSCorruptDataException, EncFSUnsupportedException {
+
+		EncFSFileOutputStream efos = new EncFSFileOutputStream(targetEncFSFile);
+		try {
+			EncFSFileInputStream efis = new EncFSFileInputStream(srcEncFSFile);
+			try {
+				int bytesRead = 0;
+				while (bytesRead >= 0) {
+					byte[] readBuf = new byte[128];
+					bytesRead = efis.read(readBuf);
+					if (bytesRead >= 0) {
+						efos.write(readBuf, 0, bytesRead);
+					}
+				}
+			} finally {
+				efis.close();
+			}
+
+		} finally {
+			efos.close();
+		}
+	}
 }

@@ -396,4 +396,19 @@ public class EncFSVolume {
 	public EncFSFile getRootDir() {
 		return rootDir;
 	}
+
+	public EncFSFile getEncFSFile(String volumePath, String fileName) throws EncFSCorruptDataException,
+			EncFSChecksumException {
+		if (volumePath.startsWith("/") == false) {
+			throw new IllegalArgumentException("Volume path must be absolute");
+		}
+
+		String toEncFileName = EncFSCrypto.encodeName(this, fileName, volumePath);
+		String toEncVolumePath = EncFSCrypto.encodePath(this, volumePath.substring(1), "/");
+
+		File rawEncFile = new File(this.getRootDir().getFile().getAbsolutePath() + "/" + toEncVolumePath, toEncFileName);
+
+		// TODO Auto-generated method stub
+		return new EncFSFile(this, volumePath, rawEncFile);
+	}
 }

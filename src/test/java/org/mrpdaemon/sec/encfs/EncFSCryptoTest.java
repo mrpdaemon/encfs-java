@@ -32,4 +32,25 @@ public class EncFSCryptoTest {
 		Assert.assertArrayEquals(orig, b2);
 	}
 
+	@Test
+	public void testStreamEncodeDecode2() throws EncFSInvalidPasswordException, EncFSInvalidConfigException,
+			EncFSCorruptDataException, EncFSUnsupportedException, EncFSChecksumException, IOException,
+			InvalidAlgorithmParameterException, IllegalBlockSizeException, BadPaddingException {
+		File encFSDir = new File("test/encfs_samples/boxcryptor_1");
+		Assert.assertTrue(encFSDir.exists());
+
+		String password = "test";
+		EncFSVolume volume = new EncFSVolume(encFSDir, password);
+
+		String str = "test file\r";
+
+		byte[] orig = str.getBytes();
+		byte[] ivSeed = new byte[] { 0, 0, 0, 0, 0, 0, 0, 0 };
+
+		byte[] b1 = EncFSCrypto.streamEncode(volume, ivSeed, Arrays.copyOf(orig, orig.length));
+		byte[] b2 = EncFSCrypto.streamDecode(volume, ivSeed, Arrays.copyOf(b1, b1.length));
+
+		Assert.assertArrayEquals(orig, b2);
+	}
+
 }

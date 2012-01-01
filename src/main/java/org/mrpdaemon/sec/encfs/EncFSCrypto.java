@@ -272,11 +272,24 @@ public class EncFSCrypto {
 
 	public static byte[] blockDecode(EncFSVolume volume, byte[] ivSeed, byte[] data)
 			throws InvalidAlgorithmParameterException, IllegalBlockSizeException, BadPaddingException {
-		if (data.length != volume.getConfig().getBlockSize()) {
-			throw new IllegalBlockSizeException();
-		}
+		// if (data.length != volume.getConfig().getBlockSize()) {
+		// throw new IllegalBlockSizeException();
+		// }
 		Cipher cipher = volume.getBlockCipher();
 		cipherInit(volume, Cipher.DECRYPT_MODE, cipher, ivSeed);
+		byte[] result = cipher.doFinal(data);
+		return result;
+	}
+
+	public static byte[] blockEncode(EncFSVolume volume, byte[] ivSeed, byte[] data) throws IllegalBlockSizeException,
+			InvalidAlgorithmParameterException, BadPaddingException {
+		// if (data.length != volume.getConfig().getBlockSize()) {
+		// throw new
+		// IllegalBlockSizeException("Data length must match block size ("
+		// + volume.getConfig().getBlockSize() + " vs. " + data.length);
+		// }
+		Cipher cipher = volume.getBlockCipher();
+		cipherInit(volume, Cipher.ENCRYPT_MODE, cipher, ivSeed);
 		byte[] result = cipher.doFinal(data);
 		return result;
 	}
@@ -473,40 +486,24 @@ public class EncFSCrypto {
 			fileIv[i] = (byte) (macBytes[i] ^ chainIv[i]);
 		}
 
-		Cipher cipher;
 		byte[] decFileName;
 
-		if (volume.getConfig().getNameAlgorithm() == EncFSConfig.ENCFS_CONFIG_NAME_ALG_BLOCK) {
-			// Block decryption
-			cipher = volume.getBlockCipher();
-
-			try {
-				EncFSCrypto.cipherInit(volume, Cipher.DECRYPT_MODE, cipher, fileIv);
-			} catch (InvalidAlgorithmParameterException e) {
-				throw new EncFSCorruptDataException(e.getMessage());
-			}
-
-			try {
-				decFileName = cipher.doFinal(encFileName);
-			} catch (IllegalBlockSizeException e) {
-				throw new EncFSCorruptDataException(e.getMessage());
-			} catch (BadPaddingException e) {
-				throw new EncFSCorruptDataException(e.getMessage());
-			}
-
-		} else {
-			// Stream decryption
-			try {
+		try {
+			if (volume.getConfig().getNameAlgorithm() == EncFSConfig.ENCFS_CONFIG_NAME_ALG_BLOCK) {
+				// Block decryption
+				decFileName = EncFSCrypto.blockDecode(volume, fileIv, encFileName);
+			} else {
+				// Stream decryption
 				decFileName = EncFSCrypto.streamDecode(volume, fileIv, encFileName);
-			} catch (InvalidAlgorithmParameterException e) {
-				throw new EncFSCorruptDataException(e.getMessage());
-			} catch (IllegalBlockSizeException e) {
-				throw new EncFSCorruptDataException(e.getMessage());
-			} catch (BadPaddingException e) {
-				throw new EncFSCorruptDataException(e.getMessage());
-			} catch (EncFSUnsupportedException e) {
-				throw new EncFSCorruptDataException(e.getMessage());
 			}
+		} catch (InvalidAlgorithmParameterException e) {
+			throw new EncFSCorruptDataException(e.getMessage());
+		} catch (IllegalBlockSizeException e) {
+			throw new EncFSCorruptDataException(e.getMessage());
+		} catch (BadPaddingException e) {
+			throw new EncFSCorruptDataException(e.getMessage());
+		} catch (EncFSUnsupportedException e) {
+			throw new EncFSCorruptDataException(e.getMessage());
 		}
 
 		// Verify decryption worked
@@ -572,8 +569,22 @@ public class EncFSCrypto {
 	 */
 	public static String encodeName(EncFSVolume volume, String fileName, String volumePath)
 			throws EncFSCorruptDataException {
-		Cipher cipher;
 		byte[] decFileName = fileName.getBytes();
+
+		byte[] paddedDecFileName;
+		if (volume.getConfig().getNameAlgorithm() == EncFSConfig.ENCFS_CONFIG_NAME_ALG_BLOCK) {
+			// Pad to the nearest 16 bytes, add a full block if needed
+			int padBytesSize = 16;
+			int padLen = padBytesSize - (decFileName.length % padBytesSize);
+			if (padLen == 0) {
+				padLen = padBytesSize;
+			}
+			paddedDecFileName = Arrays.copyOf(decFileName, decFileName.length + padLen);
+			Arrays.fill(paddedDecFileName, decFileName.length, paddedDecFileName.length, (byte) padLen);
+		} else {
+			// Stream encryption
+			paddedDecFileName = decFileName;
+		}
 
 		byte[] chainIv = new byte[8];
 
@@ -606,9 +617,9 @@ public class EncFSCrypto {
 
 		byte[] mac16;
 		if (volume.getConfig().isChainedNameIV()) {
-			mac16 = EncFSCrypto.mac16(volume.getMac(), decFileName, chainIv);
+			mac16 = EncFSCrypto.mac16(volume.getMac(), paddedDecFileName, Arrays.copyOf(chainIv, chainIv.length));
 		} else {
-			mac16 = EncFSCrypto.mac16(volume.getMac(), decFileName);
+			mac16 = EncFSCrypto.mac16(volume.getMac(), paddedDecFileName);
 		}
 
 		// TODO: make sure its multiple of 16
@@ -622,38 +633,23 @@ public class EncFSCrypto {
 		}
 
 		byte[] encFileName;
-		if (volume.getConfig().getNameAlgorithm() == EncFSConfig.ENCFS_CONFIG_NAME_ALG_BLOCK) {
+		try {
+			if (volume.getConfig().getNameAlgorithm() == EncFSConfig.ENCFS_CONFIG_NAME_ALG_BLOCK) {
+				// Block encryption
+				encFileName = EncFSCrypto.blockEncode(volume, fileIv, paddedDecFileName);
 
-			// Block encryption
-			cipher = volume.getBlockCipher();
-
-			try {
-				EncFSCrypto.cipherInit(volume, Cipher.ENCRYPT_MODE, cipher, fileIv);
-			} catch (InvalidAlgorithmParameterException e) {
-				throw new EncFSCorruptDataException(e.getMessage());
+			} else {
+				// Stream encryption
+				encFileName = EncFSCrypto.streamEncode(volume, fileIv, paddedDecFileName);
 			}
-
-			try {
-				encFileName = cipher.doFinal(decFileName);
-			} catch (IllegalBlockSizeException e) {
-				throw new EncFSCorruptDataException(e.getMessage());
-			} catch (BadPaddingException e) {
-				throw new EncFSCorruptDataException(e.getMessage());
-			}
-
-		} else {
-			// Stream encryption
-			try {
-				encFileName = EncFSCrypto.streamEncode(volume, fileIv, decFileName);
-			} catch (InvalidAlgorithmParameterException e) {
-				throw new EncFSCorruptDataException(e.getMessage());
-			} catch (IllegalBlockSizeException e) {
-				throw new EncFSCorruptDataException(e.getMessage());
-			} catch (BadPaddingException e) {
-				throw new EncFSCorruptDataException(e.getMessage());
-			} catch (EncFSUnsupportedException e) {
-				throw new EncFSCorruptDataException(e.getMessage());
-			}
+		} catch (InvalidAlgorithmParameterException e) {
+			throw new EncFSCorruptDataException(e);
+		} catch (IllegalBlockSizeException e) {
+			throw new EncFSCorruptDataException(e);
+		} catch (BadPaddingException e) {
+			throw new EncFSCorruptDataException(e);
+		} catch (EncFSUnsupportedException e) {
+			throw new EncFSCorruptDataException(e);
 		}
 
 		// current versions store the checksum at the beginning (encfs 0.x

@@ -18,6 +18,7 @@ package org.mrpdaemon.sec.encfs;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.security.InvalidAlgorithmParameterException;
 import java.util.Arrays;
 
@@ -28,7 +29,7 @@ import javax.crypto.IllegalBlockSizeException;
  * FileInputStream extension that allows data to be read from a file on an EncFS
  * volume.
  */
-public class EncFSFileInputStream extends FileInputStream {
+public class EncFSFileInputStream extends InputStream {
 
 	// Volume that underlying file belongs to
 	private final EncFSVolume volume;
@@ -51,6 +52,8 @@ public class EncFSFileInputStream extends FileInputStream {
 	// File IV computed from the first 8 bytes of the file
 	private byte[] fileIv;
 
+	private final InputStream inStream;
+
 	/**
 	 * Create a new EncFSFileInputStream for reading data off a file on an EncFS
 	 * volume
@@ -67,8 +70,14 @@ public class EncFSFileInputStream extends FileInputStream {
 	 */
 	public EncFSFileInputStream(EncFSFile file) throws FileNotFoundException, EncFSCorruptDataException,
 			EncFSUnsupportedException {
-		super(file.getFile());
-		this.volume = file.getVolume();
+		this(file.getVolume(), new FileInputStream(file.getFile()));
+	}
+
+	public EncFSFileInputStream(EncFSVolume volume, InputStream in) throws FileNotFoundException,
+			EncFSCorruptDataException, EncFSUnsupportedException {
+		super();
+		this.inStream = in;
+		this.volume = volume;
 		this.config = volume.getConfig();
 		this.blockSize = config.getBlockSize();
 		this.blockBuf = null;
@@ -79,7 +88,7 @@ public class EncFSFileInputStream extends FileInputStream {
 			// Compute file IV
 			byte[] fileHeader = new byte[8];
 			try {
-				super.read(fileHeader);
+				inStream.read(fileHeader);
 			} catch (IOException e) {
 				throw new EncFSCorruptDataException("Could't read file IV");
 			}
@@ -115,7 +124,7 @@ public class EncFSFileInputStream extends FileInputStream {
 	 */
 	private int readBlock() throws IOException, EncFSCorruptDataException, EncFSUnsupportedException {
 		byte[] cipherBuf = new byte[blockSize];
-		int bytesRead = super.read(cipherBuf, 0, blockSize);
+		int bytesRead = inStream.read(cipherBuf, 0, blockSize);
 		if (bytesRead == blockSize) { // block decode
 			try {
 				blockBuf = EncFSCrypto.blockDecode(volume, getBlockIV(), cipherBuf);
@@ -187,7 +196,7 @@ public class EncFSFileInputStream extends FileInputStream {
 		while (bytesRead < len) {
 
 			// Read more data if the data buffer is out
-			if ((blockBuf == null) || (bufCursor == (blockBuf.length - 1))) {
+			if ((blockBuf == null) || (bufCursor == (blockBuf.length))) {
 				try {
 					ret = readBlock();
 				} catch (EncFSCorruptDataException e) {
@@ -205,7 +214,7 @@ public class EncFSFileInputStream extends FileInputStream {
 				}
 			}
 
-			bytesToCopy = Math.min(blockBuf.length - bufCursor - 1, len - bytesRead);
+			bytesToCopy = Math.min(blockBuf.length - bufCursor, len - bytesRead);
 			System.arraycopy(blockBuf, bufCursor, b, destOffset, bytesToCopy);
 
 			bufCursor += bytesToCopy;
@@ -256,5 +265,11 @@ public class EncFSFileInputStream extends FileInputStream {
 	public boolean markSupported() {
 		// TODO: could support mark()/reset()
 		return false;
+	}
+
+	@Override
+	public void close() throws IOException {
+		inStream.close();
+		super.close();
 	}
 }
