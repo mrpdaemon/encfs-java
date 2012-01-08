@@ -174,14 +174,14 @@ public class EncFSVolumeTest {
 	}
 
 	private void assertFileNameEncoding(EncFSFile encfsFileDir) throws EncFSCorruptDataException,
-			EncFSChecksumException {
+			EncFSChecksumException, IOException {
 		for (EncFSFile encfFile : encfsFileDir.listFiles()) {
 			EncFSVolume volume = encfsFileDir.getVolume();
-			String decName = EncFSCrypto.decodeName(volume, encfFile.getFile().getName(), encfFile.getVolumePath());
+			String decName = EncFSCrypto.decodeName(volume, encfFile.getEncrytedName(), encfFile.getVolumePath());
 			Assert.assertEquals(encfFile.getAbsoluteName() + " decoded file name", encfFile.getName(), decName);
 
 			String encName = EncFSCrypto.encodeName(volume, decName, encfFile.getVolumePath());
-			Assert.assertEquals(encfFile.getAbsoluteName() + " re-encoded file name", encfFile.getFile().getName(),
+			Assert.assertEquals(encfFile.getAbsoluteName() + " re-encoded file name", encfFile.getEncrytedName(),
 					encName);
 
 			if (encfFile.isDirectory()) {
@@ -197,7 +197,7 @@ public class EncFSVolumeTest {
 			// the file is the same
 			File t = File.createTempFile(this.getClass().getName(), ".tmp");
 			try {
-				EncFSFileOutputStream efos = new EncFSFileOutputStream(encFsFile.getVolume(), new BufferedOutputStream(
+				EncFSOutputStream efos = new EncFSOutputStream(encFsFile.getVolume(), new BufferedOutputStream(
 						new FileOutputStream(t)));
 				try {
 					EncFSFileInputStream efis = new EncFSFileInputStream(encFsFile);
@@ -221,7 +221,9 @@ public class EncFSVolumeTest {
 				if (encFsFile.getVolume().getConfig().isUniqueIV() == false) {
 					FileInputStream reEncFSIs = new FileInputStream(t);
 					try {
-						FileInputStream origEncFSIs = new FileInputStream(encFsFile.getFile());
+
+						InputStream origEncFSIs = encFsFile.getVolume().openNativeInputStream(
+								encFsFile.getAbsoluteName());
 						try {
 							assertInputStreamsAreEqual(encFsFile.getAbsoluteName(), origEncFSIs, reEncFSIs);
 						} finally {
@@ -233,8 +235,7 @@ public class EncFSVolumeTest {
 				} else {
 					EncFSFileInputStream efis = new EncFSFileInputStream(encFsFile);
 					try {
-						EncFSFileInputStream efisCopy = new EncFSFileInputStream(encFsFile.getVolume(),
-								new FileInputStream(t));
+						EncFSInputStream efisCopy = new EncFSInputStream(encFsFile.getVolume(), new FileInputStream(t));
 						try {
 							assertInputStreamsAreEqual(encFsFile.getAbsoluteName(), efis, efisCopy);
 						} finally {
@@ -272,7 +273,7 @@ public class EncFSVolumeTest {
 	}
 
 	private static String getDirListing(EncFSFile rootDir, boolean recursive) throws EncFSCorruptDataException,
-			EncFSChecksumException {
+			EncFSChecksumException, IOException {
 		StringBuilder sb = new StringBuilder();
 		getDirListing(rootDir, recursive, sb);
 		return sb.toString();
@@ -280,7 +281,7 @@ public class EncFSVolumeTest {
 	}
 
 	private static void getDirListing(EncFSFile rootDir, boolean recursive, StringBuilder sb)
-			throws EncFSCorruptDataException, EncFSChecksumException {
+			throws EncFSCorruptDataException, EncFSChecksumException, IOException {
 
 		for (EncFSFile encFile : rootDir.listFiles()) {
 			if (sb.length() > 0) {
@@ -319,7 +320,7 @@ public class EncFSVolumeTest {
 	}
 
 	public static void copyViaStreams(EncFSFile srcEncFSFile, EncFSFile targetEncFSFile) throws IOException,
-			EncFSCorruptDataException, EncFSUnsupportedException {
+			EncFSCorruptDataException, EncFSUnsupportedException, EncFSChecksumException {
 
 		EncFSFileOutputStream efos = new EncFSFileOutputStream(targetEncFSFile);
 		try {

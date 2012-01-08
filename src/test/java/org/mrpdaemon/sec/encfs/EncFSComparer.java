@@ -97,14 +97,14 @@ public class EncFSComparer {
 
 				String reEncEncfsName = EncFSCrypto.encodeName(encFsFile.getVolume(), encFsFile.getName(),
 						encFsFile.getVolumePath());
-				String rawFileName = encFsFile.getFile().getName();
+				String rawFileName = encFsFile.getEncrytedName();
 				if (rawFileName.equals(reEncEncfsName) == false) {
 					logger.error("Re-encoded name miss match ({}, {}, {}, {})", new Object[] { i, encFsFile.getName(),
 							rawFileName, reEncEncfsName });
 					return -1;
 				}
 
-				if (encFsFile.getFile().lastModified() != decodedFsFile.lastModified()) {
+				if (encFsFile.lastModified() != decodedFsFile.lastModified()) {
 					logger.error("File {} lastModified miss match", decodedFsFile.getName());
 					return -1;
 				}
@@ -147,8 +147,8 @@ public class EncFSComparer {
 					// the file is the same
 					File t = File.createTempFile(this.getClass().getName(), ".tmp");
 					try {
-						EncFSFileOutputStream efos = new EncFSFileOutputStream(encFsDir.getVolume(),
-								new BufferedOutputStream(new FileOutputStream(t)));
+						EncFSOutputStream efos = new EncFSOutputStream(encFsDir.getVolume(), new BufferedOutputStream(
+								new FileOutputStream(t)));
 						try {
 							EncFSFileInputStream efis = new EncFSFileInputStream(encFsFile);
 							try {
@@ -170,10 +170,11 @@ public class EncFSComparer {
 
 						FileInputStream reEncFSIs = new FileInputStream(t);
 						try {
-							FileInputStream origEncFSIs = new FileInputStream(encFsFile.getFile());
+							InputStream origEncFSIs = encFsFile.getVolume().openNativeInputStream(
+									encFsFile.getAbsoluteName());
 							try {
-								int streamresult = compareInputStreams(origEncFSIs, reEncFSIs, encFsFile.getFile()
-										.getAbsoluteFile().getName());
+								int streamresult = compareInputStreams(origEncFSIs, reEncFSIs,
+										encFsFile.getAbsoluteName());
 								if (streamresult != 0) {
 									return streamresult;
 								}

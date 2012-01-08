@@ -41,7 +41,8 @@ public class EncFSShell {
 	private static EncFSFile curDir;
 
 	// Search method to find a child under the current directory
-	private static EncFSFile findChild(String childName) throws EncFSCorruptDataException, EncFSChecksumException {
+	private static EncFSFile findChild(String childName) throws EncFSCorruptDataException, EncFSChecksumException,
+			IOException {
 		// curDir.getVolume().getFile(curDir.getVolumePath() + "/" +
 		// curDir.getName(), childName);
 
@@ -141,7 +142,7 @@ public class EncFSShell {
 					if (options == null) {
 						EncFSFile[] files = curDir.listFiles();
 						for (EncFSFile file : files) {
-							if (file.getFile().isDirectory()) {
+							if (file.isDirectory()) {
 								System.out.println(file.getName() + "/");
 							} else {
 								System.out.println(file.getName());
@@ -158,7 +159,7 @@ public class EncFSShell {
 							public int compare(EncFSFile arg0, EncFSFile arg1) {
 								int result;
 								if (sortByTime) {
-									long diff = arg0.getFile().lastModified() - arg1.getFile().lastModified();
+									long diff = arg0.lastModified() - arg1.lastModified();
 									if (diff > 0) {
 										result = -1;
 									} else if (diff == 0) {
@@ -184,25 +185,25 @@ public class EncFSShell {
 						boolean longListingFormat = options.contains("l");
 						for (EncFSFile file : files) {
 							if (longListingFormat) {
-								if (file.getFile().isDirectory()) {
+								if (file.isDirectory()) {
 									System.out.print("d");
 								} else {
 									System.out.print("-");
 								}
 
-								if (file.getFile().canRead()) {
+								if (file.canRead()) {
 									System.out.print("r");
 								} else {
 									System.out.print("-");
 								}
 
-								if (file.getFile().canWrite()) {
+								if (file.canWrite()) {
 									System.out.print("w");
 								} else {
 									System.out.print("-");
 								}
 
-								if (file.getFile().canExecute()) {
+								if (file.canExecute()) {
 									System.out.print("x");
 								} else {
 									System.out.print("-");
@@ -216,7 +217,7 @@ public class EncFSShell {
 								System.out.print(tmpSize.substring(tmpSize.length() - 9));
 
 								System.out.print(" ");
-								System.out.print(new Date(file.getFile().lastModified()));
+								System.out.print(new Date(file.lastModified()));
 
 								System.out.print(" ");
 								System.out.print(file.getName());
@@ -318,7 +319,7 @@ public class EncFSShell {
 					// regular directory name, find and cd into it
 					EncFSFile file = findChild(dirName);
 					if (file != null) {
-						if (!file.getFile().isDirectory()) {
+						if (!file.isDirectory()) {
 							System.out.println("Not a directory");
 							continue;
 						}
@@ -338,7 +339,7 @@ public class EncFSShell {
 					// Find and print file
 					EncFSFile file = findChild(fileName);
 					if (file != null) {
-						if (!file.getFile().isFile()) {
+						if (file.isDirectory()) {
 							System.out.println("Not a file");
 							continue;
 						}
