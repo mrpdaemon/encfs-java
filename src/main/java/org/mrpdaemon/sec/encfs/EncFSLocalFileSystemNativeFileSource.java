@@ -1,3 +1,18 @@
+/*
+ * EncFS Java Library
+ * Copyright (C) 2011 
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published
+ * by the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *  
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ */
+
 package org.mrpdaemon.sec.encfs;
 
 import java.io.File;
@@ -18,19 +33,19 @@ public class EncFSLocalFileSystemNativeFileSource implements EncFSNativeFileSour
 		this.nativeRootDir = nativeRootDir;
 	}
 
-	public boolean nativeMove(String encSrcFile, String encTargetFile) {
+	public boolean move(String encSrcFile, String encTargetFile) {
 		File sourceFile = new File(nativeRootDir.getAbsoluteFile(), encSrcFile);
 		File destFile = new File(nativeRootDir.getAbsoluteFile(), encTargetFile);
 
 		return sourceFile.renameTo(destFile);
 	}
 
-	public boolean nativeIsDirectory(String srcFile) {
+	public boolean isDirectory(String srcFile) {
 		File srcF = new File(nativeRootDir.getAbsoluteFile(), srcFile);
 		return srcF.isDirectory();
 	}
 
-	public boolean nativeCopy(String encSrcFileName, String encTargetFileName) throws IOException {
+	public boolean copy(String encSrcFileName, String encTargetFileName) throws IOException {
 
 		File sourceFile = new File(nativeRootDir.getAbsoluteFile(), encSrcFileName);
 		File destFile = new File(nativeRootDir.getAbsoluteFile(), encTargetFileName);
@@ -58,7 +73,7 @@ public class EncFSLocalFileSystemNativeFileSource implements EncFSNativeFileSour
 		return true;
 	}
 
-	public List<EncFSFileInfo> nativeListFiles(String encDirName) {
+	public List<EncFSFileInfo> listFiles(String encDirName) {
 		File sourceFile = new File(nativeRootDir.getAbsoluteFile(), encDirName);
 		File[] files = sourceFile.listFiles();
 		List<EncFSFileInfo> results = new ArrayList<EncFSFileInfo>(files.length);
@@ -68,17 +83,17 @@ public class EncFSLocalFileSystemNativeFileSource implements EncFSNativeFileSour
 		return results;
 	}
 
-	public InputStream nativeOpenInputStream(String encSrcFile) throws FileNotFoundException {
+	public InputStream openInputStream(String encSrcFile) throws FileNotFoundException {
 		File srcF = new File(nativeRootDir.getAbsoluteFile(), encSrcFile);
 		return new FileInputStream(srcF);
 	}
 
-	public EncFSFileInfo nativeGetFileInfo(String toEncVolumePath) {
+	public EncFSFileInfo getFileInfo(String toEncVolumePath) {
 		File sourceFile = new File(nativeRootDir.getAbsoluteFile(), toEncVolumePath);
 		return convertToFileInfo(sourceFile);
 	}
 
-	public OutputStream nativeOpenOutputStream(String encSrcFile) throws IOException {
+	public OutputStream openOutputStream(String encSrcFile) throws IOException {
 		File srcF = new File(nativeRootDir.getAbsoluteFile(), encSrcFile);
 		if (srcF.exists() == false) {
 			try {
@@ -90,19 +105,19 @@ public class EncFSLocalFileSystemNativeFileSource implements EncFSNativeFileSour
 		return new FileOutputStream(srcF);
 	}
 
-	public boolean nativeMakeDir(String encryptedDirName) {
+	public boolean mkdir(String encryptedDirName) {
 		File toEncFile = new File(nativeRootDir.getAbsoluteFile(), encryptedDirName);
 		boolean result = toEncFile.mkdir();
 		return result;
 	}
 
-	public boolean nativeMakeDirs(String encryptedDirName) {
+	public boolean mkdirs(String encryptedDirName) {
 		File toEncFile = new File(nativeRootDir.getAbsoluteFile(), encryptedDirName);
 		boolean result = toEncFile.mkdirs();
 		return result;
 	}
 
-	public boolean nativeDelete(String encryptedName) {
+	public boolean delete(String encryptedName) {
 		File toEncFile = new File(nativeRootDir.getAbsoluteFile(), encryptedName);
 		boolean result = toEncFile.delete();
 		return result;

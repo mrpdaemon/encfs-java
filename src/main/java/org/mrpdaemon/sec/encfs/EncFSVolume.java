@@ -436,7 +436,7 @@ public class EncFSVolume {
 
 		// Parse the configuration file
 		try {
-			config = EncFSConfigParser.parseFile(nativeFileSystem.nativeOpenInputStream("/" + name));
+			config = EncFSConfigParser.parseFile(nativeFileSystem.openInputStream("/" + name));
 		} catch (ParserConfigurationException e2) {
 			throw new EncFSUnsupportedException("XML parser not supported");
 		} catch (SAXException e2) {
@@ -515,7 +515,7 @@ public class EncFSVolume {
 
 		String toEncVolumePath = EncFSCrypto.encodePath(this, fileName, "/");
 
-		EncFSFileInfo fileInfo = nativeFileSource.nativeGetFileInfo(toEncVolumePath);
+		EncFSFileInfo fileInfo = nativeFileSource.getFileInfo(toEncVolumePath);
 
 		EncFSFileInfo decodedFileInfo;
 		if (fileName.equals(ENCFS_VOLUME_ROOT_PATH)) {
@@ -551,7 +551,7 @@ public class EncFSVolume {
 	}
 
 	public boolean makeDir(EncFSFile encfsFile) throws IOException {
-		return nativeFileSource.nativeMakeDir(encfsFile.getEncrytedAbsoluteName());
+		return nativeFileSource.mkdir(encfsFile.getEncrytedAbsoluteName());
 	}
 
 	/**
@@ -571,7 +571,7 @@ public class EncFSVolume {
 	}
 
 	public boolean makeDirs(EncFSFile encfsFile) throws IOException {
-		return nativeFileSource.nativeMakeDirs(encfsFile.getEncrytedAbsoluteName());
+		return nativeFileSource.mkdirs(encfsFile.getEncrytedAbsoluteName());
 	}
 
 	/**
@@ -591,7 +591,7 @@ public class EncFSVolume {
 	}
 
 	public boolean delete(EncFSFile encfsFile) throws IOException {
-		return nativeFileSource.nativeDelete(encfsFile.getEncrytedAbsoluteName());
+		return nativeFileSource.delete(encfsFile.getEncrytedAbsoluteName());
 	}
 
 	/**
@@ -628,7 +628,7 @@ public class EncFSVolume {
 				}
 				return copy(srcEncFile, realTargetEncfsDirFile);
 			} else if (srcEncFile.isDirectory()) {
-				boolean result = nativeFileSource.nativeMakeDir(targetEncFile.getEncrytedAbsoluteName());
+				boolean result = nativeFileSource.mkdir(targetEncFile.getEncrytedAbsoluteName());
 
 				if (result) {
 					try {
@@ -665,7 +665,7 @@ public class EncFSVolume {
 				return true;
 			}
 		} else {
-			return nativeFileSource.nativeCopy(srcEncFile.getEncrytedAbsoluteName(),
+			return nativeFileSource.copy(srcEncFile.getEncrytedAbsoluteName(),
 					targetEncFile.getEncrytedAbsoluteName());
 		}
 	}
@@ -689,7 +689,7 @@ public class EncFSVolume {
 		String encSrcFile = EncFSCrypto.encodePath(this, srcFile, "/");
 		String encTargetFile = EncFSCrypto.encodePath(this, targetFile, "/");
 
-		if (nativeFileSource.nativeIsDirectory(encSrcFile) && getConfig().isChainedNameIV()) {
+		if (nativeFileSource.isDirectory(encSrcFile) && getConfig().isChainedNameIV()) {
 			//
 			// To make this safe (for if we fail halfway through) we need to
 			// 1) create the new directory
@@ -700,7 +700,7 @@ public class EncFSVolume {
 			// could be left with files we can't read
 
 			boolean result = true;
-			if (nativeFileSource.nativeMakeDir(encTargetFile) == false) {
+			if (nativeFileSource.mkdir(encTargetFile) == false) {
 				result = false;
 			}
 			if (result) {
@@ -720,12 +720,12 @@ public class EncFSVolume {
 
 			}
 			if (result) {
-				result = nativeFileSource.nativeDelete(encSrcFile);
+				result = nativeFileSource.delete(encSrcFile);
 			}
 
 			return result;
 		} else {
-			return nativeFileSource.nativeMove(encSrcFile, encTargetFile);
+			return nativeFileSource.move(encSrcFile, encTargetFile);
 		}
 	}
 
@@ -739,7 +739,7 @@ public class EncFSVolume {
 		String encDirName = encfsDirFile.getEncrytedAbsoluteName();
 		String dirName = encfsDirFile.getAbsoluteName();
 
-		List<EncFSFileInfo> fileInfos = nativeFileSource.nativeListFiles(encDirName);
+		List<EncFSFileInfo> fileInfos = nativeFileSource.listFiles(encDirName);
 		List<EncFSFile> result = new ArrayList<EncFSFile>(fileInfos.size());
 
 		for (EncFSFileInfo fileInfo : fileInfos) {
@@ -784,7 +784,7 @@ public class EncFSVolume {
 		validateAbsoluteFileName(srcFile, "srcFile");
 
 		String encSrcFile = EncFSCrypto.encodePath(this, srcFile, "/");
-		return nativeFileSource.nativeIsDirectory(encSrcFile);
+		return nativeFileSource.isDirectory(encSrcFile);
 	}
 
 	/**
@@ -805,7 +805,7 @@ public class EncFSVolume {
 
 	public InputStream openInputStream(EncFSFile encfsFile) throws EncFSCorruptDataException,
 			EncFSUnsupportedException, IOException {
-		return new EncFSInputStream(this, nativeFileSource.nativeOpenInputStream(encfsFile.getEncrytedAbsoluteName()));
+		return new EncFSInputStream(this, nativeFileSource.openInputStream(encfsFile.getEncrytedAbsoluteName()));
 	}
 
 	/**
@@ -822,7 +822,7 @@ public class EncFSVolume {
 		validateAbsoluteFileName(srcFile, "srcFile");
 
 		String encSrcFile = EncFSCrypto.encodePath(this, srcFile, "/");
-		return nativeFileSource.nativeOpenInputStream(encSrcFile);
+		return nativeFileSource.openInputStream(encSrcFile);
 	}
 
 	/**
@@ -853,7 +853,7 @@ public class EncFSVolume {
 	 */
 	public EncFSOutputStream openOutputStream(EncFSFile encfsFile) throws EncFSUnsupportedException,
 			EncFSCorruptDataException, IOException {
-		return new EncFSOutputStream(this, nativeFileSource.nativeOpenOutputStream(encfsFile.getEncrytedAbsoluteName()));
+		return new EncFSOutputStream(this, nativeFileSource.openOutputStream(encfsFile.getEncrytedAbsoluteName()));
 	}
 
 	/**
@@ -873,7 +873,7 @@ public class EncFSVolume {
 		validateAbsoluteFileName(srcFile, "srcFile");
 
 		String encSrcFile = EncFSCrypto.encodePath(this, srcFile, "/");
-		return nativeFileSource.nativeOpenOutputStream(encSrcFile);
+		return nativeFileSource.openOutputStream(encSrcFile);
 	}
 
 	private EncFSFileInfo convertNativeToDecodedFileInfo(String decodedDirName, String decodedFileName,
