@@ -604,19 +604,69 @@ public class EncFSVolume {
 	 * @throws IOException
 	 */
 	public boolean copy(String srcFile, String targetFile) throws EncFSCorruptDataException, IOException {
-		validateAbsoluteFileName(srcFile, "srcFile");
-		validateAbsoluteFileName(targetFile, "targetFile");
 
-		String encSrcFile = EncFSCrypto.encodePath(this, srcFile, "/");
-		String encTargetFile = EncFSCrypto.encodePath(this, targetFile, "/");
+		EncFSFile srcEncFile = getEncFSFile(srcFile);
+		EncFSFile targetEncFile = getEncFSFile(targetFile);
 
+		return copy(srcEncFile, targetEncFile);
+	}
+
+	public boolean copy(EncFSFile srcEncFile, EncFSFile targetEncFile) throws IOException {
 		if (config.isUniqueIV()) {
 			// More complicated as we need to copy the files
 			// by reading them in as a stream & writing them out again
 			// so that we generate unique headers for the file copies
-			throw new UnsupportedOperationException("Not yet implemented");
+
+			if (targetEncFile.isDirectory()) {
+				EncFSFile realTargetEncfsDirFile;
+				try {
+					realTargetEncfsDirFile = getEncFSFile(targetEncFile.getAbsoluteName(), srcEncFile.getName());
+				} catch (EncFSCorruptDataException e) {
+					throw new IOException(e);
+				} catch (EncFSChecksumException e) {
+					throw new IOException(e);
+				}
+				return copy(srcEncFile, realTargetEncfsDirFile);
+			} else if (srcEncFile.isDirectory()) {
+				boolean result = nativeFileSource.nativeMakeDir(targetEncFile.getEncrytedAbsoluteName());
+
+				if (result) {
+					try {
+
+						// recurse in & copy each of the files within that
+						// directory
+						for (EncFSFile srcEncFsDirFile : srcEncFile.listFiles()) {
+							EncFSFile targetEncfsDirFile = getEncFSFile(targetEncFile.getAbsoluteName(),
+									srcEncFsDirFile.getName());
+							result &= copy(srcEncFsDirFile, targetEncfsDirFile);
+
+							if (!result) {
+								break;
+							}
+						}
+					} catch (EncFSCorruptDataException e) {
+						throw new IOException(e);
+					} catch (EncFSChecksumException e) {
+						throw new IOException(e);
+					}
+				}
+				return result;
+			} else {
+				try {
+					copyViaStreams(srcEncFile, targetEncFile);
+				} catch (EncFSCorruptDataException e) {
+					throw new IOException(e);
+				} catch (EncFSUnsupportedException e) {
+					throw new IOException(e);
+				} catch (EncFSChecksumException e) {
+					throw new IOException(e);
+				}
+
+				return true;
+			}
 		} else {
-			return nativeFileSource.nativeCopy(encSrcFile, encTargetFile);
+			return nativeFileSource.nativeCopy(srcEncFile.getEncrytedAbsoluteName(),
+					targetEncFile.getEncrytedAbsoluteName());
 		}
 	}
 
@@ -859,6 +909,34 @@ public class EncFSVolume {
 		}
 		if (fileName.startsWith("/") == false) {
 			throw new IllegalArgumentException(name + " must absolute");
+		}
+	}
+
+	private static void copyViaStreams(EncFSFile srcEncFSFile, EncFSFile targetEncFSFile) throws IOException,
+			EncFSCorruptDataException, EncFSUnsupportedException, EncFSChecksumException {
+
+		if (srcEncFSFile.isDirectory() || targetEncFSFile.isDirectory()) {
+			throw new IllegalArgumentException("Can't copy directories");
+		}
+
+		OutputStream efos = srcEncFSFile.openOutputStream();
+		try {
+			InputStream efis = srcEncFSFile.openInputStream();
+			try {
+				int bytesRead = 0;
+				while (bytesRead >= 0) {
+					byte[] readBuf = new byte[128];
+					bytesRead = efis.read(readBuf);
+					if (bytesRead >= 0) {
+						efos.write(readBuf, 0, bytesRead);
+					}
+				}
+			} finally {
+				efis.close();
+			}
+
+		} finally {
+			efos.close();
 		}
 	}
 
