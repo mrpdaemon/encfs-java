@@ -16,7 +16,9 @@
 package org.mrpdaemon.sec.encfs;
 
 import java.io.File;
-import java.io.FileFilter;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 
 /**
  * Object representing a file in an EncFS volume.
@@ -25,85 +27,54 @@ import java.io.FileFilter;
  */
 public class EncFSFile {
 
-	// Volume path of this file
-	private final String volumePath;
+	static final int HEADER_SIZE = 8; // 64 bit initialization vector..
 
 	// Volume hosting this file
 	private final EncFSVolume volume;
 
-	// Underlying File object ('this' doesn't extend File)
-	private final File file;
+	// The info about the file (e.g. name / etc)
+	private final EncFSFileInfo fileInfo;
 
-	// Cached plaintext name of the represented file
-	private String plaintextName;
+	private final EncFSFileInfo encryptedFileInfo;
+
+	private final File file;
 
 	/**
 	 * Create a new object representing a file in an EncFS volume
 	 * 
 	 * @param volume
-	 *            EncFS volume hosting the file
-	 * @param volumePath
-	 *            Relative path of the file within the volume. The root
-	 *            directory of the volume is "/" and files underneath the root
-	 *            directory are represented by their paths relative to the root.
-	 * @param file
-	 *            Actual file object to use as a basis for this EncFS file. Note
-	 *            that EncFSFile doesn't extend File since we'd like to be able
-	 *            to overlay EncFSFile over any kind of abstraction that extends
-	 *            File, for example network file storage etc.
-	 * 
-	 * @throws EncFSCorruptDataException
-	 *             File name doesn't follow EncFS standard
-	 * @throws EncFSChecksumException
-	 *             Checksum error during name decoding
+	 *            The volume that contains the file
+	 * @param fileInfo
+	 *            The information on the file
 	 */
-	public EncFSFile(EncFSVolume volume, String volumePath, File file) throws EncFSCorruptDataException,
-			EncFSChecksumException {
-		this.file = file;
+	public EncFSFile(EncFSVolume volume, EncFSFileInfo fileInfo, EncFSFileInfo encryptedFileInfo) {
 		this.volume = volume;
-		this.volumePath = volumePath;
-
-		// Pre-compute plaintext name
-		if (file.getName().equals(EncFSVolume.ENCFS_VOLUME_CONFIG_FILE_NAME) || file.getName().equals(".")
-				|| file.getName().equals("..") || volume.getRootDir() == null) // hack,
-																				// call
-																				// is
-																				// from
-																				// EncFSVolume()
-		{
-			this.plaintextName = file.getName();
-		} else {
-			this.plaintextName = EncFSCrypto.decodeName(volume, file.getName(), volumePath);
-		}
+		this.fileInfo = fileInfo;
+		this.encryptedFileInfo = encryptedFileInfo;
+		this.file = null;
 	}
 
 	/**
 	 * Create a new object representing a file in an EncFS volume
 	 * 
 	 * @param volume
-	 *            EncFS volume hosting the file
-	 * @param volumePath
-	 *            Relative path of the file within the volume. The root
-	 *            directory of the volume is "/" and files underneath the root
-	 *            directory are represented by their paths relative to the root.
-	 * @param filePath
-	 *            Path to the actual file to use as a basis for this EncFS file.
-	 * 
-	 * @throws EncFSCorruptDataException
-	 *             File name doesn't follow EncFS standard
-	 * @throws EncFSChecksumException
-	 *             Checksum error during name decoding
+	 *            The volume that contains the file
+	 * @param fileInfo
+	 *            The information on the file
 	 */
-	public EncFSFile(EncFSVolume volume, String volumePath, String filePath) throws EncFSCorruptDataException,
-			EncFSChecksumException {
-		this(volume, volumePath, new File(filePath));
+	@Deprecated
+	public EncFSFile(EncFSVolume volume, EncFSFileInfo fileInfo, EncFSFileInfo encryptedFileInfo, File file) {
+		this.volume = volume;
+		this.fileInfo = fileInfo;
+		this.encryptedFileInfo = encryptedFileInfo;
+		this.file = file;
 	}
 
 	/**
 	 * @return Volume path of the EncFS file
 	 */
 	public String getVolumePath() {
-		return volumePath;
+		return fileInfo.getVolumePath();
 	}
 
 	/**
@@ -111,13 +82,6 @@ public class EncFSFile {
 	 */
 	public EncFSVolume getVolume() {
 		return volume;
-	}
-
-	/**
-	 * @return Underlying File object
-	 */
-	public File getFile() {
-		return file;
 	}
 
 	/**
@@ -129,18 +93,21 @@ public class EncFSFile {
 	 *             Invalid file name size
 	 * @throws EncFSChecksumException
 	 *             Filename checksum mismatch
+	 * @throws IOException
 	 */
-	public String[] list() throws EncFSCorruptDataException, EncFSChecksumException {
-		if (!file.isDirectory()) {
-			return null;
-		}
-
+	public String[] list() throws EncFSCorruptDataException, EncFSChecksumException, IOException {
 		EncFSFile[] files = this.listFiles();
-		String[] fileNames = new String[files.length];
 
-		for (int i = 0; i < files.length; i++) {
-			EncFSFile file = files[i];
-			fileNames[i] = file.getName();
+		String[] fileNames;
+		if (files == null) {
+			fileNames = null;
+		} else {
+			fileNames = new String[files.length];
+
+			for (int i = 0; i < files.length; i++) {
+				EncFSFile file = files[i];
+				fileNames[i] = file.getName();
+			}
 		}
 
 		return fileNames;
@@ -150,7 +117,7 @@ public class EncFSFile {
 	 * @return Plaintext name of this EncFS file
 	 */
 	public String getName() {
-		return plaintextName;
+		return fileInfo.getName();
 	}
 
 	/**
@@ -160,57 +127,122 @@ public class EncFSFile {
 	 * @return null if not a directory, array of EncFSFile otherwise
 	 * @throws EncFSCorruptDataException
 	 *             Invalid file name size
+	 * @throws IOException
 	 * @throws EncFSChecksumException
 	 *             Filename checksum mismatch
 	 */
-	public EncFSFile[] listFiles() throws EncFSCorruptDataException, EncFSChecksumException {
-		if (!file.isDirectory()) {
+	public EncFSFile[] listFiles() throws EncFSCorruptDataException, IOException {
+		if (!isDirectory()) {
 			return null;
 		}
 
-		final String subVolumePath;
-		if (this == volume.getRootDir()) {
-			subVolumePath = EncFSVolume.ENCFS_VOLUME_ROOT_PATH;
-		} else {
-			if (volumePath.equals(EncFSVolume.ENCFS_VOLUME_ROOT_PATH)) {
-				subVolumePath = volumePath + this.getName();
-			} else {
-				subVolumePath = volumePath + "/" + this.getName();
-			}
-		}
-
-		File[] files = file.listFiles(new FileFilter() {
-
-			public boolean accept(File entry) {
-				boolean result;
-				if (volumePath.equals(EncFSVolume.ENCFS_VOLUME_ROOT_PATH)
-						&& entry.getName().equals(volume.getConfigFileName())) {
-					result = false;
-				} else {
-					try {
-						EncFSCrypto.decodeName(volume, entry.getName(), subVolumePath);
-						result = true;
-					} catch (EncFSCorruptDataException e) {
-						result = false;
-					} catch (EncFSChecksumException e) {
-						result = false;
-					}
-				}
-				return result;
-			}
-		});
-
-		EncFSFile[] encFSFiles = new EncFSFile[files.length];
-
-		for (int i = 0; i < files.length; i++) {
-			File file = files[i];
-			encFSFiles[i] = new EncFSFile(volume, subVolumePath, file);
-		}
-
-		return encFSFiles;
+		return volume.listFiles(this);
 	}
 
 	public boolean isDirectory() {
-		return file.isDirectory();
+		return fileInfo.isDirectory();
+	}
+
+	public long getContentsLength() {
+		return fileInfo.getSize();
+	}
+
+	public boolean renameTo(String fileName) throws EncFSCorruptDataException, IOException {
+		return volume.move(this.getAbsoluteName(), fileName);
+	}
+
+	public boolean renameTo(String targetVolumePath, String fileName) throws EncFSCorruptDataException, IOException {
+		return renameTo(targetVolumePath + "/" + fileName);
+	}
+
+	public boolean mkdir() throws EncFSCorruptDataException, IOException {
+		return volume.makeDir(this);
+	}
+
+	public boolean mkdir(String subDirName) throws EncFSCorruptDataException, IOException {
+		if (isDirectory()) {
+			throw new IOException(getAbsoluteName() + " is not a directory");
+		}
+		if (subDirName.contains("/")) {
+			throw new IOException("file name must not contain '/'");
+		}
+		return volume.makeDir(getAbsoluteName() + "/" + subDirName);
+	}
+
+	public boolean mkdirs() throws EncFSCorruptDataException, IOException {
+		return volume.makeDirs(this);
+	}
+
+	public boolean mkdirs(String subDirName) throws EncFSCorruptDataException, IOException {
+		if (isDirectory()) {
+			throw new IOException(getAbsoluteName() + " is not a directory");
+		}
+		if (subDirName.contains("/")) {
+			throw new IOException("file name must not contain '/'");
+		}
+		return volume.makeDirs(getAbsoluteName() + "/" + subDirName);
+	}
+
+	public boolean delete() throws EncFSCorruptDataException, IOException {
+		return volume.delete(this);
+	}
+
+	public boolean delete(String file) throws EncFSCorruptDataException, IOException {
+		if (isDirectory()) {
+			throw new IOException(getAbsoluteName() + " is not a directory");
+		}
+		if (file.contains("/")) {
+			throw new IOException("file name must not contain '/'");
+		}
+		return volume.delete(getAbsoluteName() + "/" + file);
+	}
+
+	public String getAbsoluteName() {
+		return fileInfo.getAbsoluteName();
+	}
+
+	public InputStream openInputStream() throws EncFSCorruptDataException, EncFSUnsupportedException, IOException {
+		return volume.openInputStream(this);
+	}
+
+	public OutputStream openOutputStream() throws EncFSCorruptDataException, EncFSUnsupportedException, IOException,
+			EncFSChecksumException {
+		return volume.openOutputStream(this);
+	}
+
+	public long lastModified() {
+		return fileInfo.getModified();
+	}
+
+	public boolean canRead() {
+		return fileInfo.canRead();
+	}
+
+	public boolean canWrite() {
+		return fileInfo.canWrite();
+	}
+
+	public boolean canExecute() {
+		return fileInfo.canExecute();
+	}
+
+	public String getEncrytedName() {
+		return encryptedFileInfo.getName();
+	}
+
+	public String getEncrytedAbsoluteName() {
+		return encryptedFileInfo.getAbsoluteName();
+	}
+
+	public String getEncrytedVolumePath() {
+		return encryptedFileInfo.getVolumePath();
+	}
+
+	@Deprecated
+	public File getFile() {
+		if (file == null) {
+			throw new UnsupportedOperationException();
+		}
+		return this.file;
 	}
 }

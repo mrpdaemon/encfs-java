@@ -16,8 +16,9 @@
 package org.mrpdaemon.sec.encfs;
 
 import java.io.File;
-
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -32,34 +33,53 @@ import org.xml.sax.SAXException;
  * Parser methods that read and interpret EncFS configuration files.
  */
 public class EncFSConfigParser {
-	
-	private static String getNodeValue(Node n)
-	{
+
+	private static String getNodeValue(Node n) {
 		return n.getChildNodes().item(0).getNodeValue();
 	}
 
 	/**
 	 * Parse the given configuration file
 	 * 
-	 * @param configFile  EncFS volume configuration file.
-	 * @return            An EncFSConfig object containing the configuration
-	 *                    data interpreted from the given file.
-	 * @throws ParserConfigurationException 
-	 * @throws IOException 
-	 * @throws SAXException 
-	 * @throws EncFSInvalidConfigException 
+	 * @param configFile
+	 *            EncFS volume configuration file.
+	 * @return An EncFSConfig object containing the configuration data
+	 *         interpreted from the given file.
+	 * @throws ParserConfigurationException
+	 * @throws IOException
+	 * @throws SAXException
+	 * @throws EncFSInvalidConfigException
 	 */
-	public static EncFSConfig parseFile(File configFile)
-			throws ParserConfigurationException,
-			       SAXException,
-			       IOException,
-			       EncFSInvalidConfigException
-	{
+	public static EncFSConfig parseFile(File configFile) throws ParserConfigurationException, SAXException,
+			IOException, EncFSInvalidConfigException {
+		FileInputStream inputStream = new FileInputStream(configFile);
+		try {
+			return parseFile(inputStream);
+		} finally {
+			inputStream.close();
+		}
+
+	}
+
+	/**
+	 * Parse the given configuration file from a stream
+	 * 
+	 * @param configFile
+	 *            EncFS volume configuration file.
+	 * @return An EncFSConfig object containing the configuration data
+	 *         interpreted from the given file.
+	 * @throws ParserConfigurationException
+	 * @throws IOException
+	 * @throws SAXException
+	 * @throws EncFSInvalidConfigException
+	 */
+	public static EncFSConfig parseFile(InputStream inputStream) throws ParserConfigurationException, SAXException,
+			IOException, EncFSInvalidConfigException {
 		EncFSConfig config = new EncFSConfig();
 
 		DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
 		DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
-		Document doc = dBuilder.parse(configFile);
+		Document doc = dBuilder.parse(inputStream);
 		doc.getDocumentElement().normalize();
 
 		NodeList cfgNodeList = doc.getElementsByTagName("cfg").item(0).getChildNodes();
@@ -70,7 +90,7 @@ public class EncFSConfigParser {
 
 		for (int i = 0; i < cfgNodeList.getLength(); i++) {
 			Node cfgNode = cfgNodeList.item(i);
-			
+
 			if (cfgNode.getNodeType() == Node.ELEMENT_NODE) {
 				if (cfgNode.getNodeName().equals("nameAlg")) {
 					NodeList nameAlgNodeList = cfgNode.getChildNodes();
@@ -79,46 +99,35 @@ public class EncFSConfigParser {
 						if (nameAlgChildNode.getNodeName().equals("name")) {
 							String algName = getNodeValue(nameAlgChildNode);
 							if (algName.equals("nameio/block")) {
-								config.setNameAlgorithm(
-										EncFSConfig.ENCFS_CONFIG_NAME_ALG_BLOCK);
+								config.setNameAlgorithm(EncFSConfig.ENCFS_CONFIG_NAME_ALG_BLOCK);
 							} else if (algName.equals("nameio/stream")) {
-								config.setNameAlgorithm(
-										EncFSConfig.ENCFS_CONFIG_NAME_ALG_STREAM);
+								config.setNameAlgorithm(EncFSConfig.ENCFS_CONFIG_NAME_ALG_STREAM);
 							} else {
-								throw new EncFSInvalidConfigException(
-										"Unknown name algorithm in config file: " +
-										algName);
+								throw new EncFSInvalidConfigException("Unknown name algorithm in config file: "
+										+ algName);
 							}
 						}
 					}
 				} else if (cfgNode.getNodeName().equals("keySize")) {
-					config.setVolumeKeySize(Integer.parseInt(
-							                    getNodeValue(cfgNode)));
+					config.setVolumeKeySize(Integer.parseInt(getNodeValue(cfgNode)));
 				} else if (cfgNode.getNodeName().equals("blockSize")) {
-					config.setBlockSize(Integer.parseInt(
-							                getNodeValue(cfgNode)));
+					config.setBlockSize(Integer.parseInt(getNodeValue(cfgNode)));
 				} else if (cfgNode.getNodeName().equals("uniqueIV")) {
-					config.setUniqueIV(Integer.parseInt(
-							               getNodeValue(cfgNode)) == 1);
+					config.setUniqueIV(Integer.parseInt(getNodeValue(cfgNode)) == 1);
 				} else if (cfgNode.getNodeName().equals("chainedNameIV")) {
-					config.setChainedNameIV(Integer.parseInt(
-							                    getNodeValue(cfgNode)) == 1);
+					config.setChainedNameIV(Integer.parseInt(getNodeValue(cfgNode)) == 1);
 				} else if (cfgNode.getNodeName().equals("allowHoles")) {
-					config.setHolesAllowed(Integer.parseInt(
-		                                       getNodeValue(cfgNode)) == 1);
+					config.setHolesAllowed(Integer.parseInt(getNodeValue(cfgNode)) == 1);
 				} else if (cfgNode.getNodeName().equals("encodedKeySize")) {
-					config.setEncodedKeyLength(Integer.parseInt(
-		                                           getNodeValue(cfgNode)));
+					config.setEncodedKeyLength(Integer.parseInt(getNodeValue(cfgNode)));
 				} else if (cfgNode.getNodeName().equals("encodedKeyData")) {
 					config.setEncodedKeyStr(getNodeValue(cfgNode));
 				} else if (cfgNode.getNodeName().equals("saltLen")) {
-					config.setSaltLength(Integer.parseInt(
-                                             getNodeValue(cfgNode)));
+					config.setSaltLength(Integer.parseInt(getNodeValue(cfgNode)));
 				} else if (cfgNode.getNodeName().equals("saltData")) {
 					config.setSaltStr(getNodeValue(cfgNode));
 				} else if (cfgNode.getNodeName().equals("kdfIterations")) {
-					config.setIterationCount(Integer.parseInt(
-                                                 getNodeValue(cfgNode)));
+					config.setIterationCount(Integer.parseInt(getNodeValue(cfgNode)));
 				}
 			}
 		}
