@@ -124,11 +124,17 @@ public class EncFSLocalFileSystemNativeFileSource implements EncFSNativeFileSour
 	}
 
 	private EncFSFileInfo convertToFileInfo(File file) {
-		String realtivePath = file.getParentFile().getAbsolutePath()
+		String relativePath;
+		if (file.equals(nativeRootDir.getAbsoluteFile())) {
+			// we're dealing with the root dir
+			relativePath = "/";
+		} else {
+			relativePath = file.getParentFile().getAbsolutePath()
 				.substring(nativeRootDir.getAbsoluteFile().toString().length());
-		realtivePath = "/" + realtivePath.replace("\\", "/");
+			relativePath = "/" + relativePath.replace("\\", "/");
+		}
 		String name = file.getName();
-		EncFSFileInfo result = new EncFSFileInfo(name, realtivePath, file.isDirectory(), file.lastModified(),
+		EncFSFileInfo result = new EncFSFileInfo(name, relativePath, file.isDirectory(), file.lastModified(),
 				file.length(), file.canRead(), file.canWrite(), file.canExecute());
 		return result;
 	}
