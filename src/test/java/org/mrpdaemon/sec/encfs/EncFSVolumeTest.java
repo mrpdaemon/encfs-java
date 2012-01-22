@@ -88,6 +88,26 @@ public class EncFSVolumeTest {
 		assertFileNameEncoding(rootDir);
 		assertEncFSFileRoundTrip(rootDir);
 	}
+	
+	@Test
+	public void testDefaultVolStr() throws EncFSInvalidPasswordException, EncFSInvalidConfigException,
+			EncFSCorruptDataException, EncFSUnsupportedException, EncFSChecksumException, IOException {
+		String password = "test";
+		EncFSVolume volume = new EncFSVolume("test/encfs_samples/testvol-default", password);
+		EncFSFile rootDir = volume.getRootDir();
+		EncFSFile[] files = rootDir.listFiles();
+		Assert.assertEquals(1, files.length);
+
+		EncFSFile encFSFile = files[0];
+		Assert.assertFalse(encFSFile.isDirectory());
+		Assert.assertEquals("test.txt", encFSFile.getName());
+
+		String contents = readInputStreamAsString(encFSFile);
+		Assert.assertEquals("This is a test file.\n", contents);
+
+		assertFileNameEncoding(rootDir);
+		assertEncFSFileRoundTrip(rootDir);
+	}
 
 	@Test
 	public void testNoUniqueIV() throws EncFSInvalidPasswordException, EncFSInvalidConfigException,
