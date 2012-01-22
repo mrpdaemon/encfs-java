@@ -736,7 +736,12 @@ public class EncFSVolume {
 	}
 
 	public EncFSFile[] listFiles(EncFSFile encfsDirFile) throws IOException {
-		String encDirName = encfsDirFile.getEncrytedAbsoluteName();
+		String encDirName;
+		if (encfsDirFile == this.rootDir) {
+			encDirName = "/";
+		} else {
+			encDirName = encfsDirFile.getEncrytedAbsoluteName();
+		}
 		String dirName = encfsDirFile.getAbsoluteName();
 
 		List<EncFSFileInfo> fileInfos = nativeFileSource.listFiles(encDirName);
