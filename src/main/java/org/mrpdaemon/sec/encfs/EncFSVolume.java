@@ -380,7 +380,7 @@ public class EncFSVolume {
 		try {
 			keyData = EncFSCrypto.decryptVolumeKey(this.config, this.passwordKey);
 		} catch (EncFSChecksumException e) {
-			throw new EncFSInvalidPasswordException(e.getMessage());
+			throw new EncFSInvalidPasswordException(e);
 		}
 
 		// Create volume key
@@ -401,7 +401,7 @@ public class EncFSVolume {
 		try {
 			this.mac = EncFSCrypto.newMac(this.key);
 		} catch (InvalidKeyException e) {
-			throw new EncFSInvalidConfigException(e.getMessage());
+			throw new EncFSInvalidConfigException(e);
 		}
 
 		// Create stream cipher
@@ -665,8 +665,7 @@ public class EncFSVolume {
 				return true;
 			}
 		} else {
-			return nativeFileSource.copy(srcEncFile.getEncrytedAbsoluteName(),
-					targetEncFile.getEncrytedAbsoluteName());
+			return nativeFileSource.copy(srcEncFile.getEncrytedAbsoluteName(), targetEncFile.getEncrytedAbsoluteName());
 		}
 	}
 

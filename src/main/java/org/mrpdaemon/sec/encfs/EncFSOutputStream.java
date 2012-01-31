@@ -64,9 +64,9 @@ public class EncFSOutputStream extends FilterOutputStream {
 			} catch (InvalidAlgorithmParameterException e) {
 				e.printStackTrace();
 			} catch (IllegalBlockSizeException e) {
-				throw new EncFSCorruptDataException(e.getMessage());
+				throw new EncFSCorruptDataException(e);
 			} catch (BadPaddingException e) {
-				throw new EncFSCorruptDataException(e.getMessage());
+				throw new EncFSCorruptDataException(e);
 			}
 		} else {
 			// No unique IV per file, just use 0
@@ -77,13 +77,13 @@ public class EncFSOutputStream extends FilterOutputStream {
 		try {
 			EncFSCrypto.cipherInit(volume, Cipher.ENCRYPT_MODE, blockCipher, fileIv);
 		} catch (InvalidAlgorithmParameterException e) {
-			throw new EncFSCorruptDataException(e.getMessage());
+			throw new EncFSCorruptDataException(e);
 		}
 		this.streamCipher = EncFSCrypto.newStreamCipher();
 		try {
 			EncFSCrypto.cipherInit(volume, Cipher.ENCRYPT_MODE, streamCipher, fileIv);
 		} catch (InvalidAlgorithmParameterException e) {
-			throw new EncFSCorruptDataException(e.getMessage());
+			throw new EncFSCorruptDataException(e);
 		}
 
 		// written blocks are blockSize - 8 bytes for the MAC?
