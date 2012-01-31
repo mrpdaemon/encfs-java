@@ -91,9 +91,9 @@ public class EncFSInputStream extends InputStream {
 			} catch (InvalidAlgorithmParameterException e) {
 				e.printStackTrace();
 			} catch (IllegalBlockSizeException e) {
-				throw new EncFSCorruptDataException(e.getMessage());
+				throw new EncFSCorruptDataException(e);
 			} catch (BadPaddingException e) {
-				throw new EncFSCorruptDataException(e.getMessage());
+				throw new EncFSCorruptDataException(e);
 			}
 		} else {
 			// No unique IV per file, just use 0
@@ -123,9 +123,9 @@ public class EncFSInputStream extends InputStream {
 			} catch (InvalidAlgorithmParameterException e) {
 				e.printStackTrace();
 			} catch (IllegalBlockSizeException e) {
-				throw new EncFSCorruptDataException(e.getMessage());
+				throw new EncFSCorruptDataException(e);
 			} catch (BadPaddingException e) {
-				throw new EncFSCorruptDataException(e.getMessage());
+				throw new EncFSCorruptDataException(e);
 			}
 			bufCursor = 0;
 			blockNum++;
@@ -140,9 +140,9 @@ public class EncFSInputStream extends InputStream {
 			} catch (InvalidAlgorithmParameterException e) {
 				e.printStackTrace();
 			} catch (IllegalBlockSizeException e) {
-				throw new EncFSCorruptDataException(e.getMessage());
+				throw new EncFSCorruptDataException(e);
 			} catch (BadPaddingException e) {
-				throw new EncFSCorruptDataException(e.getMessage());
+				throw new EncFSCorruptDataException(e);
 			}
 			bufCursor = 0;
 			blockNum++;
@@ -192,9 +192,9 @@ public class EncFSInputStream extends InputStream {
 				try {
 					ret = readBlock();
 				} catch (EncFSCorruptDataException e) {
-					throw new IOException(e.getMessage());
+					throw new IOException(e);
 				} catch (EncFSUnsupportedException e) {
-					throw new IOException(e.getMessage());
+					throw new IOException(e);
 				}
 
 				if (ret < 0) {

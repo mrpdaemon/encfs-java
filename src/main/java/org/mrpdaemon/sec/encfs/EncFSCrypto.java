@@ -54,7 +54,7 @@ public class EncFSCrypto {
 		try {
 			hmac = Mac.getInstance("HmacSHA1");
 		} catch (NoSuchAlgorithmException e) {
-			throw new EncFSUnsupportedException(e.getMessage());
+			throw new EncFSUnsupportedException(e);
 		}
 		SecretKeySpec hmacKey = new SecretKeySpec(key.getEncoded(), "HmacSHA1");
 		hmac.init(hmacKey);
@@ -85,9 +85,9 @@ public class EncFSCrypto {
 		try {
 			result = Cipher.getInstance("AES/CFB/NoPadding");
 		} catch (NoSuchAlgorithmException e) {
-			throw new EncFSUnsupportedException(e.getMessage());
+			throw new EncFSUnsupportedException(e);
 		} catch (NoSuchPaddingException e) {
-			throw new EncFSUnsupportedException(e.getMessage());
+			throw new EncFSUnsupportedException(e);
 		}
 		return result;
 	}
@@ -105,9 +105,9 @@ public class EncFSCrypto {
 		try {
 			result = Cipher.getInstance("AES/CBC/NoPadding");
 		} catch (NoSuchAlgorithmException e) {
-			throw new EncFSUnsupportedException(e.getMessage());
+			throw new EncFSUnsupportedException(e);
 		} catch (NoSuchPaddingException e) {
-			throw new EncFSUnsupportedException(e.getMessage());
+			throw new EncFSUnsupportedException(e);
 		}
 		return result;
 	}
@@ -345,7 +345,7 @@ public class EncFSCrypto {
 		try {
 			f = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1");
 		} catch (NoSuchAlgorithmException e) {
-			throw new EncFSUnsupportedException(e.getMessage());
+			throw new EncFSUnsupportedException(e);
 		}
 		KeySpec ks = new PBEKeySpec(password.toCharArray(), cipherSaltData, config.getIterationCount(),
 				config.getVolumeKeySize() + // TODO: (*) Verify this
@@ -354,7 +354,7 @@ public class EncFSCrypto {
 		try {
 			pbkdf2Key = f.generateSecret(ks);
 		} catch (InvalidKeySpecException e) {
-			throw new EncFSInvalidConfigException(e.getMessage());
+			throw new EncFSInvalidConfigException(e);
 		}
 
 		return pbkdf2Key.getEncoded();
@@ -388,17 +388,17 @@ public class EncFSCrypto {
 		try {
 			mac = newMac(passKey);
 		} catch (InvalidKeyException e) {
-			throw new EncFSInvalidConfigException(e.getMessage());
+			throw new EncFSInvalidConfigException(e);
 		}
 		byte[] clearVolKeyData = null;
 		try {
 			clearVolKeyData = streamDecode(newStreamCipher(), mac, passKey, passIvData, ivSeed, encryptedVolKey);
 		} catch (InvalidAlgorithmParameterException e) {
-			throw new EncFSInvalidConfigException(e.getMessage());
+			throw new EncFSInvalidConfigException(e);
 		} catch (IllegalBlockSizeException e) {
-			throw new EncFSCorruptDataException(e.getMessage());
+			throw new EncFSCorruptDataException(e);
 		} catch (BadPaddingException e) {
-			throw new EncFSCorruptDataException(e.getMessage());
+			throw new EncFSCorruptDataException(e);
 		}
 
 		// Perform checksum computation
@@ -497,13 +497,13 @@ public class EncFSCrypto {
 				decFileName = EncFSCrypto.streamDecode(volume, fileIv, encFileName);
 			}
 		} catch (InvalidAlgorithmParameterException e) {
-			throw new EncFSCorruptDataException(e.getMessage());
+			throw new EncFSCorruptDataException(e);
 		} catch (IllegalBlockSizeException e) {
-			throw new EncFSCorruptDataException(e.getMessage());
+			throw new EncFSCorruptDataException(e);
 		} catch (BadPaddingException e) {
-			throw new EncFSCorruptDataException(e.getMessage());
+			throw new EncFSCorruptDataException(e);
 		} catch (EncFSUnsupportedException e) {
-			throw new EncFSCorruptDataException(e.getMessage());
+			throw new EncFSCorruptDataException(e);
 		}
 
 		// Verify decryption worked
