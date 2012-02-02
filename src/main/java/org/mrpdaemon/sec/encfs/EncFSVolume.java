@@ -83,7 +83,7 @@ public class EncFSVolume {
 	// Root directory object
 	private EncFSFile rootDir;
 
-	private EncFSNativeFileSource nativeFileSource;
+	private EncFSFileProvider fileProvider;
 
 	/**
 	 * Creates a new object representing an existing EncFS volume
@@ -109,7 +109,7 @@ public class EncFSVolume {
 	public EncFSVolume(File rootDir, File configFile, String password) throws FileNotFoundException,
 			EncFSInvalidPasswordException, EncFSInvalidConfigException, EncFSCorruptDataException,
 			EncFSUnsupportedException {
-		init(new EncFSLocalFileSystemNativeFileSource(rootDir), configFile, password);
+		init(new EncFSLocalFileProvider(rootDir), configFile, password);
 	}
 
 	/**
@@ -139,7 +139,7 @@ public class EncFSVolume {
 	public EncFSVolume(File rootDir, File configFile, byte[] passwordKey) throws FileNotFoundException,
 			EncFSInvalidPasswordException, EncFSInvalidConfigException, EncFSCorruptDataException,
 			EncFSUnsupportedException {
-		init(new EncFSLocalFileSystemNativeFileSource(rootDir), configFile, passwordKey);
+		init(new EncFSLocalFileProvider(rootDir), configFile, passwordKey);
 	}
 
 	/**
@@ -163,7 +163,7 @@ public class EncFSVolume {
 	 */
 	public EncFSVolume(File rootDir, String password) throws FileNotFoundException, EncFSInvalidPasswordException,
 			EncFSInvalidConfigException, EncFSCorruptDataException, EncFSUnsupportedException {
-		init(new EncFSLocalFileSystemNativeFileSource(rootDir), password);
+		init(new EncFSLocalFileProvider(rootDir), password);
 	}
 
 	/**
@@ -264,7 +264,7 @@ public class EncFSVolume {
 	 * @throws EncFSUnsupportedException
 	 *             Unsupported EncFS version or options
 	 */
-	public void init(EncFSNativeFileSource nativeFileSource, String password) throws FileNotFoundException,
+	public void init(EncFSFileProvider nativeFileSource, String password) throws FileNotFoundException,
 			EncFSUnsupportedException, EncFSInvalidConfigException, EncFSCorruptDataException,
 			EncFSInvalidPasswordException {
 		EncFSConfig config = parseConfig(nativeFileSource, ENCFS_VOLUME_CONFIG_FILE_NAME);
@@ -295,7 +295,7 @@ public class EncFSVolume {
 	 * @throws EncFSUnsupportedException
 	 *             Unsupported EncFS version or options
 	 */
-	public void init(EncFSNativeFileSource nativeFileSource, byte[] passwordKey) throws FileNotFoundException,
+	public void init(EncFSFileProvider nativeFileSource, byte[] passwordKey) throws FileNotFoundException,
 			EncFSUnsupportedException, EncFSInvalidConfigException, EncFSCorruptDataException,
 			EncFSInvalidPasswordException {
 		EncFSConfig config = parseConfig(nativeFileSource, ENCFS_VOLUME_CONFIG_FILE_NAME);
@@ -325,13 +325,13 @@ public class EncFSVolume {
 	 * @throws EncFSUnsupportedException
 	 *             Unsupported EncFS version or options
 	 */
-	public void init(EncFSNativeFileSource nativeFileSource, File encFsConfigFile, String password)
+	public void init(EncFSFileProvider fileProvider, File encFsConfigFile, String password)
 			throws FileNotFoundException, EncFSUnsupportedException, EncFSInvalidConfigException,
 			EncFSCorruptDataException, EncFSInvalidPasswordException {
 		EncFSConfig config = parseConfig(encFsConfigFile);
 		byte[] passwordKey = EncFSCrypto.derivePasswordKey(config, password);
 
-		init(nativeFileSource, config, passwordKey);
+		init(fileProvider, config, passwordKey);
 	}
 
 	/**
@@ -359,19 +359,19 @@ public class EncFSVolume {
 	 * @throws EncFSUnsupportedException
 	 *             Unsupported EncFS version or options
 	 */
-	public void init(EncFSNativeFileSource nativeFileSource, File encFsConfigFile, byte[] passwordKey)
+	public void init(EncFSFileProvider fileProvider, File encFsConfigFile, byte[] passwordKey)
 			throws FileNotFoundException, EncFSUnsupportedException, EncFSInvalidConfigException,
 			EncFSCorruptDataException, EncFSInvalidPasswordException {
 
 		EncFSConfig config = parseConfig(encFsConfigFile);
 
-		init(nativeFileSource, config, passwordKey);
+		init(fileProvider, config, passwordKey);
 	}
 
-	private void init(EncFSNativeFileSource nativeFileSource, EncFSConfig config, byte[] passwordKey)
+	private void init(EncFSFileProvider fileProvider, EncFSConfig config, byte[] passwordKey)
 			throws FileNotFoundException, EncFSUnsupportedException, EncFSInvalidConfigException,
 			EncFSCorruptDataException, EncFSInvalidPasswordException {
-		this.nativeFileSource = nativeFileSource;
+		this.fileProvider = fileProvider;
 
 		this.config = config;
 		this.passwordKey = passwordKey;
@@ -416,10 +416,10 @@ public class EncFSVolume {
 	// Parse the configuration file - common step for init functions
 	private static EncFSConfig parseConfig(File configFile) throws FileNotFoundException, EncFSUnsupportedException,
 			EncFSInvalidConfigException {
-		return parseConfig(new EncFSLocalFileSystemNativeFileSource(configFile.getParentFile()), configFile.getName());
+		return parseConfig(new EncFSLocalFileProvider(configFile.getParentFile()), configFile.getName());
 	}
 
-	private static EncFSConfig parseConfig(EncFSNativeFileSource nativeFileSystem, String name)
+	private static EncFSConfig parseConfig(EncFSFileProvider nativeFileSystem, String name)
 			throws EncFSUnsupportedException, EncFSInvalidConfigException {
 
 		EncFSConfig config;
@@ -515,7 +515,7 @@ public class EncFSVolume {
 
 		String toEncVolumePath = EncFSCrypto.encodePath(this, fileName, "/");
 
-		EncFSFileInfo fileInfo = nativeFileSource.getFileInfo(toEncVolumePath);
+		EncFSFileInfo fileInfo = fileProvider.getFileInfo(toEncVolumePath);
 
 		EncFSFileInfo decodedFileInfo;
 		if (fileName.equals(ENCFS_VOLUME_ROOT_PATH)) {
@@ -526,8 +526,8 @@ public class EncFSVolume {
 			decodedFileInfo = convertNativeToDecodedFileInfo(decDirName, decFilename, fileInfo);
 		}
 
-		if (this.nativeFileSource instanceof EncFSLocalFileSystemNativeFileSource) {
-			File file = ((EncFSLocalFileSystemNativeFileSource) nativeFileSource).getFile(fileInfo.getAbsoluteName());
+		if (this.fileProvider instanceof EncFSLocalFileProvider) {
+			File file = ((EncFSLocalFileProvider) fileProvider).getFile(fileInfo.getAbsoluteName());
 			return new EncFSFile(this, decodedFileInfo, fileInfo, file);
 		} else {
 			return new EncFSFile(this, decodedFileInfo, fileInfo);
@@ -551,7 +551,7 @@ public class EncFSVolume {
 	}
 
 	public boolean makeDir(EncFSFile encfsFile) throws IOException {
-		return nativeFileSource.mkdir(encfsFile.getEncrytedAbsoluteName());
+		return fileProvider.mkdir(encfsFile.getEncrytedAbsoluteName());
 	}
 
 	/**
@@ -571,7 +571,7 @@ public class EncFSVolume {
 	}
 
 	public boolean makeDirs(EncFSFile encfsFile) throws IOException {
-		return nativeFileSource.mkdirs(encfsFile.getEncrytedAbsoluteName());
+		return fileProvider.mkdirs(encfsFile.getEncrytedAbsoluteName());
 	}
 
 	/**
@@ -591,7 +591,7 @@ public class EncFSVolume {
 	}
 
 	public boolean delete(EncFSFile encfsFile) throws IOException {
-		return nativeFileSource.delete(encfsFile.getEncrytedAbsoluteName());
+		return fileProvider.delete(encfsFile.getEncrytedAbsoluteName());
 	}
 
 	/**
@@ -628,7 +628,7 @@ public class EncFSVolume {
 				}
 				return copy(srcEncFile, realTargetEncfsDirFile);
 			} else if (srcEncFile.isDirectory()) {
-				boolean result = nativeFileSource.mkdir(targetEncFile.getEncrytedAbsoluteName());
+				boolean result = fileProvider.mkdir(targetEncFile.getEncrytedAbsoluteName());
 
 				if (result) {
 					try {
@@ -665,7 +665,7 @@ public class EncFSVolume {
 				return true;
 			}
 		} else {
-			return nativeFileSource.copy(srcEncFile.getEncrytedAbsoluteName(), targetEncFile.getEncrytedAbsoluteName());
+			return fileProvider.copy(srcEncFile.getEncrytedAbsoluteName(), targetEncFile.getEncrytedAbsoluteName());
 		}
 	}
 
@@ -688,7 +688,7 @@ public class EncFSVolume {
 		String encSrcFile = EncFSCrypto.encodePath(this, srcFile, "/");
 		String encTargetFile = EncFSCrypto.encodePath(this, targetFile, "/");
 
-		if (nativeFileSource.isDirectory(encSrcFile) && getConfig().isChainedNameIV()) {
+		if (fileProvider.isDirectory(encSrcFile) && getConfig().isChainedNameIV()) {
 			//
 			// To make this safe (for if we fail halfway through) we need to
 			// 1) create the new directory
@@ -699,7 +699,7 @@ public class EncFSVolume {
 			// could be left with files we can't read
 
 			boolean result = true;
-			if (nativeFileSource.mkdir(encTargetFile) == false) {
+			if (fileProvider.mkdir(encTargetFile) == false) {
 				result = false;
 			}
 			if (result) {
@@ -719,12 +719,12 @@ public class EncFSVolume {
 
 			}
 			if (result) {
-				result = nativeFileSource.delete(encSrcFile);
+				result = fileProvider.delete(encSrcFile);
 			}
 
 			return result;
 		} else {
-			return nativeFileSource.move(encSrcFile, encTargetFile);
+			return fileProvider.move(encSrcFile, encTargetFile);
 		}
 	}
 
@@ -743,7 +743,7 @@ public class EncFSVolume {
 		}
 		String dirName = encfsDirFile.getAbsoluteName();
 
-		List<EncFSFileInfo> fileInfos = nativeFileSource.listFiles(encDirName);
+		List<EncFSFileInfo> fileInfos = fileProvider.listFiles(encDirName);
 		List<EncFSFile> result = new ArrayList<EncFSFile>(fileInfos.size());
 
 		for (EncFSFileInfo fileInfo : fileInfos) {
@@ -760,8 +760,8 @@ public class EncFSVolume {
 				EncFSFileInfo decEncFileInfo = convertNativeToDecodedFileInfo(dirName, decodedFileName, fileInfo);
 
 				EncFSFile encfsFile;
-				if (this.nativeFileSource instanceof EncFSLocalFileSystemNativeFileSource) {
-					File file = ((EncFSLocalFileSystemNativeFileSource) nativeFileSource).getFile(fileInfo
+				if (this.fileProvider instanceof EncFSLocalFileProvider) {
+					File file = ((EncFSLocalFileProvider) fileProvider).getFile(fileInfo
 							.getAbsoluteName());
 					encfsFile = new EncFSFile(this, decEncFileInfo, fileInfo, file);
 				} else {
@@ -788,7 +788,7 @@ public class EncFSVolume {
 		validateAbsoluteFileName(srcFile, "srcFile");
 
 		String encSrcFile = EncFSCrypto.encodePath(this, srcFile, "/");
-		return nativeFileSource.isDirectory(encSrcFile);
+		return fileProvider.isDirectory(encSrcFile);
 	}
 
 	/**
@@ -809,7 +809,7 @@ public class EncFSVolume {
 
 	public InputStream openInputStream(EncFSFile encfsFile) throws EncFSCorruptDataException,
 			EncFSUnsupportedException, IOException {
-		return new EncFSInputStream(this, nativeFileSource.openInputStream(encfsFile.getEncrytedAbsoluteName()));
+		return new EncFSInputStream(this, fileProvider.openInputStream(encfsFile.getEncrytedAbsoluteName()));
 	}
 
 	/**
@@ -826,7 +826,7 @@ public class EncFSVolume {
 		validateAbsoluteFileName(srcFile, "srcFile");
 
 		String encSrcFile = EncFSCrypto.encodePath(this, srcFile, "/");
-		return nativeFileSource.openInputStream(encSrcFile);
+		return fileProvider.openInputStream(encSrcFile);
 	}
 
 	/**
@@ -857,7 +857,7 @@ public class EncFSVolume {
 	 */
 	public EncFSOutputStream openOutputStream(EncFSFile encfsFile) throws EncFSUnsupportedException,
 			EncFSCorruptDataException, IOException {
-		return new EncFSOutputStream(this, nativeFileSource.openOutputStream(encfsFile.getEncrytedAbsoluteName()));
+		return new EncFSOutputStream(this, fileProvider.openOutputStream(encfsFile.getEncrytedAbsoluteName()));
 	}
 
 	/**
@@ -877,7 +877,7 @@ public class EncFSVolume {
 		validateAbsoluteFileName(srcFile, "srcFile");
 
 		String encSrcFile = EncFSCrypto.encodePath(this, srcFile, "/");
-		return nativeFileSource.openOutputStream(encSrcFile);
+		return fileProvider.openOutputStream(encSrcFile);
 	}
 
 	private EncFSFileInfo convertNativeToDecodedFileInfo(String decodedDirName, String decodedFileName,

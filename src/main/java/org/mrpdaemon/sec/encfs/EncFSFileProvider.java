@@ -21,11 +21,11 @@ import java.io.OutputStream;
 import java.util.List;
 
 /**
- * Interface for a "native" File source. By this we mean that this provides
+ * Interface for a File provider. By this we mean that this provides
  * access to the file contents / information in their encrypted form as they
- * would be stored on disk.
+ * would be stored on a local disk or any other storage type.
  */
-public interface EncFSNativeFileSource {
+public interface EncFSFileProvider {
 
 	public boolean move(String encOrigFileName, String encNewFileName) throws IOException;
 

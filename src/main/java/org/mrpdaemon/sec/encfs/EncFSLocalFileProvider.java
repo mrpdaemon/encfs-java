@@ -26,29 +26,29 @@ import java.nio.channels.FileChannel;
 import java.util.ArrayList;
 import java.util.List;
 
-public class EncFSLocalFileSystemNativeFileSource implements EncFSNativeFileSource {
-	private final File nativeRootDir;
+public class EncFSLocalFileProvider implements EncFSFileProvider {
+	private final File rootPath;
 
-	public EncFSLocalFileSystemNativeFileSource(File nativeRootDir) {
-		this.nativeRootDir = nativeRootDir;
+	public EncFSLocalFileProvider(File rootPath) {
+		this.rootPath = rootPath;
 	}
 
 	public boolean move(String encSrcFile, String encTargetFile) {
-		File sourceFile = new File(nativeRootDir.getAbsoluteFile(), encSrcFile);
-		File destFile = new File(nativeRootDir.getAbsoluteFile(), encTargetFile);
+		File sourceFile = new File(rootPath.getAbsoluteFile(), encSrcFile);
+		File destFile = new File(rootPath.getAbsoluteFile(), encTargetFile);
 
 		return sourceFile.renameTo(destFile);
 	}
 
 	public boolean isDirectory(String srcFile) {
-		File srcF = new File(nativeRootDir.getAbsoluteFile(), srcFile);
+		File srcF = new File(rootPath.getAbsoluteFile(), srcFile);
 		return srcF.isDirectory();
 	}
 
 	public boolean copy(String encSrcFileName, String encTargetFileName) throws IOException {
 
-		File sourceFile = new File(nativeRootDir.getAbsoluteFile(), encSrcFileName);
-		File destFile = new File(nativeRootDir.getAbsoluteFile(), encTargetFileName);
+		File sourceFile = new File(rootPath.getAbsoluteFile(), encSrcFileName);
+		File destFile = new File(rootPath.getAbsoluteFile(), encTargetFileName);
 
 		if (!destFile.exists()) {
 			destFile.createNewFile();
@@ -74,7 +74,7 @@ public class EncFSLocalFileSystemNativeFileSource implements EncFSNativeFileSour
 	}
 
 	public List<EncFSFileInfo> listFiles(String encDirName) {
-		File sourceFile = new File(nativeRootDir.getAbsoluteFile(), encDirName);
+		File sourceFile = new File(rootPath.getAbsoluteFile(), encDirName);
 		File[] files = sourceFile.listFiles();
 		List<EncFSFileInfo> results = new ArrayList<EncFSFileInfo>(files.length);
 		for (File file : files) {
@@ -84,17 +84,17 @@ public class EncFSLocalFileSystemNativeFileSource implements EncFSNativeFileSour
 	}
 
 	public InputStream openInputStream(String encSrcFile) throws FileNotFoundException {
-		File srcF = new File(nativeRootDir.getAbsoluteFile(), encSrcFile);
+		File srcF = new File(rootPath.getAbsoluteFile(), encSrcFile);
 		return new FileInputStream(srcF);
 	}
 
 	public EncFSFileInfo getFileInfo(String toEncVolumePath) {
-		File sourceFile = new File(nativeRootDir.getAbsoluteFile(), toEncVolumePath);
+		File sourceFile = new File(rootPath.getAbsoluteFile(), toEncVolumePath);
 		return convertToFileInfo(sourceFile);
 	}
 
 	public OutputStream openOutputStream(String encSrcFile) throws IOException {
-		File srcF = new File(nativeRootDir.getAbsoluteFile(), encSrcFile);
+		File srcF = new File(rootPath.getAbsoluteFile(), encSrcFile);
 		if (srcF.exists() == false) {
 			try {
 				srcF.createNewFile();
@@ -106,31 +106,31 @@ public class EncFSLocalFileSystemNativeFileSource implements EncFSNativeFileSour
 	}
 
 	public boolean mkdir(String encryptedDirName) {
-		File toEncFile = new File(nativeRootDir.getAbsoluteFile(), encryptedDirName);
+		File toEncFile = new File(rootPath.getAbsoluteFile(), encryptedDirName);
 		boolean result = toEncFile.mkdir();
 		return result;
 	}
 
 	public boolean mkdirs(String encryptedDirName) {
-		File toEncFile = new File(nativeRootDir.getAbsoluteFile(), encryptedDirName);
+		File toEncFile = new File(rootPath.getAbsoluteFile(), encryptedDirName);
 		boolean result = toEncFile.mkdirs();
 		return result;
 	}
 
 	public boolean delete(String encryptedName) {
-		File toEncFile = new File(nativeRootDir.getAbsoluteFile(), encryptedName);
+		File toEncFile = new File(rootPath.getAbsoluteFile(), encryptedName);
 		boolean result = toEncFile.delete();
 		return result;
 	}
 
 	private EncFSFileInfo convertToFileInfo(File file) {
 		String relativePath;
-		if (file.equals(nativeRootDir.getAbsoluteFile())) {
+		if (file.equals(rootPath.getAbsoluteFile())) {
 			// we're dealing with the root dir
 			relativePath = "/";
 		} else {
 			relativePath = file.getParentFile().getAbsolutePath()
-				.substring(nativeRootDir.getAbsoluteFile().toString().length());
+				.substring(rootPath.getAbsoluteFile().toString().length());
 			relativePath = "/" + relativePath.replace("\\", "/");
 		}
 		String name = file.getName();
@@ -140,12 +140,12 @@ public class EncFSLocalFileSystemNativeFileSource implements EncFSNativeFileSour
 	}
 
 	public boolean exists(String name) {
-		File toEncFile = new File(nativeRootDir.getAbsoluteFile(), name);
+		File toEncFile = new File(rootPath.getAbsoluteFile(), name);
 		return toEncFile.exists();
 	}
 
 	public File getFile(String name) {
-		File toEncFile = new File(nativeRootDir.getAbsoluteFile(), name);
+		File toEncFile = new File(rootPath.getAbsoluteFile(), name);
 		return toEncFile;
 	}
 
