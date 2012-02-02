@@ -14,7 +14,6 @@
  */
 
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -77,7 +76,7 @@ public class EncFSShell {
 		// Create a new EncFS volume
 		EncFSVolume volume = null;
 		try {
-			volume = new EncFSVolume(new File(args[0]), password);
+			volume = new EncFSVolume(args[0], password);
 		} catch (EncFSUnsupportedException e) {
 			System.out.println(e.getMessage());
 			System.exit(1);

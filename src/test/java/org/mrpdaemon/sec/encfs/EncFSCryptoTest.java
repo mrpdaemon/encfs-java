@@ -36,7 +36,7 @@ public class EncFSCryptoTest {
 		Assert.assertTrue(encFSDir.exists());
 
 		String password = "test";
-		EncFSVolume volume = new EncFSVolume(encFSDir, password);
+		EncFSVolume volume = new EncFSVolume(encFSDir.getAbsolutePath(), password);
 
 		byte[] orig = new byte[] { 116, 101, 115, 116, 102, 105, 108, 101, 46, 116, 120, 116 };
 		byte[] ivSeed = new byte[] { 0, 0, 0, 0, 0, 0, 98, -63 };
@@ -55,7 +55,7 @@ public class EncFSCryptoTest {
 		Assert.assertTrue(encFSDir.exists());
 
 		String password = "test";
-		EncFSVolume volume = new EncFSVolume(encFSDir, password);
+		EncFSVolume volume = new EncFSVolume(encFSDir.getAbsolutePath(), password);
 
 		String str = "test file\r";
 

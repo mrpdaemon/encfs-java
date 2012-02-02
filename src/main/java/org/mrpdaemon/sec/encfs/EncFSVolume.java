@@ -28,9 +28,6 @@ import java.util.List;
 
 import javax.crypto.Cipher;
 import javax.crypto.Mac;
-import javax.xml.parsers.ParserConfigurationException;
-
-import org.xml.sax.SAXException;
 
 /**
  * Class representing an EncFS volume.
@@ -46,7 +43,7 @@ public class EncFSVolume {
 	public final static String ENCFS_VOLUME_CONFIG_FILE_NAME = ".encfs6.xml";
 
 	// Old EncFS config file names
-	private final static String[] ENCFS_VOLUME_OLD_CONFIG_FILE_NAMES = { ".encfs5", ".encfs4", ".encfs3", ".encfs2",
+	public final static String[] ENCFS_VOLUME_OLD_CONFIG_FILE_NAMES = { ".encfs5", ".encfs4", ".encfs3", ".encfs2",
 			".encfs" };
 
 	/**
@@ -88,10 +85,9 @@ public class EncFSVolume {
 	/**
 	 * Creates a new object representing an existing EncFS volume
 	 * 
-	 * @param rootDir
-	 *            Root directory of the EncFS volume
-	 * @param configFile
-	 *            Configuration file of the EncFS volume
+	 * @param rootPath
+	 *            Path of the root directory of the EncFS volume
+	 *            on the local filesystem
 	 * @param password
 	 *            User supplied password to decrypt volume key
 	 * 
@@ -106,91 +102,10 @@ public class EncFSVolume {
 	 * @throws EncFSUnsupportedException
 	 *             Unsupported EncFS version or options
 	 */
-	public EncFSVolume(File rootDir, File configFile, String password) throws FileNotFoundException,
-			EncFSInvalidPasswordException, EncFSInvalidConfigException, EncFSCorruptDataException,
-			EncFSUnsupportedException {
-		init(new EncFSLocalFileProvider(rootDir), configFile, password);
-	}
-
-	/**
-	 * Creates a new object representing an existing EncFS volume
-	 * 
-	 * @param rootDir
-	 *            Root directory of the EncFS volume
-	 * @param configFile
-	 *            Configuration file of the EncFS volume
-	 * @param passwordKey
-	 *            Cached password-based key/IV data. Can be obtained using
-	 *            getPasswordKey() on a volume created with a regular password.
-	 *            Caching the password-based key data can significantly speed up
-	 *            volume creation.
-	 * 
-	 * @throws FileNotFoundException
-	 *             Root directory or configuration file not found
-	 * @throws EncFSInvalidPasswordException
-	 *             Given password is incorrect
-	 * @throws EncFSCorruptDataException
-	 *             Corrupt data detected (checksum error)
-	 * @throws EncFSInvalidConfigException
-	 *             Configuration file format not recognized
-	 * @throws EncFSUnsupportedException
-	 *             Unsupported EncFS version or options
-	 */
-	public EncFSVolume(File rootDir, File configFile, byte[] passwordKey) throws FileNotFoundException,
-			EncFSInvalidPasswordException, EncFSInvalidConfigException, EncFSCorruptDataException,
-			EncFSUnsupportedException {
-		init(new EncFSLocalFileProvider(rootDir), configFile, passwordKey);
-	}
-
-	/**
-	 * Creates a new object representing an existing EncFS volume
-	 * 
-	 * @param rootDir
-	 *            Root directory of the EncFS volume
-	 * @param password
-	 *            User supplied password to decrypt volume key
-	 * 
-	 * @throws FileNotFoundException
-	 *             Root directory or configuration file not found
-	 * @throws EncFSInvalidPasswordException
-	 *             Given password is incorrect
-	 * @throws EncFSCorruptDataException
-	 *             Corrupt data detected (checksum error)
-	 * @throws EncFSInvalidConfigException
-	 *             Configuration file format not recognized
-	 * @throws EncFSUnsupportedException
-	 *             Unsupported EncFS version or options
-	 */
-	public EncFSVolume(File rootDir, String password) throws FileNotFoundException, EncFSInvalidPasswordException,
+	public EncFSVolume(String rootPath, String password)
+			throws FileNotFoundException, EncFSInvalidPasswordException,
 			EncFSInvalidConfigException, EncFSCorruptDataException, EncFSUnsupportedException {
-		init(new EncFSLocalFileProvider(rootDir), password);
-	}
-
-	/**
-	 * Creates a new object representing an existing EncFS volume
-	 * 
-	 * @param rootDir
-	 *            Root directory of the EncFS volume
-	 * @param passwordKey
-	 *            Cached password-based key/IV data. Can be obtained using
-	 *            getPasswordKey() on a volume created with a regular password.
-	 *            Caching the password-based key data can significantly speed up
-	 *            volume creation.
-	 * 
-	 * @throws FileNotFoundException
-	 *             Root directory or configuration file not found
-	 * @throws EncFSInvalidPasswordException
-	 *             Given password is incorrect
-	 * @throws EncFSCorruptDataException
-	 *             Corrupt data detected (checksum error)
-	 * @throws EncFSInvalidConfigException
-	 *             Configuration file format not recognized
-	 * @throws EncFSUnsupportedException
-	 *             Unsupported EncFS version or options
-	 */
-	public EncFSVolume(File rootDir, byte[] passwordKey) throws FileNotFoundException, EncFSInvalidPasswordException,
-			EncFSInvalidConfigException, EncFSCorruptDataException, EncFSUnsupportedException {
-		this(rootDir, new File(rootDir.getAbsolutePath(), ENCFS_VOLUME_CONFIG_FILE_NAME), passwordKey);
+		this.init(new EncFSLocalFileProvider(new File(rootPath)), password);
 	}
 
 	/**
@@ -198,30 +113,7 @@ public class EncFSVolume {
 	 * 
 	 * @param rootPath
 	 *            Path of the root directory of the EncFS volume
-	 * @param password
-	 *            User supplied password to decrypt volume key
-	 * 
-	 * @throws FileNotFoundException
-	 *             Root directory or configuration file not found
-	 * @throws EncFSInvalidPasswordException
-	 *             Given password is incorrect
-	 * @throws EncFSCorruptDataException
-	 *             Corrupt data detected (checksum error)
-	 * @throws EncFSInvalidConfigException
-	 *             Configuration file format not recognized
-	 * @throws EncFSUnsupportedException
-	 *             Unsupported EncFS version or options
-	 */
-	public EncFSVolume(String rootPath, String password) throws FileNotFoundException, EncFSInvalidPasswordException,
-			EncFSInvalidConfigException, EncFSCorruptDataException, EncFSUnsupportedException {
-		this(new File(rootPath), password);
-	}
-
-	/**
-	 * Creates a new object representing an existing EncFS volume
-	 * 
-	 * @param rootPath
-	 *            Path of the root directory of the EncFS volume
+	 *            on the local filesystem
 	 * @param passwordKey
 	 *            Cached password-based key/IV data. Can be obtained using
 	 *            getPasswordKey() on a volume created with a regular password.
@@ -242,14 +134,14 @@ public class EncFSVolume {
 	public EncFSVolume(String rootPath, byte[] passwordKey) throws FileNotFoundException,
 			EncFSInvalidPasswordException, EncFSInvalidConfigException, EncFSCorruptDataException,
 			EncFSUnsupportedException {
-		this(new File(rootPath), passwordKey);
+		this.init(new EncFSLocalFileProvider(new File(rootPath)), passwordKey);
 	}
 
 	/**
-	 * Initialises a new object representing an existing EncFS volume
-	 * 
-	 * @param encFsRootDir
-	 *            Root directory of the EncFS volume
+	 * Creates a new object representing an existing EncFS volume
+
+	 * @param fileProvider
+	 *            File provider for access to files stored in non-local storage
 	 * @param password
 	 *            User supplied password to decrypt volume key
 	 * 
@@ -264,25 +156,22 @@ public class EncFSVolume {
 	 * @throws EncFSUnsupportedException
 	 *             Unsupported EncFS version or options
 	 */
-	public void init(EncFSFileProvider nativeFileSource, String password) throws FileNotFoundException,
-			EncFSUnsupportedException, EncFSInvalidConfigException, EncFSCorruptDataException,
-			EncFSInvalidPasswordException {
-		EncFSConfig config = parseConfig(nativeFileSource, ENCFS_VOLUME_CONFIG_FILE_NAME);
-		byte[] passwordKey = EncFSCrypto.derivePasswordKey(config, password);
-
-		this.init(nativeFileSource, config, passwordKey);
+	public EncFSVolume(EncFSFileProvider fileProvider, String password)
+			throws FileNotFoundException, EncFSInvalidPasswordException,
+			EncFSInvalidConfigException, EncFSCorruptDataException, EncFSUnsupportedException {
+		this.init(fileProvider, password);
 	}
 
 	/**
-	 * Initialises a new object representing an existing EncFS volume using
-	 * cached password-based key/IV data. (Can be obtained using
-	 * getPasswordKey() on a volume created with a regular password. Caching the
-	 * password-based key data can significantly speed up volume creation.)
-	 * 
-	 * @param encFsRootDir
-	 *            Root directory of the EncFS volume
+	 * Creates a new object representing an existing EncFS volume
+	 *
+	 * @param fileProvider
+	 *            File provider for access to files stored in non-local storage
 	 * @param passwordKey
-	 *            Cached password-based key/IV data.
+	 *            Cached password-based key/IV data. Can be obtained using
+	 *            getPasswordKey() on a volume created with a regular password.
+	 *            Caching the password-based key data can significantly speed up
+	 *            volume creation.
 	 * 
 	 * @throws FileNotFoundException
 	 *             Root directory or configuration file not found
@@ -295,24 +184,22 @@ public class EncFSVolume {
 	 * @throws EncFSUnsupportedException
 	 *             Unsupported EncFS version or options
 	 */
-	public void init(EncFSFileProvider nativeFileSource, byte[] passwordKey) throws FileNotFoundException,
-			EncFSUnsupportedException, EncFSInvalidConfigException, EncFSCorruptDataException,
-			EncFSInvalidPasswordException {
-		EncFSConfig config = parseConfig(nativeFileSource, ENCFS_VOLUME_CONFIG_FILE_NAME);
-
-		this.init(nativeFileSource, config, passwordKey);
+	public EncFSVolume(EncFSFileProvider fileProvider, byte[] passwordKey) throws FileNotFoundException,
+			EncFSInvalidPasswordException, EncFSInvalidConfigException, EncFSCorruptDataException,
+			EncFSUnsupportedException {
+		this.init(fileProvider, passwordKey);
 	}
 
 	/**
-	 * Initialises a new object representing an existing EncFS volume with a
-	 * user specified config file.
-	 * 
-	 * @param encFsRootDir
-	 *            Root directory of the EncFS volume
-	 * @param configFile
-	 *            Configuration file of the EncFS volume
+	 * Creates a new object representing an existing EncFS volume
+
+	 * @param fileProvider
+	 *            File provider for access to files stored in non-local storage
+	 * @param config
+	 *            EncFSConfig if the config file is stored in a separate location
+	 *            than the file provider's root directory
 	 * @param password
-	 *            User specified password
+	 *            User supplied password to decrypt volume key
 	 * 
 	 * @throws FileNotFoundException
 	 *             Root directory or configuration file not found
@@ -325,28 +212,25 @@ public class EncFSVolume {
 	 * @throws EncFSUnsupportedException
 	 *             Unsupported EncFS version or options
 	 */
-	public void init(EncFSFileProvider fileProvider, File encFsConfigFile, String password)
-			throws FileNotFoundException, EncFSUnsupportedException, EncFSInvalidConfigException,
-			EncFSCorruptDataException, EncFSInvalidPasswordException {
-		EncFSConfig config = parseConfig(encFsConfigFile);
-		byte[] passwordKey = EncFSCrypto.derivePasswordKey(config, password);
-
-		init(fileProvider, config, passwordKey);
+	public EncFSVolume(EncFSFileProvider fileProvider, EncFSConfig config, String password)
+			throws FileNotFoundException, EncFSInvalidPasswordException,
+			EncFSInvalidConfigException, EncFSCorruptDataException, EncFSUnsupportedException {
+		this.init(fileProvider, config, password);
 	}
 
 	/**
-	 * Initialises a new object representing an existing EncFS volume with a
-	 * user specified config file using cached password-based key/IV data. (Can
-	 * be obtained using getPasswordKey() on a volume created with a regular
-	 * password. Caching the password-based key data can significantly speed up
-	 * volume creation.)
-	 * 
-	 * @param encFsRootDir
-	 *            Root directory of the EncFS volume
-	 * @param configFile
-	 *            Configuration file of the EncFS volume
+	 * Creates a new object representing an existing EncFS volume
+	 *
+	 * @param fileProvider
+	 *            File provider for access to files stored in non-local storage
+	 * @param config
+	 *            EncFSConfig if the config file is stored in a separate location
+	 *            than the file provider's root directory
 	 * @param passwordKey
-	 *            Cached password-based key/IV data.
+	 *            Cached password-based key/IV data. Can be obtained using
+	 *            getPasswordKey() on a volume created with a regular password.
+	 *            Caching the password-based key data can significantly speed up
+	 *            volume creation.
 	 * 
 	 * @throws FileNotFoundException
 	 *             Root directory or configuration file not found
@@ -359,13 +243,35 @@ public class EncFSVolume {
 	 * @throws EncFSUnsupportedException
 	 *             Unsupported EncFS version or options
 	 */
-	public void init(EncFSFileProvider fileProvider, File encFsConfigFile, byte[] passwordKey)
-			throws FileNotFoundException, EncFSUnsupportedException, EncFSInvalidConfigException,
-			EncFSCorruptDataException, EncFSInvalidPasswordException {
+	public EncFSVolume(EncFSFileProvider fileProvider, EncFSConfig config, byte[] passwordKey) throws FileNotFoundException,
+			EncFSInvalidPasswordException, EncFSInvalidConfigException, EncFSCorruptDataException,
+			EncFSUnsupportedException {
+		this.init(fileProvider, config, passwordKey);
+	}
 
-		EncFSConfig config = parseConfig(encFsConfigFile);
+	private void init(EncFSFileProvider fileProvider, String password) throws FileNotFoundException,
+			EncFSUnsupportedException, EncFSInvalidConfigException, EncFSCorruptDataException,
+			EncFSInvalidPasswordException {
+		EncFSConfig config = EncFSConfigParser.parseConfig(fileProvider, ENCFS_VOLUME_CONFIG_FILE_NAME);
+		byte[] passwordKey = EncFSCrypto.derivePasswordKey(config, password);
 
-		init(fileProvider, config, passwordKey);
+		this.init(fileProvider, config, passwordKey);
+	}
+
+	private void init(EncFSFileProvider fileProvider, EncFSConfig config, String password) throws FileNotFoundException,
+			EncFSUnsupportedException, EncFSInvalidConfigException, EncFSCorruptDataException,
+			EncFSInvalidPasswordException {
+		byte[] passwordKey = EncFSCrypto.derivePasswordKey(config, password);
+
+		this.init(fileProvider, config, passwordKey);
+	}
+
+	private void init(EncFSFileProvider fileProvider, byte[] passwordKey) throws FileNotFoundException,
+			EncFSUnsupportedException, EncFSInvalidConfigException, EncFSCorruptDataException,
+			EncFSInvalidPasswordException {
+		EncFSConfig config = EncFSConfigParser.parseConfig(fileProvider, ENCFS_VOLUME_CONFIG_FILE_NAME);
+
+		this.init(fileProvider, config, passwordKey);
 	}
 
 	private void init(EncFSFileProvider fileProvider, EncFSConfig config, byte[] passwordKey)
@@ -411,41 +317,6 @@ public class EncFSVolume {
 		this.blockCipher = EncFSCrypto.newBlockCipher();
 
 		rootDir = getEncFSFile(ENCFS_VOLUME_ROOT_PATH);
-	}
-
-	// Parse the configuration file - common step for init functions
-	private static EncFSConfig parseConfig(File configFile) throws FileNotFoundException, EncFSUnsupportedException,
-			EncFSInvalidConfigException {
-		return parseConfig(new EncFSLocalFileProvider(configFile.getParentFile()), configFile.getName());
-	}
-
-	private static EncFSConfig parseConfig(EncFSFileProvider nativeFileSystem, String name)
-			throws EncFSUnsupportedException, EncFSInvalidConfigException {
-
-		EncFSConfig config;
-		if (!nativeFileSystem.exists("/" + name)) {
-			// Try old versions
-			for (String altConfigFileName : ENCFS_VOLUME_OLD_CONFIG_FILE_NAMES) {
-				if (nativeFileSystem.exists("/" + altConfigFileName)) {
-					throw new EncFSUnsupportedException("Unsupported EncFS version");
-				}
-			}
-
-			throw new EncFSInvalidConfigException("No EncFS configuration file found");
-		}
-
-		// Parse the configuration file
-		try {
-			config = EncFSConfigParser.parseFile(nativeFileSystem.openInputStream("/" + name));
-		} catch (ParserConfigurationException e2) {
-			throw new EncFSUnsupportedException("XML parser not supported");
-		} catch (SAXException e2) {
-			throw new EncFSInvalidConfigException("Parse error in config file");
-		} catch (IOException e2) {
-			throw new EncFSInvalidConfigException("Couldn't open config file");
-		}
-
-		return config;
 	}
 
 	/**

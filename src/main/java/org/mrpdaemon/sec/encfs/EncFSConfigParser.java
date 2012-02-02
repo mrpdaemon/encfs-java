@@ -62,6 +62,49 @@ public class EncFSConfigParser {
 	}
 
 	/**
+	 * @param fileProvider
+	 *        File provider to access the config file
+	 * @param path
+	 *        Path of the config file in the file provider's notation
+	 *        
+	 * @return An EncFSConfig object representing the parsing result
+	 * 
+	 * @throws EncFSUnsupportedException
+	 *         Unsupported EncFS version
+	 * @throws EncFSInvalidConfigException
+	 *         Config file not found
+	 */
+	public static EncFSConfig parseConfig(EncFSFileProvider fileProvider, String path)
+			throws EncFSUnsupportedException, EncFSInvalidConfigException {
+
+		EncFSConfig config;
+		//TODO: Need to implement a connector method in EncFSFileProvider for '/'
+		if (!fileProvider.exists("/" + path)) {
+			// Try old versions
+			for (String altConfigFileName : EncFSVolume.ENCFS_VOLUME_OLD_CONFIG_FILE_NAMES) {
+				if (fileProvider.exists("/" + altConfigFileName)) {
+					throw new EncFSUnsupportedException("Unsupported EncFS version");
+				}
+			}
+
+			throw new EncFSInvalidConfigException("No EncFS configuration file found");
+		}
+
+		// Parse the configuration file
+		try {
+			config = EncFSConfigParser.parseFile(fileProvider.openInputStream("/" + path));
+		} catch (ParserConfigurationException e2) {
+			throw new EncFSUnsupportedException("XML parser not supported");
+		} catch (SAXException e2) {
+			throw new EncFSInvalidConfigException("Parse error in config file");
+		} catch (IOException e2) {
+			throw new EncFSInvalidConfigException("Couldn't open config file");
+		}
+
+		return config;
+	}
+
+	/**
 	 * Parse the given configuration file from a stream
 	 * 
 	 * @param configFile

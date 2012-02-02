@@ -58,7 +58,7 @@ public class EncFSVolumeTest {
 		String password = "badPassword";
 
 		try {
-			new EncFSVolume(encFSDir, password);
+			new EncFSVolume(encFSDir.getAbsolutePath(), password);
 			Assert.fail();
 		} catch (EncFSInvalidPasswordException e) {
 			// this is correct that we should have got this exception
@@ -73,27 +73,7 @@ public class EncFSVolumeTest {
 		Assert.assertTrue(encFSDir.exists());
 
 		String password = "test";
-		EncFSVolume volume = new EncFSVolume(encFSDir, password);
-		EncFSFile rootDir = volume.getRootDir();
-		EncFSFile[] files = rootDir.listFiles();
-		Assert.assertEquals(1, files.length);
-
-		EncFSFile encFSFile = files[0];
-		Assert.assertFalse(encFSFile.isDirectory());
-		Assert.assertEquals("test.txt", encFSFile.getName());
-
-		String contents = readInputStreamAsString(encFSFile);
-		Assert.assertEquals("This is a test file.\n", contents);
-
-		assertFileNameEncoding(rootDir);
-		assertEncFSFileRoundTrip(rootDir);
-	}
-	
-	@Test
-	public void testDefaultVolStr() throws EncFSInvalidPasswordException, EncFSInvalidConfigException,
-			EncFSCorruptDataException, EncFSUnsupportedException, EncFSChecksumException, IOException {
-		String password = "test";
-		EncFSVolume volume = new EncFSVolume("test/encfs_samples/testvol-default", password);
+		EncFSVolume volume = new EncFSVolume(encFSDir.getAbsolutePath(), password);
 		EncFSFile rootDir = volume.getRootDir();
 		EncFSFile[] files = rootDir.listFiles();
 		Assert.assertEquals(1, files.length);
@@ -116,7 +96,7 @@ public class EncFSVolumeTest {
 		Assert.assertTrue(encFSDir.exists());
 
 		String password = "test";
-		EncFSVolume volume = new EncFSVolume(encFSDir, password);
+		EncFSVolume volume = new EncFSVolume(encFSDir.getAbsolutePath(), password);
 		EncFSFile rootDir = volume.getRootDir();
 		EncFSFile[] files = rootDir.listFiles();
 		Assert.assertEquals(1, files.length);
@@ -139,7 +119,7 @@ public class EncFSVolumeTest {
 		Assert.assertTrue(encFSDir.exists());
 
 		String password = "test";
-		EncFSVolume volume = new EncFSVolume(encFSDir, password);
+		EncFSVolume volume = new EncFSVolume(encFSDir.getAbsolutePath(), password);
 		EncFSFile rootDir = volume.getRootDir();
 		EncFSFile[] files = rootDir.listFiles();
 		Assert.assertEquals(1, files.length);
@@ -162,7 +142,7 @@ public class EncFSVolumeTest {
 		Assert.assertTrue(encFSDir.exists());
 
 		String password = "test2";
-		EncFSVolume volume = new EncFSVolume(encFSDir, password);
+		EncFSVolume volume = new EncFSVolume(encFSDir.getAbsolutePath(), password);
 		EncFSFile rootDir = volume.getRootDir();
 		EncFSFile[] files = rootDir.listFiles();
 		Assert.assertEquals(2, files.length);
@@ -196,7 +176,7 @@ public class EncFSVolumeTest {
 		Assert.assertTrue(encFSDir.exists());
 
 		String password = "test";
-		EncFSVolume volume = new EncFSVolume(encFSDir, password);
+		EncFSVolume volume = new EncFSVolume(encFSDir.getAbsolutePath(), password);
 		EncFSFile rootDir = volume.getRootDir();
 		EncFSFile[] files = rootDir.listFiles();
 		Assert.assertEquals(1, files.length);
