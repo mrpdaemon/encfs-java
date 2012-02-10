@@ -81,5 +81,24 @@ public class EncFSFileInfo {
 	public boolean canExecute() {
 		return canExecute;
 	}
+	
+	public static EncFSFileInfo getDecodedFileInfo(EncFSVolume volume, String decodedDirName, String decodedFileName,
+			EncFSFileInfo fileInfo) {
+		long size;
+		if (fileInfo.isDirectory()) {
+			size = 0;
+		} else {
+			boolean haveHeader = volume.getConfig().isUniqueIV();
 
+			size = fileInfo.getSize();
+
+			if (haveHeader && size > 0) {
+				size -= EncFSFile.HEADER_SIZE;
+			}
+		}
+
+		EncFSFileInfo decEncFileInfo = new EncFSFileInfo(decodedFileName, decodedDirName, fileInfo.isDirectory(),
+				fileInfo.getModified(), size, fileInfo.canRead(), fileInfo.canWrite(), fileInfo.canExecute());
+		return decEncFileInfo;
+	}
 }

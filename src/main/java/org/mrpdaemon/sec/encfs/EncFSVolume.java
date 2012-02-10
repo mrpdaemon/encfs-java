@@ -376,34 +376,32 @@ public class EncFSVolume {
 	}
 
 	public EncFSFile getEncFSFile(String volumePath, String fileName) throws EncFSCorruptDataException,
-			EncFSChecksumException {
+			EncFSChecksumException, FileNotFoundException {
 		validateAbsoluteFileName(volumePath, "volumePath");
 		return getEncFSFile(volumePath + "/" + fileName);
 	}
 
-	public EncFSFile getEncFSFile(String fileName) throws EncFSCorruptDataException {
+	public EncFSFile getEncFSFile(String fileName)
+			throws EncFSCorruptDataException, FileNotFoundException {
 		validateAbsoluteFileName(fileName, "fileName");
 
-		String toEncVolumePath = EncFSCrypto.encodePath(this, fileName, "/");
+		String encryptedPath = EncFSCrypto.encodePath(this, fileName, ENCFS_VOLUME_ROOT_PATH);
 
-		EncFSFileInfo fileInfo = fileProvider.getFileInfo(toEncVolumePath);
+		EncFSFileInfo fileInfo = fileProvider.getFileInfo(encryptedPath);
+		if (fileProvider.exists(encryptedPath) == false) {
+			throw new FileNotFoundException();
+		}
 
 		EncFSFileInfo decodedFileInfo;
 		if (fileName.equals(ENCFS_VOLUME_ROOT_PATH)) {
-			decodedFileInfo = convertNativeToDecodedFileInfo("", "/", fileInfo);
+			decodedFileInfo = EncFSFileInfo.getDecodedFileInfo(this, "", "/", fileInfo);
 		} else {
 			String decDirName = fileName.substring(0, fileName.lastIndexOf("/") - 1);
 			String decFilename = fileName.substring(fileName.lastIndexOf("/") + 1);
-			decodedFileInfo = convertNativeToDecodedFileInfo(decDirName, decFilename, fileInfo);
+			decodedFileInfo = EncFSFileInfo.getDecodedFileInfo(this, decDirName, decFilename, fileInfo);
 		}
 
-		if (this.fileProvider instanceof EncFSLocalFileProvider) {
-			File file = ((EncFSLocalFileProvider) fileProvider).getFile(fileInfo.getAbsoluteName());
-			return new EncFSFile(this, decodedFileInfo, fileInfo, file);
-		} else {
-			return new EncFSFile(this, decodedFileInfo, fileInfo);
-		}
-
+		return new EncFSFile(this, decodedFileInfo, fileInfo);
 	}
 
 	/**
@@ -628,18 +626,9 @@ public class EncFSVolume {
 			}
 
 			if (decodedFileName != null) {
-				EncFSFileInfo decEncFileInfo = convertNativeToDecodedFileInfo(dirName, decodedFileName, fileInfo);
+				EncFSFileInfo decEncFileInfo = EncFSFileInfo.getDecodedFileInfo(this, dirName, decodedFileName, fileInfo);
 
-				EncFSFile encfsFile;
-				if (this.fileProvider instanceof EncFSLocalFileProvider) {
-					File file = ((EncFSLocalFileProvider) fileProvider).getFile(fileInfo
-							.getAbsoluteName());
-					encfsFile = new EncFSFile(this, decEncFileInfo, fileInfo, file);
-				} else {
-					encfsFile = new EncFSFile(this, decEncFileInfo, fileInfo);
-				}
-
-				result.add(encfsFile);
+				result.add(new EncFSFile(this, decEncFileInfo, fileInfo));
 			}
 		}
 
@@ -749,26 +738,6 @@ public class EncFSVolume {
 
 		String encSrcFile = EncFSCrypto.encodePath(this, srcFile, "/");
 		return fileProvider.openOutputStream(encSrcFile);
-	}
-
-	private EncFSFileInfo convertNativeToDecodedFileInfo(String decodedDirName, String decodedFileName,
-			EncFSFileInfo fileInfo) {
-		long size;
-		if (fileInfo.isDirectory()) {
-			size = 0;
-		} else {
-			boolean haveHeader = getConfig().isUniqueIV();
-
-			size = fileInfo.getSize();
-
-			if (haveHeader && size > 0) {
-				size -= EncFSFile.HEADER_SIZE;
-			}
-		}
-
-		EncFSFileInfo decEncFileInfo = new EncFSFileInfo(decodedFileName, decodedDirName, fileInfo.isDirectory(),
-				fileInfo.getModified(), size, fileInfo.canRead(), fileInfo.canWrite(), fileInfo.canExecute());
-		return decEncFileInfo;
 	}
 
 	private void validateAbsoluteFileName(String fileName, String name) {

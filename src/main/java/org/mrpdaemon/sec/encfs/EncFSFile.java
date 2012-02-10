@@ -55,22 +55,6 @@ public class EncFSFile {
 	}
 
 	/**
-	 * Create a new object representing a file in an EncFS volume
-	 * 
-	 * @param volume
-	 *            The volume that contains the file
-	 * @param fileInfo
-	 *            The information on the file
-	 */
-	@Deprecated
-	public EncFSFile(EncFSVolume volume, EncFSFileInfo fileInfo, EncFSFileInfo encryptedFileInfo, File file) {
-		this.volume = volume;
-		this.fileInfo = fileInfo;
-		this.encryptedFileInfo = encryptedFileInfo;
-		this.file = file;
-	}
-
-	/**
 	 * @return Volume path of the EncFS file
 	 */
 	public String getVolumePath() {
@@ -236,13 +220,5 @@ public class EncFSFile {
 
 	public String getEncrytedVolumePath() {
 		return encryptedFileInfo.getVolumePath();
-	}
-
-	@Deprecated
-	public File getFile() {
-		if (file == null) {
-			throw new UnsupportedOperationException();
-		}
-		return this.file;
 	}
 }
