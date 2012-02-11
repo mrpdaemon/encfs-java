@@ -25,6 +25,7 @@ import java.security.Key;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Random;
 
 import javax.crypto.Cipher;
 import javax.crypto.Mac;
@@ -317,6 +318,37 @@ public class EncFSVolume {
 		this.blockCipher = EncFSCrypto.newBlockCipher();
 
 		rootDir = getEncFSFile(ENCFS_VOLUME_ROOT_PATH);
+	}
+	
+	/**
+	 * Creates a new EncFS volume on the supplied file provider using the
+	 * requested EncFSConfig parameters and the given password
+	 * 
+	 * @param fileProvider File provider to use for accessing storage
+	 * @param config Volume configuration to use, should have all fields
+	 *               except for salt/key fields initialized
+	 * @param password Volume password to use
+	 * 
+	 * @return EncFSVolume handle to the newly created volume
+	 * 
+	 * @throws EncFSInvalidPasswordException
+	 * @throws EncFSInvalidConfigException
+	 * @throws EncFSCorruptDataException
+	 * @throws EncFSUnsupportedException
+	 * @throws IOException
+	 */
+	public static EncFSVolume createVolume(EncFSFileProvider fileProvider, EncFSConfig config, String password)
+			throws EncFSInvalidPasswordException, EncFSInvalidConfigException, EncFSCorruptDataException, EncFSUnsupportedException, IOException {
+		Random random = new Random();
+		
+		// Create a random volume key + IV pair
+		byte[] randVolKey = new byte[config.getVolumeKeySize() / 8 +
+		                             EncFSVolume.ENCFS_VOLUME_IV_LENGTH];
+		random.nextBytes(randVolKey);
+		
+		EncFSConfig.encodeVolumeKey(config, password, randVolKey);
+		EncFSConfigWriter.writeConfig(fileProvider, config, password);
+		return new EncFSVolume(fileProvider, config, password);
 	}
 
 	/**

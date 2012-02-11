@@ -187,6 +187,52 @@ public class EncFSVolumeTest {
 		assertFileNameEncoding(rootDir);
 		assertEncFSFileRoundTrip(rootDir);
 	}
+	
+	@Test
+	public void createVolume_1() {
+		File rootDir;
+		try {
+			rootDir = createTempDir();
+		} catch (IOException e) {
+			Assert.fail("Could not create temporary directory");
+			return;
+		}
+		
+		EncFSConfig config = EncFSConfig.newDefaultConfig();
+		String password = "test";
+		
+		try {
+			@SuppressWarnings("unused")
+			EncFSVolume volume = EncFSVolume.createVolume(
+					new EncFSLocalFileProvider(rootDir), config, password);
+		} catch (Exception e) {
+			Assert.fail(e.getMessage());
+		}
+		
+		//Clean up after ourselves
+		File configFile = new File(rootDir.getAbsolutePath(), 
+				EncFSVolume.ENCFS_VOLUME_CONFIG_FILE_NAME);
+		Assert.assertTrue(configFile.exists());
+		configFile.delete();
+		
+		Assert.assertTrue(rootDir.exists());
+		rootDir.delete();
+	}
+
+	private File createTempDir() throws IOException {
+		File temp;
+		
+		temp = File.createTempFile("encfs-java-tmp", Long.toString(System.nanoTime()));
+		if (!temp.delete()) {
+			throw new IOException("Could not delete temporary file " + temp.getAbsolutePath());
+		}
+		
+		if (!temp.mkdir()) {
+			throw new IOException("Could not create temporary directory");
+		}
+		
+		return temp;
+	}
 
 	private void assertFileNameEncoding(EncFSFile encfsFileDir) throws EncFSCorruptDataException,
 			EncFSChecksumException, IOException {

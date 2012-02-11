@@ -516,6 +516,66 @@ public class EncFSCrypto {
 		return clearVolKeyData;
 	}
 
+	/**
+	 * Derive volume key for the given config and password-based key/IV data
+	 * 
+	 * @param config Volume configuration
+	 * @param pbkdf2Data PBKDF2 key material + IV (from derivePasswordKey())
+	 * 
+	 * @return Volume key + IV bits
+	 * 
+	 * @throws EncFSChecksumException
+	 * @throws EncFSInvalidConfigException
+	 * @throws EncFSCorruptDataException
+	 * @throws EncFSUnsupportedException
+	 */
+	public static byte[] encryptVolumeKey(EncFSConfig config, byte[] pbkdf2Data, byte[] volKeyData)
+			throws EncFSUnsupportedException, EncFSInvalidConfigException, EncFSCorruptDataException {
+		// Prepare key/IV for decryption
+		int keySizeInBytes = config.getVolumeKeySize() / 8;
+		byte[] passKeyData = Arrays.copyOfRange(pbkdf2Data, 0, keySizeInBytes);
+		byte[] passIvData = Arrays.copyOfRange(pbkdf2Data, keySizeInBytes, keySizeInBytes
+				+ EncFSVolume.ENCFS_VOLUME_IV_LENGTH);
+
+		Key passKey = newKey(passKeyData);
+
+		// Encrypt the volume key data
+		Mac mac;
+		try {
+			mac = newMac(passKey);
+		} catch (InvalidKeyException e) {
+			throw new EncFSInvalidConfigException(e);
+		}
+
+		// Calculate MAC for the key
+		byte[] mac32 = mac32(mac, volKeyData, new byte[0]);
+		
+		// Encrypt the key data 
+		byte[] cipherVolKeyData = null;
+		try {
+			cipherVolKeyData = streamEncode(newStreamCipher(), mac, passKey, passIvData, mac32, volKeyData);
+		} catch (InvalidAlgorithmParameterException e) {
+			throw new EncFSInvalidConfigException(e);
+		} catch (IllegalBlockSizeException e) {
+			throw new EncFSCorruptDataException(e);
+		} catch (BadPaddingException e) {
+			throw new EncFSCorruptDataException(e);
+		}
+
+		// Combine MAC with key data
+		byte[] result = new byte[mac32.length + cipherVolKeyData.length];
+		
+		for (int i = 0; i < mac32.length; i++) {
+			result[i] = mac32[i];
+		}
+		
+		for (int i = 0; i < cipherVolKeyData.length; i++) {
+			result[i + mac32.length] = cipherVolKeyData[i];
+		}
+		
+		return result;
+	}
+
 	private static byte[] computeChainIv(EncFSVolume volume, String volumePath) {
 		byte[] chainIv = new byte[8];
 		StringTokenizer st = new StringTokenizer(volumePath, "/");

@@ -15,6 +15,8 @@
 
 package org.mrpdaemon.sec.encfs;
 
+import java.util.Random;
+
 /**
  * Class representing volume configuration data for an EncFS volume.
  */
@@ -72,6 +74,60 @@ public class EncFSConfig {
 
 	// Algorithm used for file name encryption
 	private int nameAlgorithm;
+
+	/**
+	 * Returns a default EncFS configuration that encfs-java supports
+	 * 
+	 * @return default EncFS configuration minus salt/password fields
+	 */
+	public static EncFSConfig newDefaultConfig() {
+		EncFSConfig config = new EncFSConfig();
+		
+		config.setNameAlgorithm(ENCFS_CONFIG_NAME_ALG_BLOCK);
+		config.setVolumeKeySize(192);
+		config.setBlockSize(1024);
+		config.setUniqueIV(true);
+		config.setChainedNameIV(true);
+		config.setHolesAllowed(false); //XXX: Not supported
+
+		return config;
+	}
+	
+	/**
+	 * Encodes the given volume key using the supplied password parameters,
+	 * placing it into the EncFSConfig
+	 * 
+	 * @param config Partially initialized volume configuration
+	 * @param password Password to use for encoding the key
+	 * @param volKey Volume key to encode
+	 * 
+	 * @throws EncFSUnsupportedException 
+	 * @throws EncFSInvalidConfigException 
+	 * @throws EncFSCorruptDataException 
+	 */
+	public static void encodeVolumeKey(EncFSConfig config, String password, byte[] volKey)
+			throws EncFSInvalidConfigException, EncFSUnsupportedException, EncFSCorruptDataException {
+		Random random = new Random();
+		config.setSaltLength(20);
+		
+		// Generate random salt
+		byte[] salt = new byte[20];
+		random.nextBytes(salt);
+		config.setSaltStr(EncFSBase64.encodeBytes(salt));
+		
+		// Generate random iteration count
+		int iterCount = random.nextInt(300000) + 500;
+		config.setIterationCount(iterCount);
+		
+		// Get password key data
+		byte[] pbkdf2Data = EncFSCrypto.derivePasswordKey(config, password);
+		
+		// Encode volume key
+		byte[] encodedVolKey = EncFSCrypto.encryptVolumeKey(config, pbkdf2Data, volKey);
+		
+		config.setEncodedKeyLength(encodedVolKey.length);
+		config.setEncodedKeyStr(EncFSBase64.encodeBytes(encodedVolKey));
+	}
 
 	/**
 	 * @return the size of the volume encryption key in bits.
