@@ -4,11 +4,13 @@ encfs-java
 encfs-java is a Java library for accessing data in
 [EncFS](http://www.arg0.net/encfs) volumes. It is able to derive the volume key
 from a user password, decode encrypted filenames (IV chaining is implemented)
-and decrypt file contents.
+and decrypt file contents. Currently we also have experimental support for
+creating new volumes, moving/renaming files as well as copying file contents.
 
-Currently write mode operations aren't implemented, but ability to rename/move,
-write file data and volume creation support are in the works. Also the EncFS
-configurations supported are fairly limited but that is also going to change.
+We do support most encfs volume configuration options, and are interoperable
+with the official encfs implementation (http://www.arg0.net/encfs). Currently
+we only support the latest version (1.7.4), but we target to be able to
+support volumes created with legacy versions as well.
 
 ## Building
 
@@ -26,9 +28,9 @@ Which will create a JAR file in the {$PROJECT_ROOT}/target/ directory.
 ## Usage
 
 This library comes with a demo/example application called EncFSShell. It is a
-simple shell supporting a few commands such as 'ls', 'cd' and 'cat' on an EncFS
-volume. After building the library, add the {$PROJECT_ROOT}/target/classes/
-directory to your CLASSPATH, and run like so:
+simple shell supporting a few commands such as 'ls', 'cd', 'cat', 'mv' and 'cp'
+on an EncFS volume. After building the library, add the
+{$PROJECT_ROOT}/target/classes/ directory to your CLASSPATH, and run like so:
 
     $ java -classpath ${PROJECT_ROOT}/target/classes EncFSShell /path/to/an/encfs/volume
 
@@ -58,10 +60,3 @@ for any modifications to the library itself need to be made available to be able
 to legally redistribute the modified library. For more information, please see the
 LICENSE file and the Free Software Foundation
 [website](http://www.gnu.org/licenses/lgpl.html).
-
-## TODO
-* Post JavaDoc on GitHub
-* Support different EncFS volume configurations (key size, advanced options)
-* Rename/move files
-* Write file contents
-* Volume creation
