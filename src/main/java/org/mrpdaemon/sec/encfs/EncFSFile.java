@@ -15,7 +15,6 @@
 
 package org.mrpdaemon.sec.encfs;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -37,8 +36,6 @@ public class EncFSFile {
 
 	private final EncFSFileInfo encryptedFileInfo;
 
-	private final File file;
-
 	/**
 	 * Create a new object representing a file in an EncFS volume
 	 * 
@@ -51,7 +48,6 @@ public class EncFSFile {
 		this.volume = volume;
 		this.fileInfo = fileInfo;
 		this.encryptedFileInfo = encryptedFileInfo;
-		this.file = null;
 	}
 
 	/**
