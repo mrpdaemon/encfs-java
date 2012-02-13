@@ -22,10 +22,10 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.security.InvalidKeyException;
 import java.security.Key;
+import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Random;
 
 import javax.crypto.Cipher;
 import javax.crypto.Mac;
@@ -339,7 +339,7 @@ public class EncFSVolume {
 	 */
 	public static EncFSVolume createVolume(EncFSFileProvider fileProvider, EncFSConfig config, String password)
 			throws EncFSInvalidPasswordException, EncFSInvalidConfigException, EncFSCorruptDataException, EncFSUnsupportedException, IOException {
-		Random random = new Random();
+		SecureRandom random = new SecureRandom();
 		
 		// Create a random volume key + IV pair
 		byte[] randVolKey = new byte[config.getVolumeKeySize() / 8 +

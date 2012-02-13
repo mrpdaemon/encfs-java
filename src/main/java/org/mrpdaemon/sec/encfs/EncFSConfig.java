@@ -15,7 +15,7 @@
 
 package org.mrpdaemon.sec.encfs;
 
-import java.util.Random;
+import java.security.SecureRandom;
 
 /**
  * Class representing volume configuration data for an EncFS volume.
@@ -107,7 +107,7 @@ public class EncFSConfig {
 	 */
 	public static void encodeVolumeKey(EncFSConfig config, String password, byte[] volKey)
 			throws EncFSInvalidConfigException, EncFSUnsupportedException, EncFSCorruptDataException {
-		Random random = new Random();
+		SecureRandom random = new SecureRandom();
 		config.setSaltLength(20);
 		
 		// Generate random salt
