@@ -76,22 +76,18 @@ public class EncFSConfig {
 	private int nameAlgorithm;
 
 	/**
-	 * Returns a default EncFS configuration that encfs-java supports
+	 * Creates a default EncFS configuration that encfs-java supports
 	 * 
-	 * @return default EncFS configuration minus salt/password fields
+	 * @return Default EncFS configuration minus salt/password fields
 	 */
-	public static EncFSConfig newDefaultConfig() {
-		EncFSConfig config = new EncFSConfig();
-		
-		config.setNameAlgorithm(ENCFS_CONFIG_NAME_ALG_BLOCK);
-		config.setVolumeKeySize(192);
-		config.setBlockSize(1024);
-		config.setUniqueIV(true);
-		config.setChainedNameIV(true);
-		config.setHolesAllowed(false); //XXX: Not supported
-		config.setIterationCount(5000);
-
-		return config;
+	public EncFSConfig() {
+		setNameAlgorithm(ENCFS_CONFIG_NAME_ALG_BLOCK);
+		setVolumeKeySize(192);
+		setBlockSize(1024);
+		setUniqueIV(true);
+		setChainedNameIV(true);
+		setHolesAllowed(false); //XXX: Not supported
+		setIterationCount(5000);
 	}
 	
 	/**

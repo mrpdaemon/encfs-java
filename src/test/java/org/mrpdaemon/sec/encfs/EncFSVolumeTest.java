@@ -198,7 +198,7 @@ public class EncFSVolumeTest {
 			return;
 		}
 		
-		EncFSConfig config = EncFSConfig.newDefaultConfig();
+		EncFSConfig config = new EncFSConfig();
 		String password = "test";
 		
 		EncFSLocalFileProvider fileProvider = new EncFSLocalFileProvider(rootDir);
