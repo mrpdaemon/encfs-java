@@ -89,6 +89,7 @@ public class EncFSConfig {
 		config.setUniqueIV(true);
 		config.setChainedNameIV(true);
 		config.setHolesAllowed(false); //XXX: Not supported
+		config.setIterationCount(5000);
 
 		return config;
 	}
@@ -114,10 +115,6 @@ public class EncFSConfig {
 		byte[] salt = new byte[20];
 		random.nextBytes(salt);
 		config.setSaltStr(EncFSBase64.encodeBytes(salt));
-		
-		// Generate random iteration count
-		int iterCount = random.nextInt(300000) + 500;
-		config.setIterationCount(iterCount);
 		
 		// Get password key data
 		byte[] pbkdf2Data = EncFSCrypto.derivePasswordKey(config, password);
