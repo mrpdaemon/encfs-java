@@ -76,13 +76,21 @@ public class EncFSVolumeTest {
 		EncFSVolume volume = new EncFSVolume(encFSDir.getAbsolutePath(), password);
 		EncFSFile rootDir = volume.getRootDir();
 		EncFSFile[] files = rootDir.listFiles();
-		Assert.assertEquals(1, files.length);
+		Assert.assertEquals(2, files.length);
 
 		EncFSFile encFSFile = files[0];
 		Assert.assertFalse(encFSFile.isDirectory());
-		Assert.assertEquals("test.txt", encFSFile.getName());
-
+		Assert.assertEquals("longfile.txt", encFSFile.getName());
 		String contents = readInputStreamAsString(encFSFile);
+		Assert.assertEquals(contents.length(), 6000);
+		for (int i = 0; i < contents.length(); i++) {
+			Assert.assertTrue(contents.charAt(i) == 'a');
+		}
+
+		encFSFile = files[1];
+		Assert.assertFalse(encFSFile.isDirectory());
+		Assert.assertEquals("test.txt", encFSFile.getName());
+		contents = readInputStreamAsString(encFSFile);
 		Assert.assertEquals("This is a test file.\n", contents);
 
 		assertFileNameEncoding(rootDir);
@@ -99,13 +107,21 @@ public class EncFSVolumeTest {
 		EncFSVolume volume = new EncFSVolume(encFSDir.getAbsolutePath(), password);
 		EncFSFile rootDir = volume.getRootDir();
 		EncFSFile[] files = rootDir.listFiles();
-		Assert.assertEquals(1, files.length);
+		Assert.assertEquals(2, files.length);
 
 		EncFSFile encFSFile = files[0];
 		Assert.assertFalse(encFSFile.isDirectory());
-		Assert.assertEquals("testfile.txt", encFSFile.getName());
-
+		Assert.assertEquals("longfile.txt", encFSFile.getName());
 		String contents = readInputStreamAsString(encFSFile);
+		Assert.assertEquals(contents.length(), 6000);
+		for (int i = 0; i < contents.length(); i++) {
+			Assert.assertTrue(contents.charAt(i) == 'a');
+		}
+		
+		encFSFile = files[1];
+		Assert.assertFalse(encFSFile.isDirectory());
+		Assert.assertEquals("testfile.txt", encFSFile.getName());
+		contents = readInputStreamAsString(encFSFile);
 		Assert.assertEquals("Test file for non-unique-IV file.\n", contents);
 
 		assertFileNameEncoding(rootDir);

@@ -3,6 +3,7 @@ Volumes created via EncFS 1.7.4:
 testvol-default -- Default parameters (non-expert mode)
 Enter password: test
 / > ls
+longfile.txt
 test.txt
 / > cat test.txt
 This is a test file.
@@ -10,6 +11,7 @@ This is a test file.
 testvol-nouniqueiv -- Test volume without unique IV (no per-file IV header)
 Enter password: test
 / > ls
+longfile.txt
 testfile.txt
 / > cat testfile.txt
 Test file for non-unique-IV file.
