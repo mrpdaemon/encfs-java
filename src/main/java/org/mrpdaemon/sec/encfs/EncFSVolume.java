@@ -329,15 +329,13 @@ public class EncFSVolume {
 	 *               except for salt/key fields initialized
 	 * @param password Volume password to use
 	 * 
-	 * @return EncFSVolume handle to the newly created volume
-	 * 
 	 * @throws EncFSInvalidPasswordException
 	 * @throws EncFSInvalidConfigException
 	 * @throws EncFSCorruptDataException
 	 * @throws EncFSUnsupportedException
 	 * @throws IOException
 	 */
-	public static EncFSVolume createVolume(EncFSFileProvider fileProvider, EncFSConfig config, String password)
+	public static void createVolume(EncFSFileProvider fileProvider, EncFSConfig config, String password)
 			throws EncFSInvalidPasswordException, EncFSInvalidConfigException, EncFSCorruptDataException, EncFSUnsupportedException, IOException {
 		SecureRandom random = new SecureRandom();
 		
@@ -348,7 +346,6 @@ public class EncFSVolume {
 		
 		EncFSConfig.encodeVolumeKey(config, password, randVolKey);
 		EncFSConfigWriter.writeConfig(fileProvider, config, password);
-		return new EncFSVolume(fileProvider, config, password);
 	}
 
 	/**

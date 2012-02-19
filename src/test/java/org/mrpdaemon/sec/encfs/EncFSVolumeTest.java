@@ -201,10 +201,12 @@ public class EncFSVolumeTest {
 		EncFSConfig config = EncFSConfig.newDefaultConfig();
 		String password = "test";
 		
+		EncFSLocalFileProvider fileProvider = new EncFSLocalFileProvider(rootDir);
+		
 		try {
+			EncFSVolume.createVolume(fileProvider, config, password);
 			@SuppressWarnings("unused")
-			EncFSVolume volume = EncFSVolume.createVolume(
-					new EncFSLocalFileProvider(rootDir), config, password);
+			EncFSVolume volume = new EncFSVolume(fileProvider, config, password);
 		} catch (Exception e) {
 			Assert.fail(e.getMessage());
 		}
