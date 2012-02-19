@@ -50,9 +50,12 @@ public class EncFSConfigWriter {
 		//XXX: We don't support external IV chaining yet
 		result += "\t<externalIVChaining>0</externalIVChaining>\n";
 		
+		result += "\t<blockMACBytes>" + Integer.toString(config.getBlockMACBytes()) +
+				"</blockMACBytes>\n";
+		result += "\t<blockMACRandBytes>" + Integer.toString(config.getBlockMACRandBytes()) +
+				"</blockMACRandBytes>\n";
+		
 		//XXX: We don't properly support holes in files either
-		result += "\t<blockMACBytes>0</blockMACBytes>\n";
-		result += "\t<blockMACRandBytes>0</blockMACRandBytes>\n";
 		result += "\t<allowHoles>" + (config.isHolesAllowed() == true ? "1" : "0") +
 				"</allowHoles>\n";
 		

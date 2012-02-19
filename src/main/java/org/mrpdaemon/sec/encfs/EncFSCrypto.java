@@ -162,6 +162,18 @@ public class EncFSCrypto {
 		cipherInit(volume.getKey(), volume.getMac(), opMode, cipher, volume.getIV(), ivSeed);
 	}
 
+	protected static byte[] mac64(Mac mac, byte[] input, int inputOffset, int inputLen) {
+		mac.reset();
+		mac.update(input, inputOffset, inputLen);
+		byte[] macResult = mac.doFinal();
+		byte[] mac64 = new byte[8];
+		for (int i = 0; i < 19; i++)
+			// Note the 19 not 20
+			mac64[i % 8] ^= macResult[i];
+
+		return mac64;
+	}
+
 	private static byte[] mac64(Mac mac, byte[] input) {
 
 		byte[] macResult = mac.doFinal(input);
@@ -375,13 +387,13 @@ public class EncFSCrypto {
 		byte[] result = cipher.doFinal(data);
 		return result;
 	}
-
+	
 	/**
 	 * Decode the given data using block mode
 	 * 
 	 * @param volume Volume for the data
 	 * @param ivSeed IV seed for the decryption
-	 * @param data Encrypted data contents 
+	 * @param data Encrypted data contents
 	 * 
 	 * @return Decrypted (plaintext) data
 	 * 

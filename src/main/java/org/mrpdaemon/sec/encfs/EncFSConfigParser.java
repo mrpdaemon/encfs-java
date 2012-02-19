@@ -171,6 +171,10 @@ public class EncFSConfigParser {
 					config.setSaltStr(getNodeValue(cfgNode));
 				} else if (cfgNode.getNodeName().equals("kdfIterations")) {
 					config.setIterationCount(Integer.parseInt(getNodeValue(cfgNode)));
+				} else if (cfgNode.getNodeName().equals("blockMACBytes")) {
+					config.setBlockMACBytes(Integer.parseInt(getNodeValue(cfgNode)));
+				} else if (cfgNode.getNodeName().equals("blockMACRandBytes")) {
+					config.setBlockMACRandBytes(Integer.parseInt(getNodeValue(cfgNode)));
 				}
 			}
 		}

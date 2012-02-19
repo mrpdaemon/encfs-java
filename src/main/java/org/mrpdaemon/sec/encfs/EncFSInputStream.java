@@ -37,6 +37,15 @@ public class EncFSInputStream extends InputStream {
 
 	// Cached block size for this volume
 	private final int blockSize;
+	
+	// Number of MAC bytes for each block
+	private final int numMACBytes;
+	
+	// Number of random bytes for each block header
+	private final int numRandBytes;
+	
+	// Size of the block header for each block
+	private final int blockHeaderSize;
 
 	// Current block number for generating block IV
 	private int blockNum;
@@ -50,6 +59,7 @@ public class EncFSInputStream extends InputStream {
 	// File IV computed from the first 8 bytes of the file
 	private byte[] fileIv;
 
+	// Input stream to read data from
 	private final InputStream inStream;
 
 	/**
@@ -72,6 +82,9 @@ public class EncFSInputStream extends InputStream {
 		this.volume = volume;
 		this.config = volume.getConfig();
 		this.blockSize = config.getBlockSize();
+		this.numMACBytes = config.getBlockMACBytes();
+		this.numRandBytes = config.getBlockMACRandBytes();
+		this.blockHeaderSize = this.numMACBytes + this.numRandBytes;
 		this.blockBuf = null;
 		this.bufCursor = 0;
 		this.blockNum = 0;
@@ -116,6 +129,7 @@ public class EncFSInputStream extends InputStream {
 	 */
 	private int readBlock() throws IOException, EncFSCorruptDataException, EncFSUnsupportedException {
 		byte[] cipherBuf = new byte[blockSize];
+		
 		int bytesRead = inStream.read(cipherBuf, 0, blockSize);
 		if (bytesRead == blockSize) { // block decode
 			try {
@@ -127,7 +141,8 @@ public class EncFSInputStream extends InputStream {
 			} catch (BadPaddingException e) {
 				throw new EncFSCorruptDataException(e);
 			}
-			bufCursor = 0;
+
+			bufCursor = blockHeaderSize;
 			blockNum++;
 		} else if (bytesRead > 0) { // stream decode
 			/*
@@ -144,8 +159,19 @@ public class EncFSInputStream extends InputStream {
 			} catch (BadPaddingException e) {
 				throw new EncFSCorruptDataException(e);
 			}
-			bufCursor = 0;
+			bufCursor = blockHeaderSize;
 			blockNum++;
+		}
+		
+		// Verify the block header
+		if ((bytesRead > 0) && (blockHeaderSize > 0)) {
+			byte mac[] = EncFSCrypto.mac64(volume.getMac(), blockBuf, numMACBytes,
+					blockBuf.length - numMACBytes);
+			for (int i = 0; i < numMACBytes; i++) {
+				if (mac[7 - i] != blockBuf[i]) {
+					throw new EncFSCorruptDataException("Block MAC mismatch");
+				}
+			}
 		}
 
 		return bytesRead;

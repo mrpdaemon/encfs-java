@@ -35,9 +35,14 @@ public class EncFSOutputStream extends FilterOutputStream {
 	private byte[] fileIv;
 	private byte[] fileHeader;
 
+	private SecureRandom random;
+
 	private final byte buf[];
 
 	private int count;
+	private int blockHeaderSize;
+	private int blockMACRandLen;
+	private int blockMACLen;
 	private int blockNum;
 
 	private final Cipher blockCipher;
@@ -50,6 +55,12 @@ public class EncFSOutputStream extends FilterOutputStream {
 		this.volume = volume;
 		this.config = volume.getConfig();
 		this.blockSize = config.getBlockSize();
+		this.blockHeaderSize = config.getBlockMACBytes() + config.getBlockMACRandBytes();
+		this.count = this.blockHeaderSize;
+		this.blockMACLen = config.getBlockMACBytes();
+		this.blockMACRandLen = config.getBlockMACRandBytes();
+		
+		this.random = new SecureRandom();
 
 		if (config.isUniqueIV()) {
 			// Compute file IV
@@ -86,7 +97,7 @@ public class EncFSOutputStream extends FilterOutputStream {
 			throw new EncFSCorruptDataException(e);
 		}
 
-		// written blocks are blockSize - 8 bytes for the MAC?
+		// blockSize = blockHeaderSize + blockDataLen
 		buf = new byte[blockSize];
 	}
 
@@ -99,6 +110,27 @@ public class EncFSOutputStream extends FilterOutputStream {
 
 		if (blockNum == 0 && config.isUniqueIV()) {
 			out.write(this.fileHeader);
+		}
+
+		// Fill in the block header
+		if (blockHeaderSize > 0) {
+			
+			// Add random bytes to the buffer
+			if (blockMACRandLen > 0) {
+				byte randomBytes[] = new byte[blockMACRandLen];
+				random.nextBytes(randomBytes);
+				for (int i = 0; i < blockMACRandLen; i++) {
+					buf[blockMACLen + i] = randomBytes[i];
+				}
+			}
+
+			// Compute MAC bytes and add them to the buffer
+			//XXX: Fix for stream that is shorter than the whole buffer
+			byte mac[] = EncFSCrypto.mac64(volume.getMac(), buf, blockMACLen,
+					count - blockMACLen);
+			for (int i = 0; i < blockMACLen; i++) {
+				buf[i] = mac[7 - i];
+			}
 		}
 
 		byte[] encBuffer;
@@ -123,7 +155,7 @@ public class EncFSOutputStream extends FilterOutputStream {
 		}
 
 		out.write(encBuffer);
-		count = 0;
+		count = blockHeaderSize;
 		blockNum++;
 	}
 

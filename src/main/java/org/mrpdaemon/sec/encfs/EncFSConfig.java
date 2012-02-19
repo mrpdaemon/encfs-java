@@ -74,6 +74,12 @@ public class EncFSConfig {
 
 	// Algorithm used for file name encryption
 	private int nameAlgorithm;
+	
+	// Number of MAC bytes for each file block
+	private int blockMACBytes;
+	
+	// Number of random bytes in each block MAC header
+	private int blockMACRandBytes;
 
 	/**
 	 * Creates a default EncFS configuration that encfs-java supports
@@ -88,6 +94,8 @@ public class EncFSConfig {
 		setChainedNameIV(true);
 		setHolesAllowed(false); //XXX: Not supported
 		setIterationCount(5000);
+		setBlockMACBytes(0);
+		setBlockMACRandBytes(0);
 	}
 	
 	/**
@@ -298,6 +306,36 @@ public class EncFSConfig {
 	 */
 	public void setNameAlgorithm(int nameAlgorithm) {
 		this.nameAlgorithm = nameAlgorithm;
+	}
+
+	/**
+	 * @return number of MAC bytes in file block headers
+	 */
+	public int getBlockMACBytes() {
+		return blockMACBytes;
+	}
+
+	/**
+	 * @param blockMACBytes
+	 *            number of MAC bytes in file block headers
+	 */
+	public void setBlockMACBytes(int blockMACBytes) {
+		this.blockMACBytes = blockMACBytes;
+	}
+
+	/**
+	 * @return number of random bytes in file block headers
+	 */
+	public int getBlockMACRandBytes() {
+		return blockMACRandBytes;
+	}
+
+	/**
+	 * @param blockMACRandBytes
+	 *            number of random bytes in file block headers
+	 */
+	public void setBlockMACRandBytes(int blockMACRandBytes) {
+		this.blockMACRandBytes = blockMACRandBytes;
 	}
 
 	@Override

@@ -127,6 +127,31 @@ public class EncFSVolumeTest {
 		assertFileNameEncoding(rootDir);
 		assertEncFSFileRoundTrip(rootDir);
 	}
+	
+	@Test
+	public void testBlockMAC() throws EncFSInvalidPasswordException, EncFSInvalidConfigException,
+			EncFSCorruptDataException, EncFSUnsupportedException, EncFSChecksumException, IOException {
+		File encFSDir = new File("test/encfs_samples/testvol-blockmac");
+		Assert.assertTrue(encFSDir.exists());
+
+		String password = "test";
+		EncFSVolume volume = new EncFSVolume(encFSDir.getAbsolutePath(), password);
+		EncFSFile rootDir = volume.getRootDir();
+		EncFSFile[] files = rootDir.listFiles();
+		Assert.assertEquals(1, files.length);
+
+		EncFSFile encFSFile = files[0];
+		Assert.assertFalse(encFSFile.isDirectory());
+		Assert.assertEquals("longfile.txt", encFSFile.getName());
+		String contents = readInputStreamAsString(encFSFile);
+		Assert.assertEquals(contents.length(), 6000);
+		for (int i = 0; i < contents.length(); i++) {
+			Assert.assertTrue(contents.charAt(i) == 'a');
+		}
+
+		assertFileNameEncoding(rootDir);
+		assertEncFSFileRoundTrip(rootDir);
+	}
 
 	@Test
 	public void testBoxCryptor_1() throws EncFSInvalidPasswordException, EncFSInvalidConfigException,
