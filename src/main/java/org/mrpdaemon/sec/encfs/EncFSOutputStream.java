@@ -125,7 +125,6 @@ public class EncFSOutputStream extends FilterOutputStream {
 			}
 
 			// Compute MAC bytes and add them to the buffer
-			//XXX: Fix for stream that is shorter than the whole buffer
 			byte mac[] = EncFSCrypto.mac64(volume.getMac(), buf, blockMACLen,
 					count - blockMACLen);
 			for (int i = 0; i < blockMACLen; i++) {
