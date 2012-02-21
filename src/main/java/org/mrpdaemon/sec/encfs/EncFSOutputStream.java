@@ -176,8 +176,29 @@ public class EncFSOutputStream extends FilterOutputStream {
 		byte[] encBuffer;
 		try {
 			if (dataBytes == dataBuf.length) {
-				encBuffer = EncFSCrypto.blockEncode(volume, getBlockIV(),
-						dataBuf);
+				/*
+				 * If allowHoles is configured, we scan the buffer to determine
+				 * whether we should pass this block through as a zero block.
+				 * Note that it is intended for the presence of a MAC header to
+				 * cause this check to fail.
+				 */
+				boolean zeroBlock = false;
+				if (config.isHolesAllowed()) {
+					zeroBlock = true;
+					for (int i = 0; i < dataBuf.length; i++) {
+						if (dataBuf[i] != 0) {
+							zeroBlock = false;
+							break;
+						}
+					}
+				}
+
+				if (zeroBlock == true) {
+					encBuffer = dataBuf;
+				} else {
+					encBuffer = EncFSCrypto.blockEncode(volume, getBlockIV(),
+							dataBuf);
+				}
 			} else {
 				encBuffer = EncFSCrypto.streamEncode(volume, getBlockIV(),
 						dataBuf, 0, dataBytes);

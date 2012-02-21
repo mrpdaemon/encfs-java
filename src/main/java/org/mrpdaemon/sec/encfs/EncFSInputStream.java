@@ -251,12 +251,31 @@ public class EncFSInputStream extends InputStream {
 	private int readBlock() throws IOException, EncFSCorruptDataException,
 			EncFSUnsupportedException {
 		byte[] cipherBuf = new byte[blockSize];
+		boolean zeroBlock = false;
 
 		int bytesRead = in.read(cipherBuf, 0, blockSize);
 		if (bytesRead == blockSize) { // block decode
+			/*
+			 * If file holes are allowed then we need to test whether the whole
+			 * block is made up of 0's. If not (which is going to be the case
+			 * for MAC header by default), we will do block decryption.
+			 */
+			if (config.isHolesAllowed()) {
+				zeroBlock = true;
+				for (int i = 0; i < cipherBuf.length; i++)
+					if (cipherBuf[i] != 0) {
+						zeroBlock = false;
+						break;
+					}
+			}
+
 			try {
-				blockBuf = EncFSCrypto.blockDecode(volume, getBlockIV(),
-						cipherBuf);
+				if (zeroBlock == true) {
+					blockBuf = cipherBuf;
+				} else {
+					blockBuf = EncFSCrypto.blockDecode(volume, getBlockIV(),
+							cipherBuf);
+				}
 			} catch (InvalidAlgorithmParameterException e) {
 				e.printStackTrace();
 			} catch (IllegalBlockSizeException e) {
@@ -283,7 +302,7 @@ public class EncFSInputStream extends InputStream {
 		}
 
 		// Verify the block header
-		if ((bytesRead > 0) && (blockHeaderSize > 0)) {
+		if ((bytesRead > 0) && (blockHeaderSize > 0) && (zeroBlock == false)) {
 			byte mac[] = EncFSCrypto.mac64(volume.getMac(), blockBuf,
 					numMACBytes);
 			for (int i = 0; i < numMACBytes; i++) {
