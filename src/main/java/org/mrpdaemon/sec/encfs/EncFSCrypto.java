@@ -162,6 +162,10 @@ public class EncFSCrypto {
 		cipherInit(volume.getKey(), volume.getMac(), opMode, cipher, volume.getIV(), ivSeed);
 	}
 
+	protected static byte[] mac64(Mac mac, byte[] input, int inputOffset) {
+		return mac64(mac, input, inputOffset, input.length - inputOffset);
+	}
+
 	protected static byte[] mac64(Mac mac, byte[] input, int inputOffset, int inputLen) {
 		mac.reset();
 		mac.update(input, inputOffset, inputLen);

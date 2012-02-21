@@ -165,8 +165,7 @@ public class EncFSInputStream extends InputStream {
 		
 		// Verify the block header
 		if ((bytesRead > 0) && (blockHeaderSize > 0)) {
-			byte mac[] = EncFSCrypto.mac64(volume.getMac(), blockBuf, numMACBytes,
-					blockBuf.length - numMACBytes);
+			byte mac[] = EncFSCrypto.mac64(volume.getMac(), blockBuf, numMACBytes);
 			for (int i = 0; i < numMACBytes; i++) {
 				if (mac[7 - i] != blockBuf[i]) {
 					throw new EncFSCorruptDataException("Block MAC mismatch");
