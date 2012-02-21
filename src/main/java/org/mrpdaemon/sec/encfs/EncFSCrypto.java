@@ -297,14 +297,14 @@ public class EncFSCrypto {
 		}
 	}
 
-	private static byte[] streamDecode(Cipher cipher, Mac mac, Key key, byte[] iv, byte[] ivSeed, byte[] data)
+	private static byte[] streamDecode(Cipher cipher, Mac mac, Key key, byte[] iv, byte[] ivSeed, byte[] data, int offset, int len)
 			throws EncFSUnsupportedException, InvalidAlgorithmParameterException, IllegalBlockSizeException,
 			BadPaddingException {
 		// First round uses IV seed + 1 for IV generation
 		byte[] ivSeedPlusOne = getIvSeedPlusOne(ivSeed);
 
 		cipherInit(key, mac, Cipher.DECRYPT_MODE, cipher, iv, ivSeedPlusOne);
-		byte[] firstDecResult = cipher.doFinal(data);
+		byte[] firstDecResult = cipher.doFinal(data, offset, len);
 
 		unshuffleBytes(firstDecResult);
 
@@ -317,6 +317,12 @@ public class EncFSCrypto {
 		unshuffleBytes(result);
 
 		return result;
+	}
+	
+	private static byte[] streamDecode(Cipher cipher, Mac mac, Key key, byte[] iv, byte[] ivSeed, byte[] data)
+			throws EncFSUnsupportedException, InvalidAlgorithmParameterException, IllegalBlockSizeException,
+			BadPaddingException {
+		return streamDecode(cipher, mac, key, iv, ivSeed, data, 0, data.length);
 	}
 
 	/**
@@ -337,17 +343,41 @@ public class EncFSCrypto {
 			InvalidAlgorithmParameterException, IllegalBlockSizeException, BadPaddingException {
 		return streamDecode(volume.getStreamCipher(), volume.getMac(), volume.getKey(), volume.getIV(), ivSeed, data);
 	}
+	
+	/**
+	 * Decode the given data using stream mode
+	 * 
+	 * @param volume Volume for the data
+	 * @param ivSeed IV seed for the decryption
+	 * @param data Encrypted data contents
+	 * @param offset Offset into the data buffer to decode from
+	 * @param len Number of bytes in the data buffer to decode 
+	 * 
+	 * @return Decrypted (plaintext) data
+	 * 
+	 * @throws EncFSUnsupportedException Unsupported IV seed length
+	 * @throws InvalidAlgorithmParameterException
+	 * @throws IllegalBlockSizeException
+	 * @throws BadPaddingException
+	 */
+	public static byte[] streamDecode(EncFSVolume volume, byte[] ivSeed, byte[] data, int offset, int len)
+			throws EncFSUnsupportedException,InvalidAlgorithmParameterException, IllegalBlockSizeException,
+			BadPaddingException {
+		return streamDecode(volume.getStreamCipher(), volume.getMac(), volume.getKey(), volume.getIV(),
+				ivSeed, data, offset, len);
+	}
 
-	private static byte[] streamEncode(Cipher cipher, Mac mac, Key key, byte[] iv, byte[] ivSeed, byte[] data)
+	private static byte[] streamEncode(Cipher cipher, Mac mac, Key key, byte[] iv, byte[] ivSeed, byte[] data, int offset, int len)
 			throws EncFSUnsupportedException, InvalidAlgorithmParameterException, IllegalBlockSizeException,
 			BadPaddingException {
 		// First round uses IV seed + 1 for IV generation
 		byte[] ivSeedPlusOne = getIvSeedPlusOne(ivSeed);
-	
-		shuffleBytes(data);
+
+		byte[] encBuf = Arrays.copyOfRange(data, offset, offset + len);
+		shuffleBytes(encBuf);
 	
 		cipherInit(key, mac, Cipher.ENCRYPT_MODE, cipher, iv, ivSeed);
-		byte[] firstEncResult = cipher.doFinal(data);
+		byte[] firstEncResult = cipher.doFinal(encBuf);
 	
 		byte[] flipBytesResult = flipBytes(firstEncResult);
 	
@@ -358,6 +388,12 @@ public class EncFSCrypto {
 		byte[] result = cipher.doFinal(flipBytesResult);
 	
 		return result;
+	}
+	
+	private static byte[] streamEncode(Cipher cipher, Mac mac, Key key, byte[] iv, byte[] ivSeed, byte[] data)
+			throws EncFSUnsupportedException, InvalidAlgorithmParameterException, IllegalBlockSizeException,
+			BadPaddingException {
+		return streamEncode(cipher, mac, key, iv, ivSeed, data, 0, data.length);
 	}
 
 	/**
@@ -377,6 +413,29 @@ public class EncFSCrypto {
 	public static byte[] streamEncode(EncFSVolume volume, byte[] ivSeed, byte[] data) throws EncFSUnsupportedException,
 			InvalidAlgorithmParameterException, IllegalBlockSizeException, BadPaddingException {
 		return streamEncode(volume.getStreamCipher(), volume.getMac(), volume.getKey(), volume.getIV(), ivSeed, data);
+	}
+	
+	/**
+	 * Encode the given data using stream mode
+	 * 
+	 * @param volume Volume for the data
+	 * @param ivSeed IV seed for the encryption
+	 * @param data Plaintext data contents
+	 * @param offset Offset into the data buffer to start encoding from
+	 * @param len Length of the data in the data buffer to encode 
+	 * 
+	 * @return Encrypted (ciphertext) data
+	 * 
+	 * @throws EncFSUnsupportedException Unsupported IV seed length
+	 * @throws InvalidAlgorithmParameterException
+	 * @throws IllegalBlockSizeException
+	 * @throws BadPaddingException
+	 */
+	public static byte[] streamEncode(EncFSVolume volume, byte[] ivSeed, byte[] data, int offset, int len)
+			throws EncFSUnsupportedException,InvalidAlgorithmParameterException, IllegalBlockSizeException,
+			BadPaddingException {
+		return streamEncode(volume.getStreamCipher(), volume.getMac(), volume.getKey(), volume.getIV(),
+				ivSeed, data, offset, len);
 	}
 
 	private static byte[] blockOperation(EncFSVolume volume, byte[] ivSeed, byte[] data, int opMode)

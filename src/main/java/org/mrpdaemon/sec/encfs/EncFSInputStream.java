@@ -18,7 +18,6 @@ package org.mrpdaemon.sec.encfs;
 import java.io.IOException;
 import java.io.InputStream;
 import java.security.InvalidAlgorithmParameterException;
-import java.util.Arrays;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
@@ -145,13 +144,8 @@ public class EncFSInputStream extends InputStream {
 			bufCursor = blockHeaderSize;
 			blockNum++;
 		} else if (bytesRead > 0) { // stream decode
-			/*
-			 * Need to copy cipherBuf into another buffer otherwise streamDecode
-			 * will not work correctly.
-			 */
-			byte[] cipherBuf2 = Arrays.copyOfRange(cipherBuf, 0, bytesRead);
 			try {
-				blockBuf = EncFSCrypto.streamDecode(volume, getBlockIV(), cipherBuf2);
+				blockBuf = EncFSCrypto.streamDecode(volume, getBlockIV(), cipherBuf, 0, bytesRead);
 			} catch (InvalidAlgorithmParameterException e) {
 				e.printStackTrace();
 			} catch (IllegalBlockSizeException e) {

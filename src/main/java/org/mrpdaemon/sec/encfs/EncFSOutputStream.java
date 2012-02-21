@@ -137,11 +137,7 @@ public class EncFSOutputStream extends FilterOutputStream {
 			if (count == buf.length) {
 				encBuffer = EncFSCrypto.blockEncode(volume, getBlockIV(), buf);
 			} else {
-				// copy the buffer as stream encode needs the sub-range & it
-				// also modifies it
-				byte[] tmpBuf = Arrays.copyOf(buf, count);
-
-				encBuffer = EncFSCrypto.streamEncode(volume, getBlockIV(), tmpBuf);
+				encBuffer = EncFSCrypto.streamEncode(volume, getBlockIV(), buf, 0, count);
 			}
 		} catch (IllegalBlockSizeException e) {
 			throw new IOException(e);
