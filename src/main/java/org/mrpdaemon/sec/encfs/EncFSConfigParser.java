@@ -63,22 +63,24 @@ public class EncFSConfigParser {
 
 	/**
 	 * @param fileProvider
-	 *        File provider to access the config file
+	 *            File provider to access the config file
 	 * @param path
-	 *        Path of the config file in the file provider's notation
-	 *        
+	 *            Path of the config file in the file provider's notation
+	 * 
 	 * @return An EncFSConfig object representing the parsing result
 	 * 
 	 * @throws EncFSUnsupportedException
-	 *         Unsupported EncFS version
+	 *             Unsupported EncFS version
 	 * @throws EncFSInvalidConfigException
-	 *         Config file not found
+	 *             Config file not found
+	 * @throws IOException
 	 */
 	public static EncFSConfig parseConfig(EncFSFileProvider fileProvider, String path)
-			throws EncFSUnsupportedException, EncFSInvalidConfigException {
+			throws EncFSUnsupportedException, EncFSInvalidConfigException, IOException {
 
 		EncFSConfig config;
-		//TODO: Need to implement a connector method in EncFSFileProvider for '/'
+		// TODO: Need to implement a connector method in EncFSFileProvider for
+		// '/'
 		if (!fileProvider.exists("/" + path)) {
 			// Try old versions
 			for (String altConfigFileName : EncFSVolume.ENCFS_VOLUME_OLD_CONFIG_FILE_NAMES) {

@@ -130,7 +130,7 @@ public class EncFSLocalFileProvider implements EncFSFileProvider {
 			relativePath = "/";
 		} else {
 			relativePath = file.getParentFile().getAbsolutePath()
-				.substring(rootPath.getAbsoluteFile().toString().length());
+					.substring(rootPath.getAbsoluteFile().toString().length());
 			relativePath = "/" + relativePath.replace("\\", "/");
 		}
 		String name = file.getName();
@@ -147,6 +147,19 @@ public class EncFSLocalFileProvider implements EncFSFileProvider {
 	public File getFile(String name) {
 		File toEncFile = new File(rootPath.getAbsoluteFile(), name);
 		return toEncFile;
+	}
+
+	public EncFSFileInfo createFile(String encTargetFile) throws IOException {
+		if (exists(encTargetFile)) {
+			throw new IOException("File already exists");
+		}
+
+		File targetFile = getFile(encTargetFile);
+		if (targetFile.createNewFile() == false) {
+			throw new IOException("failed to create new file");
+		}
+
+		return convertToFileInfo(targetFile);
 	}
 
 }

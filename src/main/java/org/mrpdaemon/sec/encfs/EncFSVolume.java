@@ -87,13 +87,11 @@ public class EncFSVolume {
 	 * Creates a new object representing an existing EncFS volume
 	 * 
 	 * @param rootPath
-	 *            Path of the root directory of the EncFS volume
-	 *            on the local filesystem
+	 *            Path of the root directory of the EncFS volume on the local
+	 *            filesystem
 	 * @param password
 	 *            User supplied password to decrypt volume key
 	 * 
-	 * @throws FileNotFoundException
-	 *             Root directory or configuration file not found
 	 * @throws EncFSInvalidPasswordException
 	 *             Given password is incorrect
 	 * @throws EncFSCorruptDataException
@@ -102,10 +100,10 @@ public class EncFSVolume {
 	 *             Configuration file format not recognized
 	 * @throws EncFSUnsupportedException
 	 *             Unsupported EncFS version or options
+	 * @throws IOException
 	 */
-	public EncFSVolume(String rootPath, String password)
-			throws FileNotFoundException, EncFSInvalidPasswordException,
-			EncFSInvalidConfigException, EncFSCorruptDataException, EncFSUnsupportedException {
+	public EncFSVolume(String rootPath, String password) throws EncFSInvalidPasswordException,
+			EncFSInvalidConfigException, EncFSCorruptDataException, EncFSUnsupportedException, IOException {
 		this.init(new EncFSLocalFileProvider(new File(rootPath)), password);
 	}
 
@@ -113,16 +111,14 @@ public class EncFSVolume {
 	 * Creates a new object representing an existing EncFS volume
 	 * 
 	 * @param rootPath
-	 *            Path of the root directory of the EncFS volume
-	 *            on the local filesystem
+	 *            Path of the root directory of the EncFS volume on the local
+	 *            filesystem
 	 * @param passwordKey
 	 *            Cached password-based key/IV data. Can be obtained using
 	 *            getPasswordKey() on a volume created with a regular password.
 	 *            Caching the password-based key data can significantly speed up
 	 *            volume creation.
 	 * 
-	 * @throws FileNotFoundException
-	 *             Root directory or configuration file not found
 	 * @throws EncFSInvalidPasswordException
 	 *             Given password is incorrect
 	 * @throws EncFSCorruptDataException
@@ -131,23 +127,21 @@ public class EncFSVolume {
 	 *             Configuration file format not recognized
 	 * @throws EncFSUnsupportedException
 	 *             Unsupported EncFS version or options
+	 * @throws IOException
 	 */
-	public EncFSVolume(String rootPath, byte[] passwordKey) throws FileNotFoundException,
-			EncFSInvalidPasswordException, EncFSInvalidConfigException, EncFSCorruptDataException,
-			EncFSUnsupportedException {
+	public EncFSVolume(String rootPath, byte[] passwordKey) throws EncFSInvalidPasswordException,
+			EncFSInvalidConfigException, EncFSCorruptDataException, EncFSUnsupportedException, IOException {
 		this.init(new EncFSLocalFileProvider(new File(rootPath)), passwordKey);
 	}
 
 	/**
 	 * Creates a new object representing an existing EncFS volume
-
+	 * 
 	 * @param fileProvider
 	 *            File provider for access to files stored in non-local storage
 	 * @param password
 	 *            User supplied password to decrypt volume key
 	 * 
-	 * @throws FileNotFoundException
-	 *             Root directory or configuration file not found
 	 * @throws EncFSInvalidPasswordException
 	 *             Given password is incorrect
 	 * @throws EncFSCorruptDataException
@@ -156,16 +150,16 @@ public class EncFSVolume {
 	 *             Configuration file format not recognized
 	 * @throws EncFSUnsupportedException
 	 *             Unsupported EncFS version or options
+	 * @throws IOException
 	 */
-	public EncFSVolume(EncFSFileProvider fileProvider, String password)
-			throws FileNotFoundException, EncFSInvalidPasswordException,
-			EncFSInvalidConfigException, EncFSCorruptDataException, EncFSUnsupportedException {
+	public EncFSVolume(EncFSFileProvider fileProvider, String password) throws EncFSInvalidPasswordException,
+			EncFSInvalidConfigException, EncFSCorruptDataException, EncFSUnsupportedException, IOException {
 		this.init(fileProvider, password);
 	}
 
 	/**
 	 * Creates a new object representing an existing EncFS volume
-	 *
+	 * 
 	 * @param fileProvider
 	 *            File provider for access to files stored in non-local storage
 	 * @param passwordKey
@@ -174,8 +168,6 @@ public class EncFSVolume {
 	 *            Caching the password-based key data can significantly speed up
 	 *            volume creation.
 	 * 
-	 * @throws FileNotFoundException
-	 *             Root directory or configuration file not found
 	 * @throws EncFSInvalidPasswordException
 	 *             Given password is incorrect
 	 * @throws EncFSCorruptDataException
@@ -184,26 +176,24 @@ public class EncFSVolume {
 	 *             Configuration file format not recognized
 	 * @throws EncFSUnsupportedException
 	 *             Unsupported EncFS version or options
+	 * @throws IOException
 	 */
-	public EncFSVolume(EncFSFileProvider fileProvider, byte[] passwordKey) throws FileNotFoundException,
-			EncFSInvalidPasswordException, EncFSInvalidConfigException, EncFSCorruptDataException,
-			EncFSUnsupportedException {
+	public EncFSVolume(EncFSFileProvider fileProvider, byte[] passwordKey) throws EncFSInvalidPasswordException,
+			EncFSInvalidConfigException, EncFSCorruptDataException, EncFSUnsupportedException, IOException {
 		this.init(fileProvider, passwordKey);
 	}
 
 	/**
 	 * Creates a new object representing an existing EncFS volume
-
+	 * 
 	 * @param fileProvider
 	 *            File provider for access to files stored in non-local storage
 	 * @param config
-	 *            EncFSConfig if the config file is stored in a separate location
-	 *            than the file provider's root directory
+	 *            EncFSConfig if the config file is stored in a separate
+	 *            location than the file provider's root directory
 	 * @param password
 	 *            User supplied password to decrypt volume key
 	 * 
-	 * @throws FileNotFoundException
-	 *             Root directory or configuration file not found
 	 * @throws EncFSInvalidPasswordException
 	 *             Given password is incorrect
 	 * @throws EncFSCorruptDataException
@@ -212,29 +202,28 @@ public class EncFSVolume {
 	 *             Configuration file format not recognized
 	 * @throws EncFSUnsupportedException
 	 *             Unsupported EncFS version or options
+	 * @throws IOException
 	 */
 	public EncFSVolume(EncFSFileProvider fileProvider, EncFSConfig config, String password)
-			throws FileNotFoundException, EncFSInvalidPasswordException,
-			EncFSInvalidConfigException, EncFSCorruptDataException, EncFSUnsupportedException {
+			throws EncFSInvalidPasswordException, EncFSInvalidConfigException, EncFSCorruptDataException,
+			EncFSUnsupportedException, IOException {
 		this.init(fileProvider, config, password);
 	}
 
 	/**
 	 * Creates a new object representing an existing EncFS volume
-	 *
+	 * 
 	 * @param fileProvider
 	 *            File provider for access to files stored in non-local storage
 	 * @param config
-	 *            EncFSConfig if the config file is stored in a separate location
-	 *            than the file provider's root directory
+	 *            EncFSConfig if the config file is stored in a separate
+	 *            location than the file provider's root directory
 	 * @param passwordKey
 	 *            Cached password-based key/IV data. Can be obtained using
 	 *            getPasswordKey() on a volume created with a regular password.
 	 *            Caching the password-based key data can significantly speed up
 	 *            volume creation.
 	 * 
-	 * @throws FileNotFoundException
-	 *             Root directory or configuration file not found
 	 * @throws EncFSInvalidPasswordException
 	 *             Given password is incorrect
 	 * @throws EncFSCorruptDataException
@@ -243,41 +232,40 @@ public class EncFSVolume {
 	 *             Configuration file format not recognized
 	 * @throws EncFSUnsupportedException
 	 *             Unsupported EncFS version or options
+	 * @throws IOException
 	 */
-	public EncFSVolume(EncFSFileProvider fileProvider, EncFSConfig config, byte[] passwordKey) throws FileNotFoundException,
-			EncFSInvalidPasswordException, EncFSInvalidConfigException, EncFSCorruptDataException,
-			EncFSUnsupportedException {
+	public EncFSVolume(EncFSFileProvider fileProvider, EncFSConfig config, byte[] passwordKey)
+			throws EncFSInvalidPasswordException, EncFSInvalidConfigException, EncFSCorruptDataException,
+			EncFSUnsupportedException, IOException {
 		this.init(fileProvider, config, passwordKey);
 	}
 
-	private void init(EncFSFileProvider fileProvider, String password) throws FileNotFoundException,
-			EncFSUnsupportedException, EncFSInvalidConfigException, EncFSCorruptDataException,
-			EncFSInvalidPasswordException {
+	private void init(EncFSFileProvider fileProvider, String password) throws EncFSUnsupportedException,
+			EncFSInvalidConfigException, EncFSCorruptDataException, EncFSInvalidPasswordException, IOException {
 		EncFSConfig config = EncFSConfigParser.parseConfig(fileProvider, ENCFS_VOLUME_CONFIG_FILE_NAME);
 		byte[] passwordKey = EncFSCrypto.derivePasswordKey(config, password);
 
 		this.init(fileProvider, config, passwordKey);
 	}
 
-	private void init(EncFSFileProvider fileProvider, EncFSConfig config, String password) throws FileNotFoundException,
-			EncFSUnsupportedException, EncFSInvalidConfigException, EncFSCorruptDataException,
-			EncFSInvalidPasswordException {
+	private void init(EncFSFileProvider fileProvider, EncFSConfig config, String password)
+			throws EncFSUnsupportedException, EncFSInvalidConfigException, EncFSCorruptDataException,
+			EncFSInvalidPasswordException, IOException {
 		byte[] passwordKey = EncFSCrypto.derivePasswordKey(config, password);
 
 		this.init(fileProvider, config, passwordKey);
 	}
 
-	private void init(EncFSFileProvider fileProvider, byte[] passwordKey) throws FileNotFoundException,
-			EncFSUnsupportedException, EncFSInvalidConfigException, EncFSCorruptDataException,
-			EncFSInvalidPasswordException {
+	private void init(EncFSFileProvider fileProvider, byte[] passwordKey) throws EncFSUnsupportedException,
+			EncFSInvalidConfigException, EncFSCorruptDataException, EncFSInvalidPasswordException, IOException {
 		EncFSConfig config = EncFSConfigParser.parseConfig(fileProvider, ENCFS_VOLUME_CONFIG_FILE_NAME);
 
 		this.init(fileProvider, config, passwordKey);
 	}
 
 	private void init(EncFSFileProvider fileProvider, EncFSConfig config, byte[] passwordKey)
-			throws FileNotFoundException, EncFSUnsupportedException, EncFSInvalidConfigException,
-			EncFSCorruptDataException, EncFSInvalidPasswordException {
+			throws EncFSUnsupportedException, EncFSInvalidConfigException, EncFSCorruptDataException,
+			EncFSInvalidPasswordException, IOException {
 		this.fileProvider = fileProvider;
 
 		this.config = config;
@@ -319,15 +307,18 @@ public class EncFSVolume {
 
 		rootDir = getEncFSFile(ENCFS_VOLUME_ROOT_PATH);
 	}
-	
+
 	/**
 	 * Creates a new EncFS volume on the supplied file provider using the
 	 * requested EncFSConfig parameters and the given password
 	 * 
-	 * @param fileProvider File provider to use for accessing storage
-	 * @param config Volume configuration to use, should have all fields
-	 *               except for salt/key fields initialized
-	 * @param password Volume password to use
+	 * @param fileProvider
+	 *            File provider to use for accessing storage
+	 * @param config
+	 *            Volume configuration to use, should have all fields except for
+	 *            salt/key fields initialized
+	 * @param password
+	 *            Volume password to use
 	 * 
 	 * @return EncFSVolume handle to the newly created volume
 	 * 
@@ -338,14 +329,14 @@ public class EncFSVolume {
 	 * @throws IOException
 	 */
 	public static EncFSVolume createVolume(EncFSFileProvider fileProvider, EncFSConfig config, String password)
-			throws EncFSInvalidPasswordException, EncFSInvalidConfigException, EncFSCorruptDataException, EncFSUnsupportedException, IOException {
+			throws EncFSInvalidPasswordException, EncFSInvalidConfigException, EncFSCorruptDataException,
+			EncFSUnsupportedException, IOException {
 		Random random = new Random();
-		
+
 		// Create a random volume key + IV pair
-		byte[] randVolKey = new byte[config.getVolumeKeySize() / 8 +
-		                             EncFSVolume.ENCFS_VOLUME_IV_LENGTH];
+		byte[] randVolKey = new byte[config.getVolumeKeySize() / 8 + EncFSVolume.ENCFS_VOLUME_IV_LENGTH];
 		random.nextBytes(randVolKey);
-		
+
 		EncFSConfig.encodeVolumeKey(config, password, randVolKey);
 		EncFSConfigWriter.writeConfig(fileProvider, config, password);
 		return new EncFSVolume(fileProvider, config, password);
@@ -408,28 +399,36 @@ public class EncFSVolume {
 	}
 
 	public EncFSFile getEncFSFile(String volumePath, String fileName) throws EncFSCorruptDataException,
-			EncFSChecksumException, FileNotFoundException {
+			EncFSChecksumException, IOException {
 		validateAbsoluteFileName(volumePath, "volumePath");
 		return getEncFSFile(volumePath + "/" + fileName);
 	}
 
-	public EncFSFile getEncFSFile(String fileName)
-			throws EncFSCorruptDataException, FileNotFoundException {
+	public EncFSFile getEncFSFile(String fileName) throws EncFSCorruptDataException, IOException {
 		validateAbsoluteFileName(fileName, "fileName");
 
 		String encryptedPath = EncFSCrypto.encodePath(this, fileName, ENCFS_VOLUME_ROOT_PATH);
 
-		EncFSFileInfo fileInfo = fileProvider.getFileInfo(encryptedPath);
 		if (fileProvider.exists(encryptedPath) == false) {
 			throw new FileNotFoundException();
 		}
+		EncFSFileInfo fileInfo = fileProvider.getFileInfo(encryptedPath);
 
 		EncFSFileInfo decodedFileInfo;
 		if (fileName.equals(ENCFS_VOLUME_ROOT_PATH)) {
 			decodedFileInfo = EncFSFileInfo.getDecodedFileInfo(this, "", "/", fileInfo);
 		} else {
-			String decDirName = fileName.substring(0, fileName.lastIndexOf("/") - 1);
-			String decFilename = fileName.substring(fileName.lastIndexOf("/") + 1);
+			int lastIndexOfSlash = fileName.lastIndexOf("/");
+			String decDirName;
+			String decFilename;
+			if (fileName.lastIndexOf("/") == 0) {
+				decDirName = "/";
+				decFilename = fileName.substring(1);
+
+			} else {
+				decDirName = fileName.substring(0, lastIndexOfSlash);
+				decFilename = fileName.substring(lastIndexOfSlash + 1);
+			}
 			decodedFileInfo = EncFSFileInfo.getDecodedFileInfo(this, decDirName, decFilename, fileInfo);
 		}
 
@@ -447,12 +446,10 @@ public class EncFSVolume {
 	 * @throws IOException
 	 */
 	public boolean makeDir(String dirName) throws EncFSCorruptDataException, IOException {
-		EncFSFile encfsFile = getEncFSFile(dirName);
-		return makeDir(encfsFile);
-	}
+		validateAbsoluteFileName(dirName, "dirName");
 
-	public boolean makeDir(EncFSFile encfsFile) throws IOException {
-		return fileProvider.mkdir(encfsFile.getEncrytedAbsoluteName());
+		String encryptedPath = EncFSCrypto.encodePath(this, dirName, ENCFS_VOLUME_ROOT_PATH);
+		return fileProvider.mkdir(encryptedPath);
 	}
 
 	/**
@@ -467,12 +464,10 @@ public class EncFSVolume {
 	 * @throws IOException
 	 */
 	public boolean makeDirs(String dirName) throws EncFSCorruptDataException, IOException {
-		EncFSFile encfsFile = getEncFSFile(dirName);
-		return makeDirs(encfsFile);
-	}
+		validateAbsoluteFileName(dirName, "dirName");
 
-	public boolean makeDirs(EncFSFile encfsFile) throws IOException {
-		return fileProvider.mkdirs(encfsFile.getEncrytedAbsoluteName());
+		String encryptedPath = EncFSCrypto.encodePath(this, dirName, ENCFS_VOLUME_ROOT_PATH);
+		return fileProvider.mkdirs(encryptedPath);
 	}
 
 	/**
@@ -507,7 +502,12 @@ public class EncFSVolume {
 	public boolean copy(String srcFile, String targetFile) throws EncFSCorruptDataException, IOException {
 
 		EncFSFile srcEncFile = getEncFSFile(srcFile);
-		EncFSFile targetEncFile = getEncFSFile(targetFile);
+		EncFSFile targetEncFile;
+		if (exists(targetFile)) {
+			targetEncFile = getEncFSFile(targetFile);
+		} else {
+			targetEncFile = createEncFSFile(targetFile);
+		}
 
 		return copy(srcEncFile, targetEncFile);
 	}
@@ -521,7 +521,7 @@ public class EncFSVolume {
 			if (targetEncFile.isDirectory()) {
 				EncFSFile realTargetEncfsDirFile;
 				try {
-					realTargetEncfsDirFile = getEncFSFile(targetEncFile.getAbsoluteName(), srcEncFile.getName());
+					realTargetEncfsDirFile = createEncFSFile(targetEncFile.getAbsoluteName(), srcEncFile.getName());
 				} catch (EncFSCorruptDataException e) {
 					throw new IOException(e);
 				} catch (EncFSChecksumException e) {
@@ -658,7 +658,8 @@ public class EncFSVolume {
 			}
 
 			if (decodedFileName != null) {
-				EncFSFileInfo decEncFileInfo = EncFSFileInfo.getDecodedFileInfo(this, dirName, decodedFileName, fileInfo);
+				EncFSFileInfo decEncFileInfo = EncFSFileInfo.getDecodedFileInfo(this, dirName, decodedFileName,
+						fileInfo);
 
 				result.add(new EncFSFile(this, decEncFileInfo, fileInfo));
 			}
@@ -795,7 +796,7 @@ public class EncFSVolume {
 			throw new IllegalArgumentException("Can't copy directories");
 		}
 
-		OutputStream efos = srcEncFSFile.openOutputStream();
+		OutputStream efos = targetEncFSFile.openOutputStream();
 		try {
 			InputStream efis = srcEncFSFile.openInputStream();
 			try {
@@ -814,6 +815,46 @@ public class EncFSVolume {
 		} finally {
 			efos.close();
 		}
+	}
+
+	public boolean exists(String fileName) throws EncFSCorruptDataException, IOException {
+		validateAbsoluteFileName(fileName, "fileName");
+		String encryptedPath = EncFSCrypto.encodePath(this, fileName, ENCFS_VOLUME_ROOT_PATH);
+		return fileProvider.exists(encryptedPath);
+	}
+
+	public EncFSFile createEncFSFile(String volumePath, String fileName) throws EncFSCorruptDataException,
+			EncFSChecksumException, IOException {
+		validateAbsoluteFileName(volumePath, "volumePath");
+		return createEncFSFile(volumePath + "/" + fileName);
+	}
+
+	public EncFSFile createEncFSFile(String fileName) throws EncFSCorruptDataException, IOException {
+		validateAbsoluteFileName(fileName, "fileName");
+
+		String encryptedPath = EncFSCrypto.encodePath(this, fileName, ENCFS_VOLUME_ROOT_PATH);
+
+		EncFSFileInfo fileInfo = fileProvider.createFile(encryptedPath);
+
+		EncFSFileInfo decodedFileInfo;
+		if (fileName.equals(ENCFS_VOLUME_ROOT_PATH)) {
+			decodedFileInfo = EncFSFileInfo.getDecodedFileInfo(this, "", "/", fileInfo);
+		} else {
+			int lastIndexOfSlash = fileName.lastIndexOf("/");
+			String decDirName;
+			String decFilename;
+			if (fileName.lastIndexOf("/") == 0) {
+				decDirName = "/";
+				decFilename = fileName.substring(1);
+
+			} else {
+				decDirName = fileName.substring(0, lastIndexOfSlash);
+				decFilename = fileName.substring(lastIndexOfSlash + 1);
+			}
+			decodedFileInfo = EncFSFileInfo.getDecodedFileInfo(this, decDirName, decFilename, fileInfo);
+		}
+
+		return new EncFSFile(this, decodedFileInfo, fileInfo);
 	}
 
 }
