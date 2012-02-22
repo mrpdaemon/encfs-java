@@ -78,7 +78,7 @@ public class EncFSVolumeIntegrationTest {
 				password);
 		EncFSFile rootDir = volume.getRootDir();
 		EncFSFile[] files = rootDir.listFiles();
-		Assert.assertEquals(2, files.length);
+		Assert.assertEquals(3, files.length);
 
 		EncFSFile encFSFile = files[0];
 		Assert.assertFalse(encFSFile.isDirectory());
@@ -94,6 +94,15 @@ public class EncFSVolumeIntegrationTest {
 		Assert.assertEquals("test.txt", encFSFile.getName());
 		contents = readInputStreamAsString(encFSFile);
 		Assert.assertEquals("This is a test file.\n", contents);
+
+		encFSFile = files[2];
+		Assert.assertFalse(encFSFile.isDirectory());
+		Assert.assertEquals("zerofile.bin", encFSFile.getName());
+		byte zeroBytes[] = readInputStreamAsByteArray(encFSFile);
+		Assert.assertEquals(zeroBytes.length, 10000);
+		for (int i = 0; i < zeroBytes.length; i++) {
+			Assert.assertTrue(zeroBytes[i] == 0);
+		}
 
 		assertFileNameEncoding(rootDir);
 		assertEncFSFileRoundTrip(rootDir);
@@ -433,7 +442,7 @@ public class EncFSVolumeIntegrationTest {
 		}
 	}
 
-	public static String readInputStreamAsString(EncFSFile encFSFile)
+	public static byte[] readInputStreamAsByteArray(EncFSFile encFSFile)
 			throws IOException, EncFSCorruptDataException,
 			EncFSUnsupportedException {
 
@@ -452,7 +461,13 @@ public class EncFSVolumeIntegrationTest {
 			efis.close();
 		}
 
-		return new String(buf.toByteArray());
+		return buf.toByteArray();
+	}
+
+	public static String readInputStreamAsString(EncFSFile encFSFile)
+			throws IOException, EncFSCorruptDataException,
+			EncFSUnsupportedException {
+		return new String(readInputStreamAsByteArray(encFSFile));
 	}
 
 	public static void copyViaStreams(EncFSFile srcEncFSFile,
