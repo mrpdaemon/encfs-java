@@ -92,6 +92,9 @@ public class EncFSShell {
 		} catch (FileNotFoundException e) {
 			System.out.println(e.getMessage());
 			System.exit(1);
+		} catch (IOException e) {
+			System.out.println(e.getMessage());
+			System.exit(1);
 		}
 
 		// Start at the root of the EncFS volume

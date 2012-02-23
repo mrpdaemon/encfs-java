@@ -21,9 +21,9 @@ import java.io.OutputStream;
 import java.util.List;
 
 /**
- * Interface for a File provider. By this we mean that this provides
- * access to the file contents / information in their encrypted form as they
- * would be stored on a local disk or any other storage type.
+ * Interface for a File provider. By this we mean that this provides access to
+ * the file contents / information in their encrypted form as they would be
+ * stored on a local disk or any other storage type.
  */
 public interface EncFSFileProvider {
 
@@ -45,7 +45,9 @@ public interface EncFSFileProvider {
 
 	public OutputStream openOutputStream(String encSrcFile) throws IOException;
 
-	public EncFSFileInfo getFileInfo(String encSrcFile);
+	public EncFSFileInfo getFileInfo(String encSrcFile) throws IOException;
 
-	public boolean exists(String name);
+	public boolean exists(String name) throws IOException;
+
+	public EncFSFileInfo createFile(String encTargetFile) throws IOException;
 }

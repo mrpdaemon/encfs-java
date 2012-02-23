@@ -135,10 +135,6 @@ public class EncFSFile {
 		return renameTo(targetVolumePath + "/" + fileName);
 	}
 
-	public boolean mkdir() throws EncFSCorruptDataException, IOException {
-		return volume.makeDir(this);
-	}
-
 	public boolean mkdir(String subDirName) throws EncFSCorruptDataException, IOException {
 		if (isDirectory()) {
 			throw new IOException(getAbsoluteName() + " is not a directory");
@@ -147,10 +143,6 @@ public class EncFSFile {
 			throw new IOException("file name must not contain '/'");
 		}
 		return volume.makeDir(getAbsoluteName() + "/" + subDirName);
-	}
-
-	public boolean mkdirs() throws EncFSCorruptDataException, IOException {
-		return volume.makeDirs(this);
 	}
 
 	public boolean mkdirs(String subDirName) throws EncFSCorruptDataException, IOException {

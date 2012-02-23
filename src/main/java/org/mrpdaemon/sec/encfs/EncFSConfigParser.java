@@ -73,12 +73,14 @@ public class EncFSConfigParser {
 	 *         Unsupported EncFS version
 	 * @throws EncFSInvalidConfigException
 	 *         Config file not found
+	 * @throws IOException
 	 */
 	public static EncFSConfig parseConfig(EncFSFileProvider fileProvider, String path)
-			throws EncFSUnsupportedException, EncFSInvalidConfigException {
+			throws EncFSUnsupportedException, EncFSInvalidConfigException, IOException {
 
 		EncFSConfig config;
-		//TODO: Need to implement a connector method in EncFSFileProvider for '/'
+		// TODO: Need to implement a connector method in EncFSFileProvider for
+		// '/'
 		if (!fileProvider.exists("/" + path)) {
 			// Try old versions
 			for (String altConfigFileName : EncFSVolume.ENCFS_VOLUME_OLD_CONFIG_FILE_NAMES) {
