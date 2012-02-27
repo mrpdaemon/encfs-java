@@ -21,33 +21,181 @@ import java.io.OutputStream;
 import java.util.List;
 
 /**
- * Interface for a File provider. By this we mean that this provides access to
- * the file contents / information in their encrypted form as they would be
- * stored on a local disk or any other storage type.
+ * Interface for a File provider
+ * 
+ * An EncFSFileProvider provides an abstraction for accessing file contents and
+ * information in their encrypted form on a local disk or any other storage
+ * type. This class can be extended to implement EncFS functionality on
+ * non-local storage. For local storage access, see the built-in file provider
+ * class EncFSLocalFileProvider.
  */
 public interface EncFSFileProvider {
 
-	public boolean move(String encOrigFileName, String encNewFileName) throws IOException;
+	/**
+	 * Returns whether the given source path represents a directory in the
+	 * underlying filesystem
+	 * 
+	 * @param srcPath
+	 *            Path of the source file or directory
+	 * 
+	 * @return true if path represents a directory, false otherwise
+	 * 
+	 * @throws IOException
+	 *             Source file/dir doesn't exist or misc. I/O error
+	 */
+	public boolean isDirectory(String srcPath) throws IOException;
 
-	public boolean isDirectory(String encFileName) throws IOException;
+	/**
+	 * Returns whether the file or directory exists
+	 * 
+	 * @param srcPath
+	 *            Path of the file or directory
+	 * 
+	 * @return true if file or directory exists, false otherwise
+	 * 
+	 * @throws IOException
+	 *             Misc. I/O error
+	 */
+	public boolean exists(String srcPath) throws IOException;
 
-	public boolean delete(String encFileName) throws IOException;
+	/**
+	 * Return EncFSFileInfo for the given file or directory
+	 * 
+	 * @param srcPath
+	 *            Path of the file or directory
+	 * 
+	 * @return EncFSFileInfo for the given file or directory
+	 * 
+	 * @throws IOException
+	 *             Path doesn't exist or misc. I/O error
+	 */
+	public EncFSFileInfo getFileInfo(String srcPath) throws IOException;
 
-	public boolean mkdir(String encDirName) throws IOException;
+	/**
+	 * Returns the list of files under the given directory path
+	 * 
+	 * @param dirPath
+	 *            Path of the directory to list files from
+	 * 
+	 * @return a List of EncFSFileInfo representing files under the dir
+	 * 
+	 * @throws IOException
+	 *             Path not a directory or misc. I/O error
+	 */
+	public List<EncFSFileInfo> listFiles(String dirPath) throws IOException;
 
-	public boolean mkdirs(String encDirName) throws IOException;
+	/**
+	 * Move a file/directory to a different location
+	 * 
+	 * @param srcPath
+	 *            Path to the source file or directory
+	 * @param dstPath
+	 *            Path for the destination file or directory
+	 * 
+	 * @return true if the move is successful, false otherwise
+	 * 
+	 * @throws IOException
+	 *             Source file/dir doesn't exist or misc. I/O error
+	 */
+	public boolean move(String srcPath, String dstPath) throws IOException;
 
-	public boolean copy(String encSrcFileName, String encTargetFileName) throws IOException;
+	/**
+	 * Delete the file or directory with the given path
+	 * 
+	 * @param srcPath
+	 *            Path of the source file or directory
+	 * 
+	 * @return true if deletion is successful, false otherwise
+	 * 
+	 * @throws IOException
+	 *             Source file/dir doesn't exist or misc. I/O error
+	 */
+	public boolean delete(String srcPath) throws IOException;
 
-	public List<EncFSFileInfo> listFiles(String encDirName) throws IOException;
+	/**
+	 * Create a directory with the given path
+	 * 
+	 * Note that all path elements except the last one must exist for this
+	 * method. If that is not true mkdirs should be used instead
+	 * 
+	 * @param dirPath
+	 *            Path to create a directory under
+	 * 
+	 * @return true if creation succeeds, false otherwise
+	 * 
+	 * @throws IOException
+	 *             Path doesn't exist or misc. I/O error
+	 */
+	public boolean mkdir(String dirPath) throws IOException;
 
-	public InputStream openInputStream(String encSrcFile) throws IOException;
+	/**
+	 * Create a directory with the given path
+	 * 
+	 * Intermediate directories are also created by this method
+	 * 
+	 * @param dirPath
+	 *            Path to create a directory under
+	 * 
+	 * @return true if creation succeeds, false otherwise
+	 * 
+	 * @throws IOException
+	 *             Path doesn't exist or misc. I/O error
+	 */
+	public boolean mkdirs(String dirPath) throws IOException;
 
-	public OutputStream openOutputStream(String encSrcFile) throws IOException;
+	/**
+	 * Create a file with the given path
+	 * 
+	 * @param dstFilePath
+	 *            Path for the file to create
+	 * 
+	 * @return EncFSFileInfo for the created file
+	 * 
+	 * @throws IOException
+	 *             File already exists or misc. I/O error
+	 */
+	public EncFSFileInfo createFile(String dstFilePath) throws IOException;
 
-	public EncFSFileInfo getFileInfo(String encSrcFile) throws IOException;
+	/**
+	 * Copy the file with the given path to another destination
+	 * 
+	 * @param srcFilePath
+	 *            Path to the file to copy
+	 * @param dstFilePath
+	 *            Path to the destination file
+	 * 
+	 * @return true if copy was successful, false otherwise
+	 * 
+	 * @throws IOException
+	 *             Destination file already exists, source file doesn't exist or
+	 *             misc. I/O error
+	 */
+	public boolean copy(String srcFilePath, String dstFilePath)
+			throws IOException;
 
-	public boolean exists(String name) throws IOException;
+	/**
+	 * Open an InputStream to the given file
+	 * 
+	 * @param srcFilePath
+	 *            Path to the source file
+	 * 
+	 * @return InputStream to read from the file
+	 * 
+	 * @throws IOException
+	 *             Source file doesn't exist or misc. I/O error
+	 */
+	public InputStream openInputStream(String srcFilePath) throws IOException;
 
-	public EncFSFileInfo createFile(String encTargetFile) throws IOException;
+	/**
+	 * Open an OutputStream to the given file
+	 * 
+	 * @param dstFilePath
+	 *            Path to the destination file
+	 * 
+	 * @return OutputStream to write to the file
+	 * 
+	 * @throws IOException
+	 *             Misc. I/O error
+	 */
+	public OutputStream openOutputStream(String dstFilePath) throws IOException;
 }

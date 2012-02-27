@@ -16,46 +16,50 @@
 package org.mrpdaemon.sec.encfs;
 
 /**
- * @author mark
- *
+ * Class representing a corrupt data exception
  */
 public class EncFSCorruptDataException extends Exception {
 
-	/**
-	 * 
-	 */
+	// Serialization version
 	private static final long serialVersionUID = 1L;
 
 	/**
-	 * 
+	 * Creates a new EncFSCorruptDataException
 	 */
 	public EncFSCorruptDataException() {
-		// TODO Auto-generated constructor stub
+		super();
 	}
 
 	/**
+	 * Creates a new EncFSCorruptDataException
+	 * 
 	 * @param message
+	 *            Exception message
 	 */
 	public EncFSCorruptDataException(String message) {
 		super(message);
-		// TODO Auto-generated constructor stub
 	}
 
 	/**
+	 * Creates a new EncFSCorruptDataException
+	 * 
 	 * @param cause
+	 *            Underlying Throwable for the exception
 	 */
 	public EncFSCorruptDataException(Throwable cause) {
 		super(cause);
-		// TODO Auto-generated constructor stub
 	}
 
 	/**
+	 * Creates a new EncFSCorruptDataException
+	 * 
 	 * @param message
+	 *            Exception message
 	 * @param cause
+	 *            Underlying Throwable for the exception
 	 */
 	public EncFSCorruptDataException(String message, Throwable cause) {
 		super(message, cause);
-		// TODO Auto-generated constructor stub
 	}
 
 }

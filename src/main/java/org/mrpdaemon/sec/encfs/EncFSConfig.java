@@ -15,21 +15,15 @@
 
 package org.mrpdaemon.sec.encfs;
 
-import java.security.SecureRandom;
-
 /**
  * Class representing volume configuration data for an EncFS volume.
  */
 public class EncFSConfig {
 
-	/**
-	 * Volume configuration uses nameio/block for filename encryption
-	 */
+	/** Volume configuration uses nameio/block for filename encryption */
 	public static final int ENCFS_CONFIG_NAME_ALG_BLOCK = 1;
 
-	/**
-	 * Volume configuration uses nameio/stream for filename encryption
-	 */
+	/** Volume configuration uses nameio/stream for filename encryption */
 	public static final int ENCFS_CONFIG_NAME_ALG_STREAM = 2;
 
 	// Size of the volume encryption key in bits.
@@ -74,17 +68,15 @@ public class EncFSConfig {
 
 	// Algorithm used for file name encryption
 	private int nameAlgorithm;
-	
+
 	// Number of MAC bytes for each file block
 	private int blockMACBytes;
-	
+
 	// Number of random bytes in each block MAC header
 	private int blockMACRandBytes;
 
 	/**
 	 * Creates a default EncFS configuration that encfs-java supports
-	 * 
-	 * @return Default EncFS configuration minus salt/password fields
 	 */
 	public EncFSConfig() {
 		setNameAlgorithm(ENCFS_CONFIG_NAME_ALG_BLOCK);
@@ -92,45 +84,15 @@ public class EncFSConfig {
 		setBlockSize(1024);
 		setUniqueIV(true);
 		setChainedNameIV(true);
-		setHolesAllowed(false); //XXX: Not supported
+		setHolesAllowed(false); // XXX: Not supported
 		setIterationCount(5000);
 		setBlockMACBytes(0);
 		setBlockMACRandBytes(0);
 	}
-	
-	/**
-	 * Encodes the given volume key using the supplied password parameters,
-	 * placing it into the EncFSConfig
-	 * 
-	 * @param config Partially initialized volume configuration
-	 * @param password Password to use for encoding the key
-	 * @param volKey Volume key to encode
-	 * 
-	 * @throws EncFSUnsupportedException 
-	 * @throws EncFSInvalidConfigException 
-	 * @throws EncFSCorruptDataException 
-	 */
-	public static void encodeVolumeKey(EncFSConfig config, String password, byte[] volKey)
-			throws EncFSInvalidConfigException, EncFSUnsupportedException, EncFSCorruptDataException {
-		SecureRandom random = new SecureRandom();
-		config.setSaltLength(20);
-		
-		// Generate random salt
-		byte[] salt = new byte[20];
-		random.nextBytes(salt);
-		config.setSaltStr(EncFSBase64.encodeBytes(salt));
-		
-		// Get password key data
-		byte[] pbkdf2Data = EncFSCrypto.derivePasswordKey(config, password);
-		
-		// Encode volume key
-		byte[] encodedVolKey = EncFSCrypto.encryptVolumeKey(config, pbkdf2Data, volKey);
-		
-		config.setEncodedKeyLength(encodedVolKey.length);
-		config.setEncodedKeyStr(EncFSBase64.encodeBytes(encodedVolKey));
-	}
 
 	/**
+	 * Returns the size of the volume encryption key in bits.
+	 * 
 	 * @return the size of the volume encryption key in bits.
 	 */
 	public int getVolumeKeySize() {
@@ -138,6 +100,8 @@ public class EncFSConfig {
 	}
 
 	/**
+	 * Sets the size of the volume encryption key in bits.
+	 * 
 	 * @param volumeKeySize
 	 *            the size of the volume encryption key in bits.
 	 */
@@ -146,6 +110,8 @@ public class EncFSConfig {
 	}
 
 	/**
+	 * Returns the size of encrypted file blocks in bytes.
+	 * 
 	 * @return size of encrypted file blocks in bytes.
 	 */
 	public int getBlockSize() {
@@ -153,6 +119,8 @@ public class EncFSConfig {
 	}
 
 	/**
+	 * Sets the size of encrypted file blocks in bytes.
+	 * 
 	 * @param blockSize
 	 *            size of encrypted file blocks in bytes.
 	 */
@@ -161,6 +129,8 @@ public class EncFSConfig {
 	}
 
 	/**
+	 * Checks whether unique IV is being used.
+	 * 
 	 * @return whether unique IV is being used.
 	 */
 	public boolean isUniqueIV() {
@@ -168,6 +138,8 @@ public class EncFSConfig {
 	}
 
 	/**
+	 * Sets whether unique IV is being used.
+	 * 
 	 * @param uniqueIV
 	 *            whether unique IV is being used.
 	 */
@@ -197,6 +169,8 @@ public class EncFSConfig {
 	}
 
 	/**
+	 * Checks whether holes are allowed in files.
+	 * 
 	 * @return whether holes are allowed in files.
 	 */
 	public boolean isHolesAllowed() {
@@ -204,6 +178,8 @@ public class EncFSConfig {
 	}
 
 	/**
+	 * Sets whether holes are allowed in files.
+	 * 
 	 * @param holesAllowed
 	 *            whether holes are allowed in files.
 	 */
@@ -212,6 +188,8 @@ public class EncFSConfig {
 	}
 
 	/**
+	 * Returns the length of the encoded key data in bytes.
+	 * 
 	 * @return length of the encoded key data in bytes.
 	 */
 	public int getEncodedKeyLength() {
@@ -219,6 +197,8 @@ public class EncFSConfig {
 	}
 
 	/**
+	 * Sets the length of the encoded key data in bytes.
+	 * 
 	 * @param encodedKeyLength
 	 *            length of the encoded key data in bytes.
 	 */
@@ -227,6 +207,9 @@ public class EncFSConfig {
 	}
 
 	/**
+	 * Returns the Base64 encoded representation of the volume encryption key
+	 * encrypted with the password generated key.
+	 * 
 	 * @return string containing the Base64 encoded representation of the volume
 	 *         encryption key encrypted with the password generated key.
 	 */
@@ -235,6 +218,8 @@ public class EncFSConfig {
 	}
 
 	/**
+	 * Sets the volume encryption key string
+	 * 
 	 * @param encodedKeyStr
 	 *            string containing the Base64 encoded representation of the
 	 *            volume encryption key encrypted with the password generated
@@ -245,6 +230,8 @@ public class EncFSConfig {
 	}
 
 	/**
+	 * Returns the salt length
+	 * 
 	 * @return the saltLength
 	 */
 	public int getSaltLength() {
@@ -252,6 +239,8 @@ public class EncFSConfig {
 	}
 
 	/**
+	 * Sets the salt length
+	 * 
 	 * @param saltLength
 	 *            length of the salt data in bytes.
 	 */
@@ -260,6 +249,8 @@ public class EncFSConfig {
 	}
 
 	/**
+	 * Returns the Base64 encoded salt string
+	 * 
 	 * @return string containing the salt data applied to the password hash for
 	 *         generating the password derived key.
 	 */
@@ -268,6 +259,8 @@ public class EncFSConfig {
 	}
 
 	/**
+	 * Set the Base64 encoded salt string
+	 * 
 	 * @param saltStr
 	 *            string containing the salt data applied to the password hash
 	 *            for generating the password derived key.
@@ -277,6 +270,8 @@ public class EncFSConfig {
 	}
 
 	/**
+	 * Returns the iteration count
+	 * 
 	 * @return iteration count used in the generation of the password derived
 	 *         key.
 	 */
@@ -285,6 +280,8 @@ public class EncFSConfig {
 	}
 
 	/**
+	 * Set the iteration count
+	 * 
 	 * @param iterationCount
 	 *            iteration count used in the generation of the password derived
 	 *            key.
@@ -294,6 +291,8 @@ public class EncFSConfig {
 	}
 
 	/**
+	 * Returns the filename encryption algorithm
+	 * 
 	 * @return algorithm used for filename encryption
 	 */
 	public int getNameAlgorithm() {
@@ -301,6 +300,8 @@ public class EncFSConfig {
 	}
 
 	/**
+	 * Set the filename encryption algorithm
+	 * 
 	 * @param nameAlgorithm
 	 *            algorithm used for filename encryption
 	 */
@@ -309,6 +310,8 @@ public class EncFSConfig {
 	}
 
 	/**
+	 * Returns the number of MAC bytes in file block headers
+	 * 
 	 * @return number of MAC bytes in file block headers
 	 */
 	public int getBlockMACBytes() {
@@ -316,6 +319,8 @@ public class EncFSConfig {
 	}
 
 	/**
+	 * Set the number of MAC bytes in file block headers
+	 * 
 	 * @param blockMACBytes
 	 *            number of MAC bytes in file block headers
 	 */
@@ -324,6 +329,8 @@ public class EncFSConfig {
 	}
 
 	/**
+	 * Returns the number of random bytes in file block headers
+	 * 
 	 * @return number of random bytes in file block headers
 	 */
 	public int getBlockMACRandBytes() {
@@ -331,6 +338,8 @@ public class EncFSConfig {
 	}
 
 	/**
+	 * Sets the number of random bytes in file block headers
+	 * 
 	 * @param blockMACRandBytes
 	 *            number of random bytes in file block headers
 	 */
@@ -338,12 +347,20 @@ public class EncFSConfig {
 		this.blockMACRandBytes = blockMACRandBytes;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see java.lang.Object#toString()
+	 */
 	@Override
 	public String toString() {
-		return "EncFSConfig [volumeKeySize=" + volumeKeySize + ", blockSize=" + blockSize + ", uniqueIV=" + uniqueIV
-				+ ", chainedNameIV=" + chainedNameIV + ", holesAllowed=" + holesAllowed + ", encodedKeyLength="
-				+ encodedKeyLength + ", encodedKeyStr=" + encodedKeyStr + ", saltLength=" + saltLength + ", saltStr="
-				+ saltStr + ", iterationCount=" + iterationCount + ", nameAlgorithm=" + nameAlgorithm + "]";
+		return "EncFSConfig [volumeKeySize=" + volumeKeySize + ", blockSize="
+				+ blockSize + ", uniqueIV=" + uniqueIV + ", chainedNameIV="
+				+ chainedNameIV + ", holesAllowed=" + holesAllowed
+				+ ", encodedKeyLength=" + encodedKeyLength + ", encodedKeyStr="
+				+ encodedKeyStr + ", saltLength=" + saltLength + ", saltStr="
+				+ saltStr + ", iterationCount=" + iterationCount
+				+ ", nameAlgorithm=" + nameAlgorithm + "]";
 	}
 
 }

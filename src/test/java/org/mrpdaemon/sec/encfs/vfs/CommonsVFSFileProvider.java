@@ -21,7 +21,8 @@ public class CommonsVFSFileProvider implements EncFSFileProvider {
 		this.fileSystemManager = fileSystemManager;
 	}
 
-	public boolean move(String encOrigFileName, String encNewFileName) throws IOException {
+	public boolean move(String encOrigFileName, String encNewFileName)
+			throws IOException {
 		FileObject origFile = resolveFile(encOrigFileName);
 		if (origFile.exists() == false)
 			return false;
@@ -36,8 +37,10 @@ public class CommonsVFSFileProvider implements EncFSFileProvider {
 		return true;
 	}
 
-	private FileObject resolveFile(String encOrigFileName) throws FileSystemException {
-		return fileSystemManager.resolveFile(fileSystemManager.getSchemes()[0] + ":" + encOrigFileName);
+	private FileObject resolveFile(String encOrigFileName)
+			throws FileSystemException {
+		return fileSystemManager.resolveFile(fileSystemManager.getSchemes()[0]
+				+ ":" + encOrigFileName);
 	}
 
 	public boolean isDirectory(String encFileName) throws IOException {
@@ -91,7 +94,8 @@ public class CommonsVFSFileProvider implements EncFSFileProvider {
 		return true;
 	}
 
-	public boolean copy(String encSrcFileName, String encTargetFileName) throws IOException {
+	public boolean copy(String encSrcFileName, String encTargetFileName)
+			throws IOException {
 		FileObject srcFile = resolveFile(encSrcFileName);
 		FileObject targetFile = resolveFile(encTargetFileName);
 
@@ -103,7 +107,8 @@ public class CommonsVFSFileProvider implements EncFSFileProvider {
 		FileObject srcDir = resolveFile(encDirName);
 		FileObject[] children = srcDir.getChildren();
 
-		List<EncFSFileInfo> result = new ArrayList<EncFSFileInfo>(children.length);
+		List<EncFSFileInfo> result = new ArrayList<EncFSFileInfo>(
+				children.length);
 		for (int i = 0; i < children.length; i++) {
 			result.add(getFileInfo(children[i]));
 		}
@@ -134,7 +139,8 @@ public class CommonsVFSFileProvider implements EncFSFileProvider {
 	private EncFSFileInfo getFileInfo(FileObject fileObject) throws IOException {
 		String name = fileObject.getName().getBaseName();
 		String volumePath = fileObject.getName().getPath();
-		volumePath = volumePath.substring(0, volumePath.length() - (name.length() + "/".length()));
+		volumePath = volumePath.substring(0,
+				volumePath.length() - (name.length() + "/".length()));
 		if (volumePath.equals("")) {
 			volumePath = "/";
 		}
@@ -146,8 +152,8 @@ public class CommonsVFSFileProvider implements EncFSFileProvider {
 		boolean canWrite = fileObject.isWriteable();
 		boolean canExecute = false;
 
-		EncFSFileInfo result = new EncFSFileInfo(name, volumePath, isDirectory, modified, size, canRead, canWrite,
-				canExecute);
+		EncFSFileInfo result = new EncFSFileInfo(name, volumePath, isDirectory,
+				modified, size, canRead, canWrite, canExecute);
 
 		return result;
 	}

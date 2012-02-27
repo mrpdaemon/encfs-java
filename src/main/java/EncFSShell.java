@@ -40,7 +40,8 @@ public class EncFSShell {
 	private static EncFSFile curDir;
 
 	// Search method to find a child under the current directory
-	private static EncFSFile findChild(String childName) throws EncFSCorruptDataException, EncFSChecksumException,
+	private static EncFSFile findChild(String childName)
+			throws EncFSCorruptDataException, EncFSChecksumException,
 			IOException {
 		// curDir.getVolume().getFile(curDir.getVolumePath() + "/" +
 		// curDir.getName(), childName);
@@ -58,7 +59,8 @@ public class EncFSShell {
 	public static void main(String[] args) {
 
 		if (args.length != 1) {
-			System.out.println("This application takes one argument:" + " path to an EncFS volume");
+			System.out.println("This application takes one argument:"
+					+ " path to an EncFS volume");
 			System.exit(1);
 		}
 
@@ -107,10 +109,12 @@ public class EncFSShell {
 				if (curDir == volume.getRootDir()) {
 					System.out.print("/ > ");
 				} else {
-					if (curDir.getVolumePath().equals(EncFSVolume.ENCFS_VOLUME_ROOT_PATH)) {
+					if (curDir.getParentPath().equals(
+							EncFSVolume.ENCFS_VOLUME_ROOT_PATH)) {
 						System.out.print("/" + curDir.getName() + " > ");
 					} else {
-						System.out.print(curDir.getVolumePath() + "/" + curDir.getName() + " > ");
+						System.out.print(curDir.getParentPath() + "/"
+								+ curDir.getName() + " > ");
 					}
 				}
 
@@ -155,13 +159,16 @@ public class EncFSShell {
 
 						Comparator<EncFSFile> comparator = new Comparator<EncFSFile>() {
 
-							private final boolean reverse = (options.contains("r"));
-							private final boolean sortByTime = (options.contains("t"));
+							private final boolean reverse = (options
+									.contains("r"));
+							private final boolean sortByTime = (options
+									.contains("t"));
 
 							public int compare(EncFSFile arg0, EncFSFile arg1) {
 								int result;
 								if (sortByTime) {
-									long diff = arg0.lastModified() - arg1.lastModified();
+									long diff = arg0.getLastModified()
+											- arg1.getLastModified();
 									if (diff > 0) {
 										result = -1;
 									} else if (diff == 0) {
@@ -170,7 +177,8 @@ public class EncFSShell {
 										result = 1;
 									}
 								} else {
-									result = arg0.getName().compareTo(arg1.getName());
+									result = arg0.getName().compareTo(
+											arg1.getName());
 								}
 
 								if (reverse) {
@@ -193,19 +201,19 @@ public class EncFSShell {
 									System.out.print("-");
 								}
 
-								if (file.canRead()) {
+								if (file.isReadable()) {
 									System.out.print("r");
 								} else {
 									System.out.print("-");
 								}
 
-								if (file.canWrite()) {
+								if (file.isWritable()) {
 									System.out.print("w");
 								} else {
 									System.out.print("-");
 								}
 
-								if (file.canExecute()) {
+								if (file.isExecutable()) {
 									System.out.print("x");
 								} else {
 									System.out.print("-");
@@ -215,11 +223,13 @@ public class EncFSShell {
 								System.out.print("???");
 
 								System.out.print(" ");
-								String tmpSize = "         " + file.getContentsLength();
-								System.out.print(tmpSize.substring(tmpSize.length() - 9));
+								String tmpSize = "         " + file.getLength();
+								System.out.print(tmpSize.substring(tmpSize
+										.length() - 9));
 
 								System.out.print(" ");
-								System.out.print(new Date(file.lastModified()));
+								System.out.print(new Date(file
+										.getLastModified()));
 
 								System.out.print(" ");
 								System.out.print(file.getName());
@@ -230,9 +240,9 @@ public class EncFSShell {
 							}
 						}
 					}
-				} else if (command.equals("mkdir") || command.equals("mkdirs")) { // make
-																					// directory
-					String dirName = (st.hasMoreTokens() ? st.nextToken() : null);
+				} else if (command.equals("mkdir") || command.equals("mkdirs")) {
+					String dirName = (st.hasMoreTokens() ? st.nextToken()
+							: null);
 					if (dirName == null) {
 						System.out.println("mkdir {dirname}");
 						continue;
@@ -240,23 +250,29 @@ public class EncFSShell {
 
 					boolean result;
 					if (command.equals("mkdir")) {
-						result = curDir.mkdir(dirName);
+						result = volume.makeDir(curDir.getPath() + "/"
+								+ dirName);
 					} else {
-						result = curDir.mkdirs(dirName);
+						result = volume.makeDirs(curDir.getPath() + "/"
+								+ dirName);
 					}
 
-					System.out.println(command + " " + dirName + " result was: " + result);
+					System.out.println(command + " " + dirName
+							+ " result was: " + result);
 
-				} else if (command.equals("rm")) { // make directory
-					String fileName = (st.hasMoreTokens() ? st.nextToken() : null);
+				} else if (command.equals("rm")) { // remove
+					String fileName = (st.hasMoreTokens() ? st.nextToken()
+							: null);
 					if (fileName == null) {
 						System.out.println("rm {filename}");
 						continue;
 					}
 
-					boolean result = curDir.delete(fileName);
+					boolean result = volume.deletePath(curDir.getPath() + "/"
+							+ fileName);
 
-					System.out.println("rm " + fileName + " result was: " + result);
+					System.out.println("rm " + fileName + " result was: "
+							+ result);
 
 				} else if (command.equals("mv")) { // move / rename
 
@@ -288,16 +304,20 @@ public class EncFSShell {
 						EncFSFile file2 = findChild(fileName2);
 
 						if (file1 == null) {
-							System.out.println("file " + fileName1 + " not found");
+							System.out.println("file " + fileName1
+									+ " not found");
 							continue;
 						}
 						if (force == false && file2 != null) {
-							System.out.println("file " + fileName2 + " already exists, aborting");
+							System.out.println("file " + fileName2
+									+ " already exists, aborting");
 							continue;
 						}
 
-						boolean result = file1.renameTo(fileName2);
-						System.out.println("Result of move " + fileName1 + " to " + fileName2 + " was: " + result);
+						boolean result = volume.movePath(file1.getPath(),
+								fileName2);
+						System.out.println("Result of move " + fileName1
+								+ " to " + fileName2 + " was: " + result);
 					}
 				} else if (command.equals("exit")) { // bail out
 					System.exit(0);
@@ -346,7 +366,8 @@ public class EncFSShell {
 							continue;
 						}
 
-						EncFSFileInputStream efis = new EncFSFileInputStream(file);
+						EncFSFileInputStream efis = new EncFSFileInputStream(
+								file);
 						int bytesRead = 0;
 						while (bytesRead >= 0) {
 							byte[] readBuf = new byte[128];

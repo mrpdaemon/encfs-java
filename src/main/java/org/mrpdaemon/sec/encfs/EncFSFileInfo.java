@@ -15,74 +15,174 @@
 
 package org.mrpdaemon.sec.encfs;
 
+/**
+ * Class representing information about an underlying file
+ */
 public class EncFSFileInfo {
+	// Name of the file
 	private final String name;
-	private final String volumePath;
-	private final boolean isDirectory;
-	private final long modified;
-	private final long size;
-	private final boolean canRead;
-	private final boolean canWrite;
-	private final boolean canExecute;
 
-	public EncFSFileInfo(String name, String volumePath, boolean isDirectory, long modified, long size,
-			boolean canRead, boolean canWrite, boolean canExecute) {
+	// Volume path of the parent directory hosting the file
+	private final String parentPath;
+
+	// Whether the file is a directory
+	private final boolean directory;
+
+	// Last modification time of the file
+	private final long lastModified;
+
+	// Raw size of the underlying file
+	private final long size;
+
+	// Whether the file is readable
+	private final boolean readable;
+
+	// Whether the file is writable
+	private final boolean writable;
+
+	// Whether the file is executable
+	private final boolean executable;
+
+	/**
+	 * Create a new EncFSFileInfo
+	 * 
+	 * @param name
+	 *            Name of the file
+	 * @param parentPath
+	 *            Volume path of the parent directory hosting the file
+	 * @param directory
+	 *            Whether the file is a directory
+	 * @param lastModified
+	 *            Last modification time of the file
+	 * @param size
+	 *            Raw size of the underlying file
+	 * @param readable
+	 *            Whether the file is readable
+	 * @param writable
+	 *            Whether the file is writable
+	 * @param executable
+	 *            Whether the file is executable
+	 */
+	public EncFSFileInfo(String name, String parentPath, boolean directory,
+			long lastModified, long size, boolean readable, boolean writable,
+			boolean executable) {
 		if (name.startsWith("/") && (name.equals("/") == false))
 			throw new IllegalArgumentException("Invalid name " + name);
 
 		this.name = name;
-		this.volumePath = volumePath;
-		this.isDirectory = isDirectory;
-		this.modified = modified;
+		this.parentPath = parentPath;
+		this.directory = directory;
+		this.lastModified = lastModified;
 		this.size = size;
-		this.canRead = canRead;
-		this.canWrite = canWrite;
-		this.canExecute = canExecute;
+		this.readable = readable;
+		this.writable = writable;
+		this.executable = executable;
 	}
 
+	/**
+	 * Returns the name of the file
+	 * 
+	 * @return name of the file
+	 */
 	public String getName() {
 		return name;
 	}
 
-	public String getVolumePath() {
-		return volumePath;
+	/**
+	 * Returns the volume path of the parent directory hosting the file
+	 * 
+	 * @return volume path of the parent directory hosting the file
+	 */
+	public String getParentPath() {
+		return parentPath;
 	}
 
-	public boolean isDirectory() {
-		return isDirectory;
-	}
-
-	public long getModified() {
-		return modified;
-	}
-
-	public long getSize() {
-		return size;
-	}
-
-	public String getAbsoluteName() {
+	/**
+	 * Returns the volume path of the file
+	 * 
+	 * @return volume path of the file
+	 */
+	public String getPath() {
 		String result;
-		if (volumePath.endsWith("/") || name.startsWith("/")) {
-			result = volumePath + name;
+		if (parentPath.endsWith("/") || name.startsWith("/")) {
+			result = parentPath + name;
 		} else {
-			result = volumePath + "/" + name;
+			result = parentPath + "/" + name;
 		}
 		return result;
 	}
 
-	public boolean canRead() {
-		return canRead;
+	/**
+	 * Returns the last modification time of the file
+	 * 
+	 * @return last modification time of the file
+	 */
+	public long getLastModified() {
+		return lastModified;
 	}
 
-	public boolean canWrite() {
-		return canWrite;
+	/**
+	 * Returns the raw size of the underlying file
+	 * 
+	 * @return raw size of the underlying file
+	 */
+	public long getSize() {
+		return size;
 	}
 
-	public boolean canExecute() {
-		return canExecute;
+	/**
+	 * Returns whether the file is a directory
+	 * 
+	 * @return whether the file is a directory
+	 */
+	public boolean isDirectory() {
+		return directory;
 	}
-	
-	public static EncFSFileInfo getDecodedFileInfo(EncFSVolume volume, String decodedDirName, String decodedFileName,
+
+	/**
+	 * Returns whether the file is readable
+	 * 
+	 * @return whether the file is readable
+	 */
+	public boolean isReadable() {
+		return readable;
+	}
+
+	/**
+	 * Returns whether the file is writable
+	 * 
+	 * @return whether the file is writable
+	 */
+	public boolean isWritable() {
+		return writable;
+	}
+
+	/**
+	 * Returns whether the file is executable
+	 * 
+	 * @return whether the file is executable
+	 */
+	public boolean isExecutable() {
+		return executable;
+	}
+
+	/**
+	 * Produces an EncFSFileInfo for the decoded version of the file represented
+	 * by this object
+	 * 
+	 * @param volume
+	 *            Volume hosting this file
+	 * @param decodedParentPath
+	 *            Decoded path of the parent directory for the output file
+	 * @param decodedFileName
+	 *            Decoded file name of the output file
+	 * @param fileInfo
+	 *            EncFSFileInfo for the file to be decoded
+	 * 
+	 * @return EncFSFileInfo for the decoded file
+	 */
+	public static EncFSFileInfo getDecodedFileInfo(EncFSVolume volume,
+			String decodedParentPath, String decodedFileName,
 			EncFSFileInfo fileInfo) {
 		EncFSConfig config = volume.getConfig();
 		long size;
@@ -97,15 +197,19 @@ public class EncFSFileInfo {
 			}
 
 			// Account for block headers
-			if (config.getBlockMACBytes() > 0 || config.getBlockMACRandBytes() > 0) {
+			if (config.getBlockMACBytes() > 0
+					|| config.getBlockMACRandBytes() > 0) {
 				long numBlocks = fileInfo.getSize() / config.getBlockSize();
-				size -= numBlocks * (config.getBlockMACBytes() +
-						config.getBlockMACRandBytes());
+				size -= numBlocks
+						* (config.getBlockMACBytes() + config
+								.getBlockMACRandBytes());
 			}
 		}
 
-		EncFSFileInfo decEncFileInfo = new EncFSFileInfo(decodedFileName, decodedDirName, fileInfo.isDirectory(),
-				fileInfo.getModified(), size, fileInfo.canRead(), fileInfo.canWrite(), fileInfo.canExecute());
+		EncFSFileInfo decEncFileInfo = new EncFSFileInfo(decodedFileName,
+				decodedParentPath, fileInfo.isDirectory(),
+				fileInfo.getLastModified(), size, fileInfo.isReadable(),
+				fileInfo.isWritable(), fileInfo.isExecutable());
 		return decEncFileInfo;
 	}
 }

@@ -35,7 +35,8 @@ import org.slf4j.LoggerFactory;
  * same.
  */
 public class EncFSComparer {
-	private static final Logger logger = LoggerFactory.getLogger(EncFSComparer.class);
+	private static final Logger logger = LoggerFactory
+			.getLogger(EncFSComparer.class);
 
 	/**
 	 * @param args
@@ -53,7 +54,8 @@ public class EncFSComparer {
 		String password = args[1];
 		File decodedEncFSOutput = new File(args[2]);
 
-		EncFSComparer encFSComparer = new EncFSComparer(rawEncFSVolume, password, decodedEncFSOutput);
+		EncFSComparer encFSComparer = new EncFSComparer(rawEncFSVolume,
+				password, decodedEncFSOutput);
 		int result = encFSComparer.compare();
 		System.exit(result);
 	}
@@ -62,18 +64,22 @@ public class EncFSComparer {
 	private final String password;
 	private final File decodedEncFSOutput;
 
-	public EncFSComparer(File rawEncFSVolume, String password, File decodedEncFSOutput) {
+	public EncFSComparer(File rawEncFSVolume, String password,
+			File decodedEncFSOutput) {
 		this.rawEncFSVolume = rawEncFSVolume;
 		this.password = password;
 		this.decodedEncFSOutput = decodedEncFSOutput;
 	}
 
-	private int compare() throws EncFSInvalidPasswordException, EncFSInvalidConfigException, EncFSCorruptDataException,
+	private int compare() throws EncFSInvalidPasswordException,
+			EncFSInvalidConfigException, EncFSCorruptDataException,
 			EncFSUnsupportedException, EncFSChecksumException, IOException {
-		logger.info("Performing compare between encfs raw volume at {} and output files at {}", rawEncFSVolume,
-				decodedEncFSOutput);
+		logger.info(
+				"Performing compare between encfs raw volume at {} and output files at {}",
+				rawEncFSVolume, decodedEncFSOutput);
 
-		EncFSVolume volume = new EncFSVolume(rawEncFSVolume.getAbsolutePath(), password);
+		EncFSVolume volume = new EncFSVolume(rawEncFSVolume.getAbsolutePath(),
+				password);
 		EncFSFile rootDir = volume.getRootDir();
 		int result = compare(rootDir, decodedEncFSOutput);
 
@@ -86,8 +92,9 @@ public class EncFSComparer {
 		return result;
 	}
 
-	private int compare(EncFSFile encFsDir, File decodedFsDir) throws EncFSCorruptDataException,
-			EncFSChecksumException, EncFSUnsupportedException, IOException {
+	private int compare(EncFSFile encFsDir, File decodedFsDir)
+			throws EncFSCorruptDataException, EncFSChecksumException,
+			EncFSUnsupportedException, IOException {
 		logger.info("Comparing directory {}", decodedFsDir.getAbsoluteFile());
 
 		EncFSFile[] encFsFiles = encFsDir.listFiles();
@@ -97,7 +104,8 @@ public class EncFSComparer {
 		Arrays.sort(decodedFsFiles, SimpleFileComparator.getInstance());
 
 		if (encFsFiles.length != decodedFsFiles.length) {
-			logger.error("File count miss match in directory {}", decodedFsDir.getAbsoluteFile());
+			logger.error("File count miss match in directory {}",
+					decodedFsDir.getAbsoluteFile());
 			return -1;
 		} else {
 			for (int i = 0; i < encFsFiles.length; i++) {
@@ -105,29 +113,34 @@ public class EncFSComparer {
 				File decodedFsFile = decodedFsFiles[i];
 
 				if (encFsFile.getName().equals(decodedFsFile.getName()) == false) {
-					logger.error("File name miss match ({}, {}, {})", new Object[] { i, encFsFile.getName(),
-							decodedFsFile.getName() });
+					logger.error("File name miss match ({}, {}, {})",
+							new Object[] { i, encFsFile.getName(),
+									decodedFsFile.getName() });
 					return -1;
 				}
 
-				String reEncEncfsName = EncFSCrypto.encodeName(encFsFile.getVolume(), encFsFile.getName(),
-						encFsFile.getVolumePath());
+				String reEncEncfsName = EncFSCrypto.encodeName(
+						encFsFile.getVolume(), encFsFile.getName(),
+						encFsFile.getParentPath());
 				String rawFileName = encFsFile.getEncrytedName();
 				if (rawFileName.equals(reEncEncfsName) == false) {
-					logger.error("Re-encoded name miss match ({}, {}, {}, {})", new Object[] { i, encFsFile.getName(),
-							rawFileName, reEncEncfsName });
+					logger.error("Re-encoded name miss match ({}, {}, {}, {})",
+							new Object[] { i, encFsFile.getName(), rawFileName,
+									reEncEncfsName });
 					return -1;
 				}
 
-				if (encFsFile.lastModified() != decodedFsFile.lastModified()) {
-					logger.error("File {} lastModified miss match", decodedFsFile.getName());
+				if (encFsFile.getLastModified() != decodedFsFile.lastModified()) {
+					logger.error("File {} lastModified miss match",
+							decodedFsFile.getName());
 					return -1;
 				}
 
-				if (encFsFile.getContentsLength() != decodedFsFile.length()) {
+				if (encFsFile.getLength() != decodedFsFile.length()) {
 					logger.error(
 							"File {} size miss match ({}, {})",
-							new Object[] { decodedFsFile.getName(), encFsFile.getContentsLength(),
+							new Object[] { decodedFsFile.getName(),
+									encFsFile.getLength(),
 									decodedFsFile.length() });
 					return -1;
 				}
@@ -142,12 +155,16 @@ public class EncFSComparer {
 					// same as
 					// reading the file directly from the mounted encfs volume
 
-					EncFSFileInputStream encfsIs = new EncFSFileInputStream(encFsFile);
+					EncFSFileInputStream encfsIs = new EncFSFileInputStream(
+							encFsFile);
 					try {
-						BufferedInputStream decFsIs = new BufferedInputStream(new FileInputStream(decodedFsFile));
-						String decodedFsFileName = decodedFsFile.getAbsoluteFile().getName();
+						BufferedInputStream decFsIs = new BufferedInputStream(
+								new FileInputStream(decodedFsFile));
+						String decodedFsFileName = decodedFsFile
+								.getAbsoluteFile().getName();
 						try {
-							int streamresult = compareInputStreams(encfsIs, decFsIs, decodedFsFileName);
+							int streamresult = compareInputStreams(encfsIs,
+									decFsIs, decodedFsFileName);
 							if (streamresult != 0) {
 								return streamresult;
 							}
@@ -160,16 +177,21 @@ public class EncFSComparer {
 
 					// Copy the file via input/output streams & then check that
 					// the file is the same
-					File t = File.createTempFile(this.getClass().getName(), ".tmp");
+					File t = File.createTempFile(this.getClass().getName(),
+							".tmp");
 					try {
-						EncFSOutputStream efos = new EncFSOutputStream(encFsDir.getVolume(), new BufferedOutputStream(
-								new FileOutputStream(t)));
+						EncFSOutputStream efos = new EncFSOutputStream(
+								encFsDir.getVolume(), new BufferedOutputStream(
+										new FileOutputStream(t)));
 						try {
-							EncFSFileInputStream efis = new EncFSFileInputStream(encFsFile);
+							EncFSFileInputStream efis = new EncFSFileInputStream(
+									encFsFile);
 							try {
 								int bytesRead = 0;
 								while (bytesRead >= 0) {
-									byte[] readBuf = new byte[(int) (encFsFile.getVolume().getConfig().getBlockSize() * 0.75)];
+									byte[] readBuf = new byte[(int) (encFsFile
+											.getVolume().getConfig()
+											.getBlockSize() * 0.75)];
 									bytesRead = efis.read(readBuf);
 									if (bytesRead >= 0) {
 										efos.write(readBuf, 0, bytesRead);
@@ -185,11 +207,15 @@ public class EncFSComparer {
 
 						FileInputStream reEncFSIs = new FileInputStream(t);
 						try {
-							InputStream origEncFSIs = encFsFile.getVolume().openNativeInputStream(
-									encFsFile.getAbsoluteName());
+							InputStream origEncFSIs = encFsFile
+									.getVolume()
+									.getFileProvider()
+									.openInputStream(
+											encFsFile.getEncryptedPath());
 							try {
-								int streamresult = compareInputStreams(origEncFSIs, reEncFSIs,
-										encFsFile.getAbsoluteName());
+								int streamresult = compareInputStreams(
+										origEncFSIs, reEncFSIs,
+										encFsFile.getPath());
 								if (streamresult != 0) {
 									return streamresult;
 								}
@@ -212,8 +238,8 @@ public class EncFSComparer {
 		return 0;
 	}
 
-	private int compareInputStreams(InputStream encfsIs, InputStream decFsIs, String decodedFsFileName)
-			throws IOException {
+	private int compareInputStreams(InputStream encfsIs, InputStream decFsIs,
+			String decodedFsFileName) throws IOException {
 		int bytesRead = 0, bytesRead2 = 0;
 		while (bytesRead >= 0) {
 			byte[] readBuf = new byte[128];
@@ -223,8 +249,9 @@ public class EncFSComparer {
 			bytesRead2 = decFsIs.read(readBuf2);
 
 			if (bytesRead != bytesRead2) {
-				logger.error("File bytes read missmatch {} ({}, {})", new Object[] { decodedFsFileName, bytesRead,
-						bytesRead2 });
+				logger.error(
+						"File bytes read missmatch {} ({}, {})",
+						new Object[] { decodedFsFileName, bytesRead, bytesRead2 });
 				return -1;
 			}
 
@@ -236,7 +263,8 @@ public class EncFSComparer {
 		return 0;
 	}
 
-	private static class SimpleEncFSFileComparator implements Comparator<EncFSFile> {
+	private static class SimpleEncFSFileComparator implements
+			Comparator<EncFSFile> {
 		private static final SimpleEncFSFileComparator instance = new SimpleEncFSFileComparator();
 
 		public static SimpleEncFSFileComparator getInstance() {

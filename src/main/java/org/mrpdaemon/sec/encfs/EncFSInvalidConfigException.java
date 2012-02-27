@@ -16,46 +16,50 @@
 package org.mrpdaemon.sec.encfs;
 
 /**
- * @author mark
- *
+ * Class representing an invalid configuration exception
  */
 public class EncFSInvalidConfigException extends Exception {
 
-	/**
-	 * 
-	 */
+	// Serialization version
 	private static final long serialVersionUID = 1L;
 
 	/**
-	 * 
+	 * Creates a new EncFSInvalidConfigException
 	 */
 	public EncFSInvalidConfigException() {
-		// TODO Auto-generated constructor stub
+		super();
 	}
 
 	/**
+	 * Creates a new EncFSInvalidConfigException
+	 * 
 	 * @param message
+	 *            Exception message
 	 */
 	public EncFSInvalidConfigException(String message) {
 		super(message);
-		// TODO Auto-generated constructor stub
 	}
 
 	/**
+	 * Creates a new EncFSInvalidConfigException
+	 * 
 	 * @param cause
+	 *            Underlying Throwable for the exception
 	 */
 	public EncFSInvalidConfigException(Throwable cause) {
 		super(cause);
-		// TODO Auto-generated constructor stub
 	}
 
 	/**
+	 * Creates a new EncFSInvalidConfigException
+	 * 
 	 * @param message
+	 *            Exception message
 	 * @param cause
+	 *            Underlying Throwable for the exception
 	 */
 	public EncFSInvalidConfigException(String message, Throwable cause) {
 		super(message, cause);
-		// TODO Auto-generated constructor stub
 	}
 
 }

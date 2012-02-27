@@ -16,47 +16,50 @@
 package org.mrpdaemon.sec.encfs;
 
 /**
- * @author mark
- *
+ * Class representing an invalid password exception
  */
 public class EncFSInvalidPasswordException extends Exception {
 
-	/**
-	 * 
-	 */
+	// Serialization version
 	private static final long serialVersionUID = 1L;
 
 	/**
-	 * 
+	 * Creates a new EncFSInvalidPasswordException
 	 */
 	public EncFSInvalidPasswordException() {
 		super();
-		// TODO Auto-generated constructor stub
 	}
 
 	/**
+	 * Creates a new EncFSInvalidPasswordException
+	 * 
 	 * @param message
+	 *            Exception message
 	 */
 	public EncFSInvalidPasswordException(String message) {
 		super(message);
-		// TODO Auto-generated constructor stub
 	}
 
 	/**
+	 * Creates a new EncFSInvalidPasswordException
+	 * 
 	 * @param cause
+	 *            Underlying Throwable for the exception
 	 */
 	public EncFSInvalidPasswordException(Throwable cause) {
 		super(cause);
-		// TODO Auto-generated constructor stub
 	}
 
 	/**
+	 * Creates a new EncFSInvalidPasswordException
+	 * 
 	 * @param message
+	 *            Exception message
 	 * @param cause
+	 *            Underlying Throwable for the exception
 	 */
 	public EncFSInvalidPasswordException(String message, Throwable cause) {
 		super(message, cause);
-		// TODO Auto-generated constructor stub
 	}
 
 }

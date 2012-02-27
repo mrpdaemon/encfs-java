@@ -49,7 +49,8 @@ public class EncFSVolumeIntegrationTest {
 	}
 
 	@Test
-	public void testBoxCryptor_1_badPassword() throws EncFSInvalidConfigException, EncFSCorruptDataException,
+	public void testBoxCryptor_1_badPassword()
+			throws EncFSInvalidConfigException, EncFSCorruptDataException,
 			EncFSUnsupportedException, IOException {
 		File encFSDir = new File("test/encfs_samples/boxcryptor_1");
 		Assert.assertTrue(encFSDir.exists());
@@ -65,14 +66,16 @@ public class EncFSVolumeIntegrationTest {
 		}
 	}
 
-        @Test
-	public void testDefaultVol() throws EncFSInvalidPasswordException, EncFSInvalidConfigException,
-			EncFSCorruptDataException, EncFSUnsupportedException, EncFSChecksumException, IOException {
+	@Test
+	public void testDefaultVol() throws EncFSInvalidPasswordException,
+			EncFSInvalidConfigException, EncFSCorruptDataException,
+			EncFSUnsupportedException, EncFSChecksumException, IOException {
 		File encFSDir = new File("test/encfs_samples/testvol-default");
 		Assert.assertTrue(encFSDir.exists());
 
 		String password = "test";
-		EncFSVolume volume = new EncFSVolume(encFSDir.getAbsolutePath(), password);
+		EncFSVolume volume = new EncFSVolume(encFSDir.getAbsolutePath(),
+				password);
 		EncFSFile rootDir = volume.getRootDir();
 		EncFSFile[] files = rootDir.listFiles();
 		Assert.assertEquals(2, files.length);
@@ -97,13 +100,15 @@ public class EncFSVolumeIntegrationTest {
 	}
 
 	@Test
-	public void testNoUniqueIV() throws EncFSInvalidPasswordException, EncFSInvalidConfigException,
-			EncFSCorruptDataException, EncFSUnsupportedException, EncFSChecksumException, IOException {
+	public void testNoUniqueIV() throws EncFSInvalidPasswordException,
+			EncFSInvalidConfigException, EncFSCorruptDataException,
+			EncFSUnsupportedException, EncFSChecksumException, IOException {
 		File encFSDir = new File("test/encfs_samples/testvol-nouniqueiv");
 		Assert.assertTrue(encFSDir.exists());
 
 		String password = "test";
-		EncFSVolume volume = new EncFSVolume(encFSDir.getAbsolutePath(), password);
+		EncFSVolume volume = new EncFSVolume(encFSDir.getAbsolutePath(),
+				password);
 		EncFSFile rootDir = volume.getRootDir();
 		EncFSFile[] files = rootDir.listFiles();
 		Assert.assertEquals(2, files.length);
@@ -116,7 +121,7 @@ public class EncFSVolumeIntegrationTest {
 		for (int i = 0; i < contents.length(); i++) {
 			Assert.assertTrue(contents.charAt(i) == 'a');
 		}
-		
+
 		encFSFile = files[1];
 		Assert.assertFalse(encFSFile.isDirectory());
 		Assert.assertEquals("testfile.txt", encFSFile.getName());
@@ -126,15 +131,17 @@ public class EncFSVolumeIntegrationTest {
 		assertFileNameEncoding(rootDir);
 		assertEncFSFileRoundTrip(rootDir);
 	}
-	
+
 	@Test
-	public void testBlockMAC() throws EncFSInvalidPasswordException, EncFSInvalidConfigException,
-			EncFSCorruptDataException, EncFSUnsupportedException, EncFSChecksumException, IOException {
+	public void testBlockMAC() throws EncFSInvalidPasswordException,
+			EncFSInvalidConfigException, EncFSCorruptDataException,
+			EncFSUnsupportedException, EncFSChecksumException, IOException {
 		File encFSDir = new File("test/encfs_samples/testvol-blockmac");
 		Assert.assertTrue(encFSDir.exists());
 
 		String password = "test";
-		EncFSVolume volume = new EncFSVolume(encFSDir.getAbsolutePath(), password);
+		EncFSVolume volume = new EncFSVolume(encFSDir.getAbsolutePath(),
+				password);
 		EncFSFile rootDir = volume.getRootDir();
 		EncFSFile[] files = rootDir.listFiles();
 		Assert.assertEquals(1, files.length);
@@ -153,13 +160,15 @@ public class EncFSVolumeIntegrationTest {
 	}
 
 	@Test
-	public void testBoxCryptor_1() throws EncFSInvalidPasswordException, EncFSInvalidConfigException,
-			EncFSCorruptDataException, EncFSUnsupportedException, EncFSChecksumException, IOException {
+	public void testBoxCryptor_1() throws EncFSInvalidPasswordException,
+			EncFSInvalidConfigException, EncFSCorruptDataException,
+			EncFSUnsupportedException, EncFSChecksumException, IOException {
 		File encFSDir = new File("test/encfs_samples/boxcryptor_1");
 		Assert.assertTrue(encFSDir.exists());
 
 		String password = "test";
-		EncFSVolume volume = new EncFSVolume(encFSDir.getAbsolutePath(), password);
+		EncFSVolume volume = new EncFSVolume(encFSDir.getAbsolutePath(),
+				password);
 		EncFSFile rootDir = volume.getRootDir();
 		EncFSFile[] files = rootDir.listFiles();
 		Assert.assertEquals(1, files.length);
@@ -176,13 +185,15 @@ public class EncFSVolumeIntegrationTest {
 	}
 
 	@Test
-	public void testBoxCryptor_2() throws EncFSInvalidPasswordException, EncFSInvalidConfigException,
-			EncFSCorruptDataException, EncFSUnsupportedException, EncFSChecksumException, IOException {
+	public void testBoxCryptor_2() throws EncFSInvalidPasswordException,
+			EncFSInvalidConfigException, EncFSCorruptDataException,
+			EncFSUnsupportedException, EncFSChecksumException, IOException {
 		File encFSDir = new File("test/encfs_samples/boxcryptor_2");
 		Assert.assertTrue(encFSDir.exists());
 
 		String password = "test2";
-		EncFSVolume volume = new EncFSVolume(encFSDir.getAbsolutePath(), password);
+		EncFSVolume volume = new EncFSVolume(encFSDir.getAbsolutePath(),
+				password);
 		EncFSFile rootDir = volume.getRootDir();
 		EncFSFile[] files = rootDir.listFiles();
 		Assert.assertEquals(2, files.length);
@@ -210,13 +221,15 @@ public class EncFSVolumeIntegrationTest {
 	}
 
 	@Test
-	public void testBoxCryptor_3() throws EncFSInvalidPasswordException, EncFSInvalidConfigException,
-			EncFSCorruptDataException, EncFSUnsupportedException, EncFSChecksumException, IOException {
+	public void testBoxCryptor_3() throws EncFSInvalidPasswordException,
+			EncFSInvalidConfigException, EncFSCorruptDataException,
+			EncFSUnsupportedException, EncFSChecksumException, IOException {
 		File encFSDir = new File("test/encfs_samples/boxcryptor_3");
 		Assert.assertTrue(encFSDir.exists());
 
 		String password = "test";
-		EncFSVolume volume = new EncFSVolume(encFSDir.getAbsolutePath(), password);
+		EncFSVolume volume = new EncFSVolume(encFSDir.getAbsolutePath(),
+				password);
 		EncFSFile rootDir = volume.getRootDir();
 		EncFSFile[] files = rootDir.listFiles();
 		Assert.assertEquals(1, files.length);
@@ -237,12 +250,13 @@ public class EncFSVolumeIntegrationTest {
 			Assert.fail("Could not create temporary directory");
 			return;
 		}
-		
+
 		EncFSConfig config = new EncFSConfig();
 		String password = "test";
-		
-		EncFSLocalFileProvider fileProvider = new EncFSLocalFileProvider(rootDir);
-		
+
+		EncFSLocalFileProvider fileProvider = new EncFSLocalFileProvider(
+				rootDir);
+
 		try {
 			EncFSVolume.createVolume(fileProvider, config, password);
 			@SuppressWarnings("unused")
@@ -250,13 +264,13 @@ public class EncFSVolumeIntegrationTest {
 		} catch (Exception e) {
 			Assert.fail(e.getMessage());
 		}
-		
-		//Clean up after ourselves
-		File configFile = new File(rootDir.getAbsolutePath(), 
+
+		// Clean up after ourselves
+		File configFile = new File(rootDir.getAbsolutePath(),
 				EncFSVolume.ENCFS_VOLUME_CONFIG_FILE_NAME);
 		Assert.assertTrue(configFile.exists());
 		configFile.delete();
-		
+
 		Assert.assertTrue(rootDir.exists());
 		rootDir.delete();
 	}
@@ -264,9 +278,11 @@ public class EncFSVolumeIntegrationTest {
 	private File createTempDir() throws IOException {
 		File temp;
 
-		temp = File.createTempFile("encfs-java-tmp", Long.toString(System.nanoTime()));
+		temp = File.createTempFile("encfs-java-tmp",
+				Long.toString(System.nanoTime()));
 		if (!temp.delete()) {
-			throw new IOException("Could not delete temporary file " + temp.getAbsolutePath());
+			throw new IOException("Could not delete temporary file "
+					+ temp.getAbsolutePath());
 		}
 
 		if (!temp.mkdir()) {
@@ -276,16 +292,20 @@ public class EncFSVolumeIntegrationTest {
 		return temp;
 	}
 
-	private void assertFileNameEncoding(EncFSFile encfsFileDir) throws EncFSCorruptDataException,
-			EncFSChecksumException, IOException {
+	private void assertFileNameEncoding(EncFSFile encfsFileDir)
+			throws EncFSCorruptDataException, EncFSChecksumException,
+			IOException {
 		for (EncFSFile encfFile : encfsFileDir.listFiles()) {
 			EncFSVolume volume = encfsFileDir.getVolume();
-			String decName = EncFSCrypto.decodeName(volume, encfFile.getEncrytedName(), encfFile.getVolumePath());
-			Assert.assertEquals(encfFile.getAbsoluteName() + " decoded file name", encfFile.getName(), decName);
+			String decName = EncFSCrypto.decodeName(volume,
+					encfFile.getEncrytedName(), encfFile.getParentPath());
+			Assert.assertEquals(encfFile.getPath() + " decoded file name",
+					encfFile.getName(), decName);
 
-			String encName = EncFSCrypto.encodeName(volume, decName, encfFile.getVolumePath());
-			Assert.assertEquals(encfFile.getAbsoluteName() + " re-encoded file name", encfFile.getEncrytedName(),
-					encName);
+			String encName = EncFSCrypto.encodeName(volume, decName,
+					encfFile.getParentPath());
+			Assert.assertEquals(encfFile.getPath() + " re-encoded file name",
+					encfFile.getEncrytedName(), encName);
 
 			if (encfFile.isDirectory()) {
 				assertFileNameEncoding(encfFile);
@@ -293,21 +313,25 @@ public class EncFSVolumeIntegrationTest {
 		}
 	}
 
-	private void assertEncFSFileRoundTrip(EncFSFile encFsFile) throws IOException, EncFSUnsupportedException,
+	private void assertEncFSFileRoundTrip(EncFSFile encFsFile)
+			throws IOException, EncFSUnsupportedException,
 			EncFSCorruptDataException, EncFSChecksumException {
 		if (encFsFile.isDirectory() == false) {
 			// Copy the file via input/output streams & then check that
 			// the file is the same
 			File t = File.createTempFile(this.getClass().getName(), ".tmp");
 			try {
-				EncFSOutputStream efos = new EncFSOutputStream(encFsFile.getVolume(), new BufferedOutputStream(
-						new FileOutputStream(t)));
+				EncFSOutputStream efos = new EncFSOutputStream(
+						encFsFile.getVolume(), new BufferedOutputStream(
+								new FileOutputStream(t)));
 				try {
-					EncFSFileInputStream efis = new EncFSFileInputStream(encFsFile);
+					EncFSFileInputStream efis = new EncFSFileInputStream(
+							encFsFile);
 					try {
 						int bytesRead = 0;
 						while (bytesRead >= 0) {
-							byte[] readBuf = new byte[(int) (encFsFile.getVolume().getConfig().getBlockSize() * 0.75)];
+							byte[] readBuf = new byte[(int) (encFsFile
+									.getVolume().getConfig().getBlockSize() * 0.75)];
 							bytesRead = efis.read(readBuf);
 							if (bytesRead >= 0) {
 								efos.write(readBuf, 0, bytesRead);
@@ -325,10 +349,12 @@ public class EncFSVolumeIntegrationTest {
 					FileInputStream reEncFSIs = new FileInputStream(t);
 					try {
 
-						InputStream origEncFSIs = encFsFile.getVolume().openNativeInputStream(
-								encFsFile.getAbsoluteName());
+						InputStream origEncFSIs = encFsFile.getVolume()
+								.getFileProvider()
+								.openInputStream(encFsFile.getEncryptedPath());
 						try {
-							assertInputStreamsAreEqual(encFsFile.getAbsoluteName(), origEncFSIs, reEncFSIs);
+							assertInputStreamsAreEqual(encFsFile.getPath(),
+									origEncFSIs, reEncFSIs);
 						} finally {
 							origEncFSIs.close();
 						}
@@ -336,11 +362,14 @@ public class EncFSVolumeIntegrationTest {
 						reEncFSIs.close();
 					}
 				} else {
-					EncFSFileInputStream efis = new EncFSFileInputStream(encFsFile);
+					EncFSFileInputStream efis = new EncFSFileInputStream(
+							encFsFile);
 					try {
-						EncFSInputStream efisCopy = new EncFSInputStream(encFsFile.getVolume(), new FileInputStream(t));
+						EncFSInputStream efisCopy = new EncFSInputStream(
+								encFsFile.getVolume(), new FileInputStream(t));
 						try {
-							assertInputStreamsAreEqual(encFsFile.getAbsoluteName(), efis, efisCopy);
+							assertInputStreamsAreEqual(encFsFile.getPath(),
+									efis, efisCopy);
 						} finally {
 							efisCopy.close();
 						}
@@ -361,7 +390,8 @@ public class EncFSVolumeIntegrationTest {
 		}
 	}
 
-	private void assertInputStreamsAreEqual(String msg, InputStream encfsIs, InputStream decFsIs) throws IOException {
+	private void assertInputStreamsAreEqual(String msg, InputStream encfsIs,
+			InputStream decFsIs) throws IOException {
 		int bytesRead = 0, bytesRead2 = 0;
 		while (bytesRead >= 0) {
 			byte[] readBuf = new byte[128];
@@ -375,23 +405,25 @@ public class EncFSVolumeIntegrationTest {
 		}
 	}
 
-	private static String getDirListing(EncFSFile rootDir, boolean recursive) throws EncFSCorruptDataException,
-			EncFSChecksumException, IOException {
+	private static String getDirListing(EncFSFile rootDir, boolean recursive)
+			throws EncFSCorruptDataException, EncFSChecksumException,
+			IOException {
 		StringBuilder sb = new StringBuilder();
 		getDirListing(rootDir, recursive, sb);
 		return sb.toString();
 
 	}
 
-	private static void getDirListing(EncFSFile rootDir, boolean recursive, StringBuilder sb)
-			throws EncFSCorruptDataException, EncFSChecksumException, IOException {
+	private static void getDirListing(EncFSFile rootDir, boolean recursive,
+			StringBuilder sb) throws EncFSCorruptDataException,
+			EncFSChecksumException, IOException {
 
 		for (EncFSFile encFile : rootDir.listFiles()) {
 			if (sb.length() > 0) {
 				sb.append("\n");
 			}
-			sb.append(encFile.getVolumePath());
-			if (encFile.getVolumePath().equals("/") == false) {
+			sb.append(encFile.getParentPath());
+			if (encFile.getParentPath().equals("/") == false) {
 				sb.append("/");
 			}
 			sb.append(encFile.getName());
@@ -401,7 +433,8 @@ public class EncFSVolumeIntegrationTest {
 		}
 	}
 
-	public static String readInputStreamAsString(EncFSFile encFSFile) throws IOException, EncFSCorruptDataException,
+	public static String readInputStreamAsString(EncFSFile encFSFile)
+			throws IOException, EncFSCorruptDataException,
 			EncFSUnsupportedException {
 
 		ByteArrayOutputStream buf = new ByteArrayOutputStream();
@@ -422,8 +455,10 @@ public class EncFSVolumeIntegrationTest {
 		return new String(buf.toByteArray());
 	}
 
-	public static void copyViaStreams(EncFSFile srcEncFSFile, EncFSFile targetEncFSFile) throws IOException,
-			EncFSCorruptDataException, EncFSUnsupportedException, EncFSChecksumException {
+	public static void copyViaStreams(EncFSFile srcEncFSFile,
+			EncFSFile targetEncFSFile) throws IOException,
+			EncFSCorruptDataException, EncFSUnsupportedException,
+			EncFSChecksumException {
 
 		EncFSFileOutputStream efos = new EncFSFileOutputStream(targetEncFSFile);
 		try {

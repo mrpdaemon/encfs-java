@@ -16,47 +16,50 @@
 package org.mrpdaemon.sec.encfs;
 
 /**
- * @author mark
- *
+ * Class representing a checksum exception
  */
 public class EncFSChecksumException extends Exception {
 
-	/**
-	 * 
-	 */
+	// Serialization version
 	private static final long serialVersionUID = 1L;
 
 	/**
-	 * 
+	 * Creates a new EncFSChecksumException
 	 */
 	public EncFSChecksumException() {
-		// TODO Auto-generated constructor stub
 		super();
 	}
 
 	/**
+	 * Creates a new EncFSChecksumException
+	 * 
 	 * @param message
+	 *            Exception message
 	 */
 	public EncFSChecksumException(String message) {
 		super(message);
-		// TODO Auto-generated constructor stub
 	}
 
 	/**
+	 * Creates a new EncFSChecksumException
+	 * 
 	 * @param cause
+	 *            Underlying Throwable for the exception
 	 */
 	public EncFSChecksumException(Throwable cause) {
 		super(cause);
-		// TODO Auto-generated constructor stub
 	}
 
 	/**
+	 * Creates a new EncFSChecksumException
+	 * 
 	 * @param message
+	 *            Exception message
 	 * @param cause
+	 *            Underlying Throwable for the exception
 	 */
 	public EncFSChecksumException(String message, Throwable cause) {
 		super(message, cause);
-		// TODO Auto-generated constructor stub
 	}
 
 }

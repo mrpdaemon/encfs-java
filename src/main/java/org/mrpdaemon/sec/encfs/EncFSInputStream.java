@@ -23,8 +23,8 @@ import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
 
 /**
- * InputStream extension that allows data to be read from a file on an EncFS
- * volume.
+ * InputStream extension that allows decrypted data to be read from a file on an
+ * EncFS volume.
  */
 public class EncFSInputStream extends InputStream {
 
@@ -36,13 +36,13 @@ public class EncFSInputStream extends InputStream {
 
 	// Cached block size for this volume
 	private final int blockSize;
-	
+
 	// Number of MAC bytes for each block
 	private final int numMACBytes;
-	
+
 	// Number of random bytes for each block header
 	private final int numRandBytes;
-	
+
 	// Size of the block header for each block
 	private final int blockHeaderSize;
 
@@ -59,25 +59,28 @@ public class EncFSInputStream extends InputStream {
 	private byte[] fileIv;
 
 	// Input stream to read data from
-	private final InputStream inStream;
+	private final InputStream in;
 
 	/**
-	 * Create a new EncFSInputStream for reading data off a file on an EncFS
-	 * volume
+	 * Create a new EncFSInputStream for reading decrypted data off a file on an
+	 * EncFS volume
 	 * 
-	 * @param file
-	 *            Underlying file location to read from
+	 * @param volume
+	 *            Volume hosting the file to read
+	 * @param in
+	 *            Input stream to access the raw (encrypted) file contents
 	 * 
 	 * @throws EncFSCorruptDataException
 	 *             File data is corrupt
 	 * @throws EncFSUnsupportedException
 	 *             Unsupported EncFS configuration
 	 * @throws IOException
+	 *             File provider returned I/O error
 	 */
-	public EncFSInputStream(EncFSVolume volume, InputStream in) throws EncFSCorruptDataException,
-			EncFSUnsupportedException {
+	public EncFSInputStream(EncFSVolume volume, InputStream in)
+			throws EncFSCorruptDataException, EncFSUnsupportedException {
 		super();
-		this.inStream = in;
+		this.in = in;
 		this.volume = volume;
 		this.config = volume.getConfig();
 		this.blockSize = config.getBlockSize();
@@ -92,14 +95,15 @@ public class EncFSInputStream extends InputStream {
 			// Compute file IV
 			byte[] fileHeader = new byte[EncFSFile.HEADER_SIZE];
 			try {
-				inStream.read(fileHeader);
+				in.read(fileHeader);
 			} catch (IOException e) {
 				throw new EncFSCorruptDataException("Could't read file IV");
 			}
 			byte[] zeroIv = new byte[8];
 			// TODO: external IV chaining changes zeroIv
 			try {
-				this.fileIv = EncFSCrypto.streamDecode(volume, zeroIv, fileHeader);
+				this.fileIv = EncFSCrypto.streamDecode(volume, zeroIv,
+						fileHeader);
 			} catch (InvalidAlgorithmParameterException e) {
 				e.printStackTrace();
 			} catch (IllegalBlockSizeException e) {
@@ -111,63 +115,6 @@ public class EncFSInputStream extends InputStream {
 			// No unique IV per file, just use 0
 			this.fileIv = new byte[EncFSFile.HEADER_SIZE];
 		}
-	}
-
-	/*
-	 * Return the block IV for the current block
-	 */
-	private byte[] getBlockIV() {
-		long fileIvLong = EncFSUtil.byteArrayToLong(fileIv);
-		return EncFSUtil.longToByteArray(blockNum ^ fileIvLong);
-	}
-
-	/*
-	 * Read one block (blockSize bytes) of data from the underlying
-	 * FileInputStream, decrypt it and store it in blockBuf for consumption via
-	 * read() methods
-	 */
-	private int readBlock() throws IOException, EncFSCorruptDataException, EncFSUnsupportedException {
-		byte[] cipherBuf = new byte[blockSize];
-		
-		int bytesRead = inStream.read(cipherBuf, 0, blockSize);
-		if (bytesRead == blockSize) { // block decode
-			try {
-				blockBuf = EncFSCrypto.blockDecode(volume, getBlockIV(), cipherBuf);
-			} catch (InvalidAlgorithmParameterException e) {
-				e.printStackTrace();
-			} catch (IllegalBlockSizeException e) {
-				throw new EncFSCorruptDataException(e);
-			} catch (BadPaddingException e) {
-				throw new EncFSCorruptDataException(e);
-			}
-
-			bufCursor = blockHeaderSize;
-			blockNum++;
-		} else if (bytesRead > 0) { // stream decode
-			try {
-				blockBuf = EncFSCrypto.streamDecode(volume, getBlockIV(), cipherBuf, 0, bytesRead);
-			} catch (InvalidAlgorithmParameterException e) {
-				e.printStackTrace();
-			} catch (IllegalBlockSizeException e) {
-				throw new EncFSCorruptDataException(e);
-			} catch (BadPaddingException e) {
-				throw new EncFSCorruptDataException(e);
-			}
-			bufCursor = blockHeaderSize;
-			blockNum++;
-		}
-		
-		// Verify the block header
-		if ((bytesRead > 0) && (blockHeaderSize > 0)) {
-			byte mac[] = EncFSCrypto.mac64(volume.getMac(), blockBuf, numMACBytes);
-			for (int i = 0; i < numMACBytes; i++) {
-				if (mac[7 - i] != blockBuf[i]) {
-					throw new EncFSCorruptDataException("Block MAC mismatch");
-				}
-			}
-		}
-
-		return bytesRead;
 	}
 
 	/*
@@ -195,6 +142,11 @@ public class EncFSInputStream extends InputStream {
 		return read(b, 0, b.length);
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see java.io.InputStream#read(byte[], int, int)
+	 */
 	@Override
 	public int read(byte[] output, int offset, int size) throws IOException {
 		byte[] b = output;
@@ -225,7 +177,8 @@ public class EncFSInputStream extends InputStream {
 				}
 			}
 
-			bytesToCopy = Math.min(blockBuf.length - bufCursor, len - bytesRead);
+			bytesToCopy = Math
+					.min(blockBuf.length - bufCursor, len - bytesRead);
 			System.arraycopy(blockBuf, bufCursor, b, destOffset, bytesToCopy);
 
 			bufCursor += bytesToCopy;
@@ -280,7 +233,66 @@ public class EncFSInputStream extends InputStream {
 
 	@Override
 	public void close() throws IOException {
-		inStream.close();
+		in.close();
 		super.close();
+	}
+
+	// Return the block IV for the current block
+	private byte[] getBlockIV() {
+		long fileIvLong = EncFSUtil.byteArrayToLong(fileIv);
+		return EncFSUtil.longToByteArray(blockNum ^ fileIvLong);
+	}
+
+	/*
+	 * Read one block (blockSize bytes) of data from the underlying
+	 * FileInputStream, decrypt it and store it in blockBuf for consumption via
+	 * read() methods
+	 */
+	private int readBlock() throws IOException, EncFSCorruptDataException,
+			EncFSUnsupportedException {
+		byte[] cipherBuf = new byte[blockSize];
+
+		int bytesRead = in.read(cipherBuf, 0, blockSize);
+		if (bytesRead == blockSize) { // block decode
+			try {
+				blockBuf = EncFSCrypto.blockDecode(volume, getBlockIV(),
+						cipherBuf);
+			} catch (InvalidAlgorithmParameterException e) {
+				e.printStackTrace();
+			} catch (IllegalBlockSizeException e) {
+				throw new EncFSCorruptDataException(e);
+			} catch (BadPaddingException e) {
+				throw new EncFSCorruptDataException(e);
+			}
+
+			bufCursor = blockHeaderSize;
+			blockNum++;
+		} else if (bytesRead > 0) { // stream decode
+			try {
+				blockBuf = EncFSCrypto.streamDecode(volume, getBlockIV(),
+						cipherBuf, 0, bytesRead);
+			} catch (InvalidAlgorithmParameterException e) {
+				e.printStackTrace();
+			} catch (IllegalBlockSizeException e) {
+				throw new EncFSCorruptDataException(e);
+			} catch (BadPaddingException e) {
+				throw new EncFSCorruptDataException(e);
+			}
+			bufCursor = blockHeaderSize;
+			blockNum++;
+		}
+
+		// Verify the block header
+		if ((bytesRead > 0) && (blockHeaderSize > 0)) {
+			byte mac[] = EncFSCrypto.mac64(volume.getMac(), blockBuf,
+					numMACBytes);
+			for (int i = 0; i < numMACBytes; i++) {
+				if (mac[7 - i] != blockBuf[i]) {
+					throw new EncFSCorruptDataException("Block MAC mismatch");
+				}
+			}
+		}
+
+		return bytesRead;
 	}
 }

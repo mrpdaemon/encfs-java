@@ -43,15 +43,22 @@ public class EncFSConfigParser {
 	 * 
 	 * @param configFile
 	 *            EncFS volume configuration file.
+	 * 
 	 * @return An EncFSConfig object containing the configuration data
 	 *         interpreted from the given file.
+	 * 
 	 * @throws ParserConfigurationException
+	 *             Parser error
 	 * @throws IOException
+	 *             I/O error while reading config file
 	 * @throws SAXException
+	 *             Parser error
 	 * @throws EncFSInvalidConfigException
+	 *             Malformed config file
 	 */
-	public static EncFSConfig parseFile(File configFile) throws ParserConfigurationException, SAXException,
-			IOException, EncFSInvalidConfigException {
+	public static EncFSConfig parseFile(File configFile)
+			throws ParserConfigurationException, SAXException, IOException,
+			EncFSInvalidConfigException {
 		FileInputStream inputStream = new FileInputStream(configFile);
 		try {
 			return parseFile(inputStream);
@@ -62,21 +69,26 @@ public class EncFSConfigParser {
 	}
 
 	/**
+	 * Parse the configuration file residing on an EncFSFileProvider with the
+	 * given path
+	 * 
 	 * @param fileProvider
-	 *        File provider to access the config file
+	 *            File provider to access the config file
 	 * @param path
-	 *        Path of the config file in the file provider's notation
-	 *        
+	 *            Path of the config file in the file provider's notation
+	 * 
 	 * @return An EncFSConfig object representing the parsing result
 	 * 
 	 * @throws EncFSUnsupportedException
-	 *         Unsupported EncFS version
+	 *             Unsupported EncFS version
 	 * @throws EncFSInvalidConfigException
-	 *         Config file not found
+	 *             Config file not found
 	 * @throws IOException
+	 *             File provider returned I/O error
 	 */
-	public static EncFSConfig parseConfig(EncFSFileProvider fileProvider, String path)
-			throws EncFSUnsupportedException, EncFSInvalidConfigException, IOException {
+	public static EncFSConfig parseConfig(EncFSFileProvider fileProvider,
+			String path) throws EncFSUnsupportedException,
+			EncFSInvalidConfigException, IOException {
 
 		EncFSConfig config;
 		// TODO: Need to implement a connector method in EncFSFileProvider for
@@ -85,16 +97,19 @@ public class EncFSConfigParser {
 			// Try old versions
 			for (String altConfigFileName : EncFSVolume.ENCFS_VOLUME_OLD_CONFIG_FILE_NAMES) {
 				if (fileProvider.exists("/" + altConfigFileName)) {
-					throw new EncFSUnsupportedException("Unsupported EncFS version");
+					throw new EncFSUnsupportedException(
+							"Unsupported EncFS version");
 				}
 			}
 
-			throw new EncFSInvalidConfigException("No EncFS configuration file found");
+			throw new EncFSInvalidConfigException(
+					"No EncFS configuration file found");
 		}
 
 		// Parse the configuration file
 		try {
-			config = EncFSConfigParser.parseFile(fileProvider.openInputStream("/" + path));
+			config = EncFSConfigParser.parseFile(fileProvider
+					.openInputStream("/" + path));
 		} catch (ParserConfigurationException e2) {
 			throw new EncFSUnsupportedException("XML parser not supported");
 		} catch (SAXException e2) {
@@ -109,17 +124,24 @@ public class EncFSConfigParser {
 	/**
 	 * Parse the given configuration file from a stream
 	 * 
-	 * @param configFile
-	 *            EncFS volume configuration file.
+	 * @param inputStream
+	 *            InputStream for the config file
+	 * 
 	 * @return An EncFSConfig object containing the configuration data
 	 *         interpreted from the given file.
+	 * 
 	 * @throws ParserConfigurationException
+	 *             Parser error
 	 * @throws IOException
+	 *             I/O error received from input stream
 	 * @throws SAXException
+	 *             Parser error
 	 * @throws EncFSInvalidConfigException
+	 *             Malformed config file
 	 */
-	public static EncFSConfig parseFile(InputStream inputStream) throws ParserConfigurationException, SAXException,
-			IOException, EncFSInvalidConfigException {
+	public static EncFSConfig parseFile(InputStream inputStream)
+			throws ParserConfigurationException, SAXException, IOException,
+			EncFSInvalidConfigException {
 		EncFSConfig config = new EncFSConfig();
 
 		DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
@@ -127,10 +149,12 @@ public class EncFSConfigParser {
 		Document doc = dBuilder.parse(inputStream);
 		doc.getDocumentElement().normalize();
 
-		NodeList cfgNodeList = doc.getElementsByTagName("cfg").item(0).getChildNodes();
+		NodeList cfgNodeList = doc.getElementsByTagName("cfg").item(0)
+				.getChildNodes();
 
 		if (cfgNodeList.getLength() == 0) {
-			throw new EncFSInvalidConfigException("<cfg> element not present in config file");
+			throw new EncFSInvalidConfigException(
+					"<cfg> element not present in config file");
 		}
 
 		for (int i = 0; i < cfgNodeList.getLength(); i++) {
@@ -148,35 +172,44 @@ public class EncFSConfigParser {
 							} else if (algName.equals("nameio/stream")) {
 								config.setNameAlgorithm(EncFSConfig.ENCFS_CONFIG_NAME_ALG_STREAM);
 							} else {
-								throw new EncFSInvalidConfigException("Unknown name algorithm in config file: "
-										+ algName);
+								throw new EncFSInvalidConfigException(
+										"Unknown name algorithm in config file: "
+												+ algName);
 							}
 						}
 					}
 				} else if (cfgNode.getNodeName().equals("keySize")) {
-					config.setVolumeKeySize(Integer.parseInt(getNodeValue(cfgNode)));
+					config.setVolumeKeySize(Integer
+							.parseInt(getNodeValue(cfgNode)));
 				} else if (cfgNode.getNodeName().equals("blockSize")) {
 					config.setBlockSize(Integer.parseInt(getNodeValue(cfgNode)));
 				} else if (cfgNode.getNodeName().equals("uniqueIV")) {
 					config.setUniqueIV(Integer.parseInt(getNodeValue(cfgNode)) == 1);
 				} else if (cfgNode.getNodeName().equals("chainedNameIV")) {
-					config.setChainedNameIV(Integer.parseInt(getNodeValue(cfgNode)) == 1);
+					config.setChainedNameIV(Integer
+							.parseInt(getNodeValue(cfgNode)) == 1);
 				} else if (cfgNode.getNodeName().equals("allowHoles")) {
-					config.setHolesAllowed(Integer.parseInt(getNodeValue(cfgNode)) == 1);
+					config.setHolesAllowed(Integer
+							.parseInt(getNodeValue(cfgNode)) == 1);
 				} else if (cfgNode.getNodeName().equals("encodedKeySize")) {
-					config.setEncodedKeyLength(Integer.parseInt(getNodeValue(cfgNode)));
+					config.setEncodedKeyLength(Integer
+							.parseInt(getNodeValue(cfgNode)));
 				} else if (cfgNode.getNodeName().equals("encodedKeyData")) {
 					config.setEncodedKeyStr(getNodeValue(cfgNode));
 				} else if (cfgNode.getNodeName().equals("saltLen")) {
-					config.setSaltLength(Integer.parseInt(getNodeValue(cfgNode)));
+					config.setSaltLength(Integer
+							.parseInt(getNodeValue(cfgNode)));
 				} else if (cfgNode.getNodeName().equals("saltData")) {
 					config.setSaltStr(getNodeValue(cfgNode));
 				} else if (cfgNode.getNodeName().equals("kdfIterations")) {
-					config.setIterationCount(Integer.parseInt(getNodeValue(cfgNode)));
+					config.setIterationCount(Integer
+							.parseInt(getNodeValue(cfgNode)));
 				} else if (cfgNode.getNodeName().equals("blockMACBytes")) {
-					config.setBlockMACBytes(Integer.parseInt(getNodeValue(cfgNode)));
+					config.setBlockMACBytes(Integer
+							.parseInt(getNodeValue(cfgNode)));
 				} else if (cfgNode.getNodeName().equals("blockMACRandBytes")) {
-					config.setBlockMACRandBytes(Integer.parseInt(getNodeValue(cfgNode)));
+					config.setBlockMACRandBytes(Integer
+							.parseInt(getNodeValue(cfgNode)));
 				}
 			}
 		}

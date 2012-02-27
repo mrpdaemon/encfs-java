@@ -16,46 +16,50 @@
 package org.mrpdaemon.sec.encfs;
 
 /**
- * @author mark
- *
+ * Class representing an unsupported exception
  */
 public class EncFSUnsupportedException extends Exception {
 
-	/**
-	 * 
-	 */
+	// Serialization version
 	private static final long serialVersionUID = 1L;
 
 	/**
-	 * 
+	 * Creates a new EncFSUnsupportedException
 	 */
 	public EncFSUnsupportedException() {
-		// TODO Auto-generated constructor stub
+		super();
 	}
 
 	/**
+	 * Creates a new EncFSUnsupportedException
+	 * 
 	 * @param message
+	 *            Exception message
 	 */
 	public EncFSUnsupportedException(String message) {
 		super(message);
-		// TODO Auto-generated constructor stub
 	}
 
 	/**
+	 * Creates a new EncFSUnsupportedException
+	 * 
 	 * @param cause
+	 *            Underlying Throwable for the exception
 	 */
 	public EncFSUnsupportedException(Throwable cause) {
 		super(cause);
-		// TODO Auto-generated constructor stub
 	}
 
 	/**
+	 * Creates a new EncFSUnsupportedException
+	 * 
 	 * @param message
+	 *            Exception message
 	 * @param cause
+	 *            Underlying Throwable for the exception
 	 */
 	public EncFSUnsupportedException(String message, Throwable cause) {
 		super(message, cause);
-		// TODO Auto-generated constructor stub
 	}
 
 }
