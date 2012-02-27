@@ -84,16 +84,23 @@ public class EncFSFileInfo {
 	
 	public static EncFSFileInfo getDecodedFileInfo(EncFSVolume volume, String decodedDirName, String decodedFileName,
 			EncFSFileInfo fileInfo) {
+		EncFSConfig config = volume.getConfig();
 		long size;
 		if (fileInfo.isDirectory()) {
 			size = 0;
 		} else {
-			boolean haveHeader = volume.getConfig().isUniqueIV();
-
 			size = fileInfo.getSize();
 
-			if (haveHeader && size > 0) {
+			// Account for file header
+			if (config.isUniqueIV() && size > 0) {
 				size -= EncFSFile.HEADER_SIZE;
+			}
+
+			// Account for block headers
+			if (config.getBlockMACBytes() > 0 || config.getBlockMACRandBytes() > 0) {
+				long numBlocks = fileInfo.getSize() / config.getBlockSize();
+				size -= numBlocks * (config.getBlockMACBytes() +
+						config.getBlockMACRandBytes());
 			}
 		}
 
