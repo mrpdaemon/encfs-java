@@ -15,6 +15,10 @@
 
 package org.mrpdaemon.sec.encfs;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+
 /**
  * Utility class with static methods to help with various functionality
  */
@@ -79,6 +83,46 @@ public class EncFSUtil {
 				(byte) ((l >> 32) & 0xff), (byte) ((l >> 24) & 0xff),
 				(byte) ((l >> 16) & 0xff), (byte) ((l >> 8) & 0xff),
 				(byte) ((l >> 0) & 0xff), };
+	}
+
+	/**
+	 * Copy the entire content of an InputStream into an OutputStream
+	 * 
+	 * 
+	 * @param in
+	 *            The InputStream to read data from
+	 * @param out
+	 *            The OutputStream to write data to
+	 * @param closeInput
+	 *            Whether to close the InputStream after the operation
+	 * @param closeOutput
+	 *            Whether to close the OutputStream after the operation
+	 * 
+	 * @throws IOException
+	 *             I/O exception from read or write
+	 */
+	public static void copyWholeStream(InputStream in, OutputStream out,
+			boolean closeInput, boolean closeOutput) throws IOException {
+		byte[] buf = new byte[8192];
+		int bytesRead = 0;
+
+		try {
+			try {
+				bytesRead = in.read(buf);
+				while (bytesRead >= 0) {
+					out.write(buf, 0, bytesRead);
+					bytesRead = in.read(buf);
+				}
+			} finally {
+				if (closeInput) {
+					in.close();
+				}
+			}
+		} finally {
+			if (closeOutput) {
+				out.close();
+			}
+		}
 	}
 
 }

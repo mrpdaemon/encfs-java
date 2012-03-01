@@ -330,29 +330,10 @@ public class EncFSVolumeIntegrationTest {
 			// the file is the same
 			File t = File.createTempFile(this.getClass().getName(), ".tmp");
 			try {
-				EncFSOutputStream efos = new EncFSOutputStream(
-						encFsFile.getVolume(), new BufferedOutputStream(
-								new FileOutputStream(t)));
-				try {
-					EncFSFileInputStream efis = new EncFSFileInputStream(
-							encFsFile);
-					try {
-						int bytesRead = 0;
-						while (bytesRead >= 0) {
-							byte[] readBuf = new byte[(int) (encFsFile
-									.getVolume().getConfig().getBlockSize() * 0.75)];
-							bytesRead = efis.read(readBuf);
-							if (bytesRead >= 0) {
-								efos.write(readBuf, 0, bytesRead);
-							}
-						}
-					} finally {
-						efis.close();
-					}
-
-				} finally {
-					efos.close();
-				}
+				EncFSUtil.copyWholeStream(new EncFSFileInputStream(encFsFile),
+						new EncFSOutputStream(encFsFile.getVolume(),
+								new BufferedOutputStream(
+										new FileOutputStream(t))), true, true);
 
 				if (encFsFile.getVolume().getConfig().isUniqueIV() == false) {
 					FileInputStream reEncFSIs = new FileInputStream(t);
@@ -447,19 +428,9 @@ public class EncFSVolumeIntegrationTest {
 			EncFSUnsupportedException {
 
 		ByteArrayOutputStream buf = new ByteArrayOutputStream();
-		EncFSFileInputStream efis = new EncFSFileInputStream(encFSFile);
-		try {
-			int bytesRead = 0;
-			while (bytesRead >= 0) {
-				byte[] readBuf = new byte[128];
-				bytesRead = efis.read(readBuf);
-				if (bytesRead >= 0) {
-					buf.write(readBuf, 0, bytesRead);
-				}
-			}
-		} finally {
-			efis.close();
-		}
+
+		EncFSUtil.copyWholeStream(new EncFSFileInputStream(encFSFile), buf,
+				true, false);
 
 		return buf.toByteArray();
 	}
@@ -470,29 +441,4 @@ public class EncFSVolumeIntegrationTest {
 		return new String(readInputStreamAsByteArray(encFSFile));
 	}
 
-	public static void copyViaStreams(EncFSFile srcEncFSFile,
-			EncFSFile targetEncFSFile) throws IOException,
-			EncFSCorruptDataException, EncFSUnsupportedException,
-			EncFSChecksumException {
-
-		EncFSFileOutputStream efos = new EncFSFileOutputStream(targetEncFSFile);
-		try {
-			EncFSFileInputStream efis = new EncFSFileInputStream(srcEncFSFile);
-			try {
-				int bytesRead = 0;
-				while (bytesRead >= 0) {
-					byte[] readBuf = new byte[128];
-					bytesRead = efis.read(readBuf);
-					if (bytesRead >= 0) {
-						efos.write(readBuf, 0, bytesRead);
-					}
-				}
-			} finally {
-				efis.close();
-			}
-
-		} finally {
-			efos.close();
-		}
-	}
 }

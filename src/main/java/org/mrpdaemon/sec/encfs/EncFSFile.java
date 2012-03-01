@@ -366,13 +366,16 @@ public class EncFSFile {
 				}
 				return result;
 			} else {
+				if (this.isDirectory() || dstPath.isDirectory()) {
+					throw new IOException("Can't copy directories");
+				}
+
 				try {
-					copyViaStreams(this, dstPath);
+					EncFSUtil.copyWholeStream(this.openInputStream(),
+							dstPath.openOutputStream(), true, true);
 				} catch (EncFSCorruptDataException e) {
 					throw new IOException(e);
 				} catch (EncFSUnsupportedException e) {
-					throw new IOException(e);
-				} catch (EncFSChecksumException e) {
 					throw new IOException(e);
 				}
 
@@ -384,34 +387,4 @@ public class EncFSFile {
 		}
 	}
 
-	// Copy a source file into a target file using decryption/encryption
-	private static void copyViaStreams(EncFSFile srcEncFSFile,
-			EncFSFile targetEncFSFile) throws IOException,
-			EncFSCorruptDataException, EncFSUnsupportedException,
-			EncFSChecksumException {
-
-		if (srcEncFSFile.isDirectory() || targetEncFSFile.isDirectory()) {
-			throw new IllegalArgumentException("Can't copy directories");
-		}
-
-		OutputStream efos = targetEncFSFile.openOutputStream();
-		try {
-			InputStream efis = srcEncFSFile.openInputStream();
-			try {
-				int bytesRead = 0;
-				while (bytesRead >= 0) {
-					byte[] readBuf = new byte[128];
-					bytesRead = efis.read(readBuf);
-					if (bytesRead >= 0) {
-						efos.write(readBuf, 0, bytesRead);
-					}
-				}
-			} finally {
-				efis.close();
-			}
-
-		} finally {
-			efos.close();
-		}
-	}
 }

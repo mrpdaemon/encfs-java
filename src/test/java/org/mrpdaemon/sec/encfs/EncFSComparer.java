@@ -180,30 +180,12 @@ public class EncFSComparer {
 					File t = File.createTempFile(this.getClass().getName(),
 							".tmp");
 					try {
-						EncFSOutputStream efos = new EncFSOutputStream(
-								encFsDir.getVolume(), new BufferedOutputStream(
-										new FileOutputStream(t)));
-						try {
-							EncFSFileInputStream efis = new EncFSFileInputStream(
-									encFsFile);
-							try {
-								int bytesRead = 0;
-								while (bytesRead >= 0) {
-									byte[] readBuf = new byte[(int) (encFsFile
-											.getVolume().getConfig()
-											.getBlockSize() * 0.75)];
-									bytesRead = efis.read(readBuf);
-									if (bytesRead >= 0) {
-										efos.write(readBuf, 0, bytesRead);
-									}
-								}
-							} finally {
-								efis.close();
-							}
-
-						} finally {
-							efos.close();
-						}
+						EncFSUtil.copyWholeStream(new EncFSFileInputStream(
+								encFsFile),
+								new EncFSOutputStream(encFsDir.getVolume(),
+										new BufferedOutputStream(
+												new FileOutputStream(t))),
+								true, true);
 
 						FileInputStream reEncFSIs = new FileInputStream(t);
 						try {

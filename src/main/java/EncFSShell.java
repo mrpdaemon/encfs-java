@@ -30,6 +30,7 @@ import org.mrpdaemon.sec.encfs.EncFSFileInputStream;
 import org.mrpdaemon.sec.encfs.EncFSInvalidConfigException;
 import org.mrpdaemon.sec.encfs.EncFSInvalidPasswordException;
 import org.mrpdaemon.sec.encfs.EncFSUnsupportedException;
+import org.mrpdaemon.sec.encfs.EncFSUtil;
 import org.mrpdaemon.sec.encfs.EncFSVolume;
 
 public class EncFSShell {
@@ -370,14 +371,9 @@ public class EncFSShell {
 							continue;
 						}
 
-						EncFSFileInputStream efis = new EncFSFileInputStream(
-								file);
-						int bytesRead = 0;
-						while (bytesRead >= 0) {
-							byte[] readBuf = new byte[128];
-							bytesRead = efis.read(readBuf);
-							System.out.print(new String(readBuf));
-						}
+						EncFSUtil.copyWholeStream(
+								new EncFSFileInputStream(file), System.out,
+								true, false);
 						System.out.println();
 					} else {
 						System.out.println("File not found!");
