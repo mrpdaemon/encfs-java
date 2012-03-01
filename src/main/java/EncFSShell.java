@@ -145,7 +145,7 @@ public class EncFSShell {
 						options = "";
 					}
 
-					if (options == null) {
+					if (options.equals("")) {
 						EncFSFile[] files = curDir.listFiles();
 						for (EncFSFile file : files) {
 							if (file.isDirectory()) {
@@ -236,7 +236,11 @@ public class EncFSShell {
 
 								System.out.println();
 							} else {
-								System.out.println(file.getName());
+								if (file.isDirectory()) {
+									System.out.println(file.getName() + "/");
+								} else {
+									System.out.println(file.getName());
+								}
 							}
 						}
 					}
