@@ -17,13 +17,14 @@ import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.Stack;
 import java.util.StringTokenizer;
 
-import org.mrpdaemon.sec.encfs.EncFSChecksumException;
 import org.mrpdaemon.sec.encfs.EncFSCorruptDataException;
 import org.mrpdaemon.sec.encfs.EncFSFile;
 import org.mrpdaemon.sec.encfs.EncFSFileInputStream;
@@ -40,21 +41,53 @@ public class EncFSShell {
 	// EncFSFile representing the current directory
 	private static EncFSFile curDir;
 
-	// Search method to find a child under the current directory
-	private static EncFSFile findChild(String childName)
-			throws EncFSCorruptDataException, EncFSChecksumException,
-			IOException {
-		// curDir.getVolume().getFile(curDir.getVolumePath() + "/" +
-		// curDir.getName(), childName);
+	// EncFSVolume that we're working on
+	private static EncFSVolume volume;
 
-		EncFSFile[] files = curDir.listFiles();
-		for (EncFSFile file : files) {
-			if (file.getName().equals(childName)) {
-				return file;
+	// Search method that returns individual path elements for a given path
+	private static ArrayList<EncFSFile> getPath(String path) throws IOException {
+		ArrayList<EncFSFile> result = new ArrayList<EncFSFile>();
+		EncFSFile curFile;
+		boolean found;
+
+		// Absolute vs. relative path handling
+		if (path.startsWith("/")) {
+			curFile = volume.getRootDir();
+		} else {
+			curFile = curDir;
+		}
+
+		StringTokenizer st = new StringTokenizer(path, "/");
+		while (st.hasMoreTokens()) {
+			String pathElement = st.nextToken();
+			found = false;
+			if (curFile.isDirectory()) {
+				EncFSFile[] files = curFile.listFiles();
+				for (EncFSFile file : files) {
+					if (file.getName().equals(pathElement)) {
+						result.add(file);
+						curFile = file;
+						found = true;
+					}
+				}
+			} else {
+				// Not a directory, better be the last token
+				if (st.hasMoreTokens()) {
+					throw new FileNotFoundException("'" + pathElement
+							+ "' is not a directory!");
+				} else {
+					result.add(curFile);
+					found = true;
+				}
+			}
+
+			if (!found) {
+				throw new FileNotFoundException("Path '" + path
+						+ "' not found!");
 			}
 		}
 
-		return null;
+		return result;
 	}
 
 	public static void main(String[] args) {
@@ -77,7 +110,6 @@ public class EncFSShell {
 		}
 
 		// Create a new EncFS volume
-		EncFSVolume volume = null;
 		try {
 			volume = new EncFSVolume(args[0], password);
 		} catch (EncFSUnsupportedException e) {
@@ -139,190 +171,258 @@ public class EncFSShell {
 				String command = st.nextToken();
 				if (command.equals("ls")) { // list child directories
 
-					final String options;
-					if (st.hasMoreTokens()) {
-						options = st.nextToken();
-					} else {
-						options = "";
+					// Options
+					class ListOptions {
+						public boolean reverse = false;
+						public boolean sortByTime = false;
+						public boolean longListingFormat = false;
+					}
+					;
+
+					final ListOptions options = new ListOptions();
+					String pathStr = null;
+
+					// Option parsing
+					String token;
+					while (st.hasMoreTokens()) {
+						token = st.nextToken();
+						if (token.startsWith("-")) {
+							// Option switches
+							if (token.contains("l")) {
+								options.longListingFormat = true;
+							} else if (token.contains("r")) {
+								options.reverse = true;
+							} else if (token.contains("s")) {
+								options.sortByTime = true;
+							}
+						} else {
+							// Path specifier
+							pathStr = token;
+						}
 					}
 
-					if (options.equals("")) {
-						EncFSFile[] files = curDir.listFiles();
-						for (EncFSFile file : files) {
+					// Obtain list of files in the target directory
+					EncFSFile[] files;
+					if (pathStr == null) {
+						files = curDir.listFiles();
+					} else {
+						try {
+							ArrayList<EncFSFile> pathList = getPath(pathStr);
+							EncFSFile lastPathElement = pathList.get(pathList
+									.size() - 1);
+							if (lastPathElement.isDirectory()) {
+								files = lastPathElement.listFiles();
+							} else {
+								System.out.println("'" + pathStr + "'"
+										+ " is not a directory!");
+								continue;
+							}
+						} catch (FileNotFoundException e) {
+							System.out.println(e.getMessage());
+							continue;
+						}
+					}
+
+					// Comparator implementation for sorting
+					Comparator<EncFSFile> comparator = new Comparator<EncFSFile>() {
+
+						public int compare(EncFSFile arg0, EncFSFile arg1) {
+							int result;
+							if (options.sortByTime) {
+								long diff = arg0.getLastModified()
+										- arg1.getLastModified();
+								if (diff > 0) {
+									result = -1;
+								} else if (diff == 0) {
+									result = 0;
+								} else {
+									result = 1;
+								}
+							} else {
+								result = arg0.getName().compareTo(
+										arg1.getName());
+							}
+
+							if (options.reverse) {
+								result = -1 * result;
+							}
+
+							return result;
+						}
+
+					};
+
+					// Sort files if needed
+					if (options.reverse || options.sortByTime) {
+						Arrays.sort(files, comparator);
+					}
+
+					// Print the listing
+					for (EncFSFile file : files) {
+						if (options.longListingFormat) {
+							if (file.isDirectory()) {
+								System.out.print("d");
+							} else {
+								System.out.print("-");
+							}
+
+							if (file.isReadable()) {
+								System.out.print("r");
+							} else {
+								System.out.print("-");
+							}
+
+							if (file.isWritable()) {
+								System.out.print("w");
+							} else {
+								System.out.print("-");
+							}
+
+							if (file.isExecutable()) {
+								System.out.print("x");
+							} else {
+								System.out.print("-");
+							}
+
+							System.out.print("???");
+							System.out.print("???");
+
+							System.out.print(" ");
+							String tmpSize = "         " + file.getLength();
+							System.out
+									.print(tmpSize.substring(tmpSize.length() - 9));
+
+							System.out.print(" ");
+							System.out.print(new Date(file.getLastModified()));
+
+							System.out.print(" ");
+							System.out.print(file.getName());
+
+							System.out.println();
+						} else {
 							if (file.isDirectory()) {
 								System.out.println(file.getName() + "/");
 							} else {
 								System.out.println(file.getName());
 							}
 						}
-					} else {
-						EncFSFile[] files = curDir.listFiles();
-
-						Comparator<EncFSFile> comparator = new Comparator<EncFSFile>() {
-
-							private final boolean reverse = (options
-									.contains("r"));
-							private final boolean sortByTime = (options
-									.contains("t"));
-
-							public int compare(EncFSFile arg0, EncFSFile arg1) {
-								int result;
-								if (sortByTime) {
-									long diff = arg0.getLastModified()
-											- arg1.getLastModified();
-									if (diff > 0) {
-										result = -1;
-									} else if (diff == 0) {
-										result = 0;
-									} else {
-										result = 1;
-									}
-								} else {
-									result = arg0.getName().compareTo(
-											arg1.getName());
-								}
-
-								if (reverse) {
-									result = -1 * result;
-								}
-
-								return result;
-							}
-
-						};
-
-						Arrays.sort(files, comparator);
-
-						boolean longListingFormat = options.contains("l");
-						for (EncFSFile file : files) {
-							if (longListingFormat) {
-								if (file.isDirectory()) {
-									System.out.print("d");
-								} else {
-									System.out.print("-");
-								}
-
-								if (file.isReadable()) {
-									System.out.print("r");
-								} else {
-									System.out.print("-");
-								}
-
-								if (file.isWritable()) {
-									System.out.print("w");
-								} else {
-									System.out.print("-");
-								}
-
-								if (file.isExecutable()) {
-									System.out.print("x");
-								} else {
-									System.out.print("-");
-								}
-
-								System.out.print("???");
-								System.out.print("???");
-
-								System.out.print(" ");
-								String tmpSize = "         " + file.getLength();
-								System.out.print(tmpSize.substring(tmpSize
-										.length() - 9));
-
-								System.out.print(" ");
-								System.out.print(new Date(file
-										.getLastModified()));
-
-								System.out.print(" ");
-								System.out.print(file.getName());
-
-								System.out.println();
-							} else {
-								if (file.isDirectory()) {
-									System.out.println(file.getName() + "/");
-								} else {
-									System.out.println(file.getName());
-								}
-							}
-						}
 					}
 				} else if (command.equals("mkdir") || command.equals("mkdirs")) {
-					String dirName = (st.hasMoreTokens() ? st.nextToken()
+					String dirPath = (st.hasMoreTokens() ? st.nextToken()
 							: null);
-					if (dirName == null) {
+					if (dirPath == null) {
 						System.out.println("mkdir {dirname}");
 						continue;
 					}
 
 					boolean result;
 					if (command.equals("mkdir")) {
-						result = volume.makeDir(curDir.getPath() + "/"
-								+ dirName);
+						try {
+							result = volume.makeDir(curDir.getPath() + "/"
+									+ dirPath);
+						} catch (FileNotFoundException e) {
+							System.out.println(e.getMessage());
+							continue;
+						}
 					} else {
 						result = volume.makeDirs(curDir.getPath() + "/"
-								+ dirName);
+								+ dirPath);
 					}
 
-					System.out.println(command + " " + dirName
-							+ " result was: " + result);
-
+					if (result == false) {
+						System.out.println("Failed to create directory '"
+								+ dirPath + "'");
+					}
 				} else if (command.equals("rm")) { // remove
-					String fileName = (st.hasMoreTokens() ? st.nextToken()
+					String filePath = (st.hasMoreTokens() ? st.nextToken()
 							: null);
-					if (fileName == null) {
+					if (filePath == null) {
 						System.out.println("rm {filename}");
 						continue;
 					}
 
-					boolean result = volume.deletePath(curDir.getPath() + "/"
-							+ fileName);
+					boolean result;
+					try {
+						result = volume.deletePath(curDir.getPath() + "/"
+								+ filePath);
+					} catch (FileNotFoundException e) {
+						System.out
+								.println("File not found: '" + filePath + "'");
+						continue;
+					}
 
-					System.out.println("rm " + fileName + " result was: "
-							+ result);
+					if (result == false) {
+						System.out.println("Failed to delete path '" + filePath
+								+ "'");
+					}
 
 				} else if (command.equals("mv")) { // move / rename
+					int pathCount = 0;
+					boolean force = false;
+					String pathArray[] = new String[2];
 
-					String[] tokens = new String[3];
-					int tokenCount = 0;
-					for (int i = 0; i < tokens.length; i++) {
-						if (st.hasMoreTokens()) {
-							tokens[tokenCount++] = st.nextToken();
+					// Option/path parsing
+					while (st.hasMoreTokens()) {
+						String token = st.nextToken();
+						if (token.startsWith("-")) {
+							if (token.contains("f")) {
+								force = true;
+							}
+						} else {
+							pathArray[pathCount++] = token;
 						}
-
 					}
 
-					String fileName1 = null, fileName2 = null;
-					boolean force;
-					if (tokenCount == 2) {
-						force = false;
-						fileName1 = tokens[0];
-						fileName2 = tokens[1];
-					} else {
-						force = "/f".equals(tokens[0]);
-						fileName1 = tokens[1];
-						fileName2 = tokens[2];
+					if (pathCount < 2) {
+						System.out
+								.println("Usage: mv [-f] <srcPath> <dstPath>");
+						continue;
 					}
 
-					if (fileName1 == null || fileName2 == null) {
-						System.out.println("mv {src} {dst}");
+					ArrayList<EncFSFile> srcPathList;
+					try {
+						srcPathList = getPath(pathArray[0]);
+					} catch (FileNotFoundException e) {
+						System.out.println(e.getMessage());
+						continue;
+					}
+
+					@SuppressWarnings("unused")
+					ArrayList<EncFSFile> dstPathList;
+					try {
+						dstPathList = getPath(pathArray[1]);
+						if (force == false) {
+							System.out.println("Destination path '"
+									+ pathArray[1] + "' exists!");
+						}
+					} catch (FileNotFoundException e) {
+						// This is expected without -f
+					}
+
+					String srcPath = srcPathList.get(srcPathList.size() - 1)
+							.getPath();
+
+					// Need to convert destination path to an absolute path
+					String dstPath = null;
+					if (pathArray[1].startsWith("/")) {
+						// Already an absolute path
+						dstPath = pathArray[1];
 					} else {
-						EncFSFile file1 = findChild(fileName1);
-						EncFSFile file2 = findChild(fileName2);
+						// Combine with current path
+						dstPath = curDir.getPath() + "/" + pathArray[1];
+					}
 
-						if (file1 == null) {
-							System.out.println("file " + fileName1
-									+ " not found");
-							continue;
-						}
-						if (force == false && file2 != null) {
-							System.out.println("file " + fileName2
-									+ " already exists, aborting");
-							continue;
-						}
+					boolean result = false;
+					try {
+						result = volume.movePath(srcPath, dstPath);
+					} catch (IOException e) {
+						System.out.println(e.getMessage());
+						continue;
+					}
 
-						boolean result = volume.movePath(file1.getPath(),
-								fileName2);
-						System.out.println("Result of move " + fileName1
-								+ " to " + fileName2 + " was: " + result);
+					if (result == false) {
+						System.out.println("Failed to move '" + srcPath
+								+ "' to '" + dstPath + "'");
 					}
 				} else if (command.equals("exit")) { // bail out
 					System.exit(0);
@@ -331,10 +431,10 @@ public class EncFSShell {
 						System.out.println("No directory name specified");
 						continue;
 					}
-					String dirName = st.nextToken();
+					String dirPath = st.nextToken();
 
 					// .. handling
-					if (dirName.equals("..")) {
+					if (dirPath.equals("..")) {
 						if (dirStack.empty()) {
 							System.out.println("Can't go above root directory");
 							continue;
@@ -343,48 +443,84 @@ public class EncFSShell {
 						continue;
 					}
 
-					// regular directory name, find and cd into it
-					EncFSFile file = findChild(dirName);
-					if (file != null) {
-						if (!file.isDirectory()) {
-							System.out.println("Not a directory");
-							continue;
-						}
-						dirStack.push(curDir);
-						curDir = file;
-					} else {
-						System.out.println("Directory not found!");
+					// '/' handling
+					if (dirPath.equals("/")) {
+						dirStack.clear();
+						curDir = volume.getRootDir();
+						continue;
 					}
 
+					// regular directory path, find and cd into it
+					ArrayList<EncFSFile> pathList = null;
+					try {
+						pathList = getPath(dirPath);
+					} catch (FileNotFoundException e) {
+						System.out.println("Path '" + dirPath
+								+ "' doesn't exist!");
+						continue;
+					}
+
+					// Make sure the last element is a directory
+					EncFSFile lastPathElement = pathList
+							.get(pathList.size() - 1);
+					if (!lastPathElement.isDirectory()) {
+						System.out.println("'" + lastPathElement.getName()
+								+ "' is not a directory!");
+						continue;
+					}
+
+					/*
+					 * Current directory goes into the stack also Special
+					 * handling for absolute paths
+					 */
+					if (dirPath.startsWith("/")) {
+						// Clear the existing stack first
+						dirStack.clear();
+						dirStack.push(volume.getRootDir());
+					} else {
+						dirStack.push(curDir);
+					}
+
+					// Push all path elements except the last one into the stack
+					Iterator<EncFSFile> itr = pathList.iterator();
+					while (itr.hasNext()) {
+						EncFSFile dir = itr.next();
+						if (itr.hasNext()) {
+							dirStack.push(dir);
+						}
+					}
+
+					curDir = lastPathElement;
 				} else if (command.equals("cat")) {
 					if (!st.hasMoreTokens()) {
 						System.out.println("No file name specified");
 						continue;
 					}
-					String fileName = st.nextToken();
+					String filePath = st.nextToken();
 
 					// Find and print file
-					EncFSFile file = findChild(fileName);
-					if (file != null) {
-						if (file.isDirectory()) {
-							System.out.println("Not a file");
-							continue;
-						}
-
-						EncFSUtil.copyWholeStream(
-								new EncFSFileInputStream(file), System.out,
-								true, false);
-						System.out.println();
-					} else {
-						System.out.println("File not found!");
+					ArrayList<EncFSFile> pathList = null;
+					try {
+						pathList = getPath(filePath);
+					} catch (FileNotFoundException e) {
+						System.out.println(e.getMessage());
+						continue;
 					}
+
+					EncFSFile lastPathElement = pathList
+							.get(pathList.size() - 1);
+
+					if (lastPathElement.isDirectory()) {
+						System.out.println("'" + filePath + "' is not a file!");
+						continue;
+					}
+
+					EncFSUtil.copyWholeStream(new EncFSFileInputStream(
+							lastPathElement), System.out, true, false);
+					System.out.println();
 				}
 
 			} catch (EncFSCorruptDataException e) {
-				System.out.println(e.getMessage());
-				e.printStackTrace();
-				System.exit(1);
-			} catch (EncFSChecksumException e) {
 				System.out.println(e.getMessage());
 				e.printStackTrace();
 				System.exit(1);
