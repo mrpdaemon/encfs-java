@@ -312,7 +312,7 @@ public class EncFSFile {
 	}
 
 	/**
-	 * Copies this file to a target file or directory
+	 * Copies this file/dir to a target file or directory
 	 * 
 	 * @param dstPath
 	 *            EncFSFile representing the target file or directory
@@ -323,53 +323,35 @@ public class EncFSFile {
 	 *             File provider returned I/O error
 	 */
 	public boolean copy(EncFSFile dstPath) throws IOException {
-		if (volume.getConfig().isUniqueIV()) {
-			// More complicated as we need to copy the files
-			// by reading them in as a stream & writing them out again
-			// so that we generate unique headers for the file copies
+		if (this.isDirectory()) {
+			// Recursive copy of this directory to the target path
+			try {
+				return volume.copyPath(this.getPath(), dstPath.getPath());
+			} catch (EncFSCorruptDataException e) {
+				throw new IOException(e);
+			}
+		} else if (dstPath.isDirectory()) {
+			/*
+			 * Trying to copy a file to a directory, copy it UNDER that
+			 * directory instead
+			 */
+			EncFSFile realDstPath;
+			try {
+				realDstPath = volume.createFile(dstPath.getPath(), getName());
+			} catch (EncFSCorruptDataException e) {
+				throw new IOException(e);
+			} catch (EncFSChecksumException e) {
+				throw new IOException(e);
+			}
 
-			if (dstPath.isDirectory()) {
-				EncFSFile realTargetEncfsDirFile;
-				try {
-					realTargetEncfsDirFile = volume.createFile(
-							dstPath.getPath(), getName());
-				} catch (EncFSCorruptDataException e) {
-					throw new IOException(e);
-				} catch (EncFSChecksumException e) {
-					throw new IOException(e);
-				}
-				return this.copy(realTargetEncfsDirFile);
-			} else if (this.isDirectory()) {
-				boolean result = volume.getFileProvider().mkdir(
-						dstPath.getEncryptedPath());
-
-				if (result) {
-					try {
-
-						// recurse in & copy each of the files within that
-						// directory
-						for (EncFSFile srcEncFsDirFile : this.listFiles()) {
-							EncFSFile targetEncfsDirFile = volume.getFile(
-									dstPath.getPath(),
-									srcEncFsDirFile.getName());
-							result &= srcEncFsDirFile.copy(targetEncfsDirFile);
-
-							if (!result) {
-								break;
-							}
-						}
-					} catch (EncFSCorruptDataException e) {
-						throw new IOException(e);
-					} catch (EncFSChecksumException e) {
-						throw new IOException(e);
-					}
-				}
-				return result;
-			} else {
-				if (this.isDirectory() || dstPath.isDirectory()) {
-					throw new IOException("Can't copy directories");
-				}
-
+			return this.copy(realDstPath);
+		} else { // Trying to copy a file into a file
+			if (volume.getConfig().isUniqueIV()) {
+				/*
+				 * More complicated as we need to copy the files by reading them
+				 * in as a stream & writing them out again so that we generate
+				 * unique headers for the file copies
+				 */
 				try {
 					EncFSUtil.copyWholeStream(this.openInputStream(),
 							dstPath.openOutputStream(), true, true);
@@ -378,12 +360,13 @@ public class EncFSFile {
 				} catch (EncFSUnsupportedException e) {
 					throw new IOException(e);
 				}
-
-				return true;
+			} else {
+				// Can just do a regular copy, no need to rewrite contents
+				return volume.getFileProvider().copy(getEncryptedPath(),
+						dstPath.getEncryptedPath());
 			}
-		} else {
-			return volume.getFileProvider().copy(getEncryptedPath(),
-					dstPath.getEncryptedPath());
+
+			return true;
 		}
 	}
 

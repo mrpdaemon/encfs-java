@@ -262,6 +262,11 @@ public class EncFSLocalFileProvider implements EncFSFileProvider {
 		File sourceFile = new File(rootPath.getAbsoluteFile(), srcFilePath);
 		File destFile = new File(rootPath.getAbsoluteFile(), dstFilePath);
 
+		if (!sourceFile.exists()) {
+			throw new FileNotFoundException("Source file '" + srcFilePath
+					+ "' doesn't exist!");
+		}
+
 		if (!destFile.exists()) {
 			destFile.createNewFile();
 		}

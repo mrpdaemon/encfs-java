@@ -49,6 +49,11 @@ public class EncFSVolume {
 	/** Length in bytes of the volume initialization vector (IV) */
 	public final static int ENCFS_VOLUME_IV_LENGTH = 16;
 
+	// Path operations
+	private static enum PathOperation {
+		MOVE, COPY
+	}
+
 	// Volume configuration
 	private EncFSConfig config;
 
@@ -686,52 +691,9 @@ public class EncFSVolume {
 		return file.delete();
 	}
 
-	/**
-	 * Copies the source file or directory to the target file or directory
-	 * 
-	 * @param srcPath
-	 *            Absolute volume path of the source file or directory
-	 * @param dstPath
-	 *            Absolute volume path of the target file or directory
-	 * 
-	 * @return true if copy succeeds, false otherwise
-	 * 
-	 * @throws EncFSCorruptDataException
-	 *             Filename encoding failed
-	 * @throws IOException
-	 *             File provider returned I/O error
-	 */
-	public boolean copyPath(String srcPath, String dstPath)
-			throws EncFSCorruptDataException, IOException {
-
-		EncFSFile srcEncFile = getFile(srcPath);
-		EncFSFile targetEncFile;
-		if (pathExists(dstPath)) {
-			targetEncFile = getFile(dstPath);
-		} else {
-			targetEncFile = createFile(dstPath);
-		}
-
-		return srcEncFile.copy(targetEncFile);
-	}
-
-	/**
-	 * Moves a file / directory
-	 * 
-	 * @param srcPath
-	 *            Absolute volume path of the file or directory to move
-	 * @param dstPath
-	 *            Absolute volume path of the destination file or directory
-	 * 
-	 * @return true if the move succeeds, false otherwise
-	 * 
-	 * @throws EncFSCorruptDataException
-	 *             Filename encoding failed
-	 * @throws IOException
-	 *             File provider returned I/O error
-	 */
-	public boolean movePath(String srcPath, String dstPath)
-			throws EncFSCorruptDataException, IOException {
+	// Helper function to perform copy/move path operations
+	private boolean copyOrMovePath(String srcPath, String dstPath,
+			PathOperation op) throws EncFSCorruptDataException, IOException {
 		validateAbsoluteFileName(srcPath, "srcPath");
 		validateAbsoluteFileName(dstPath, "dstPath");
 
@@ -757,8 +719,14 @@ public class EncFSVolume {
 
 			if (result) {
 				for (EncFSFile subFile : this.listFilesForPath(srcPath)) {
-					boolean subResult = this.movePath(subFile.getPath(),
-							dstPath + "/" + subFile.getName());
+					boolean subResult;
+					if (op == PathOperation.MOVE) {
+						subResult = this.movePath(subFile.getPath(), dstPath
+								+ "/" + subFile.getName());
+					} else {
+						subResult = this.copyPath(subFile.getPath(), dstPath
+								+ "/" + subFile.getName());
+					}
 					if (!subResult) {
 						result = false;
 						break;
@@ -767,15 +735,74 @@ public class EncFSVolume {
 			}
 
 			if (result) {
-				result = fileProvider.delete(encSrcPath);
+				// We only delete source directories for move, not copy
+				if (op == PathOperation.MOVE) {
+					result = fileProvider.delete(encSrcPath);
+				}
 			} else {
+				// Attempt failure rollback
 				fileProvider.delete(encDstPath);
 			}
 
 			return result;
-		} else {
-			return fileProvider.move(encSrcPath, encDstPath);
+		} else { // Simple file operation
+			if (op == PathOperation.MOVE) {
+				return fileProvider.move(encSrcPath, encDstPath);
+			} else {
+				if (!pathExists(srcPath)) {
+					throw new FileNotFoundException("Source path '" + srcPath
+							+ "' doesn't exist!");
+				}
+				EncFSFile srcFile = getFile(srcPath);
+				EncFSFile dstFile;
+				if (pathExists(dstPath)) {
+					dstFile = getFile(dstPath);
+				} else {
+					dstFile = createFile(dstPath);
+				}
+				return srcFile.copy(dstFile);
+			}
 		}
+	}
+
+	/**
+	 * Copies the source file or directory to the target file or directory
+	 * 
+	 * @param srcPath
+	 *            Absolute volume path of the source file or directory
+	 * @param dstPath
+	 *            Absolute volume path of the target file or directory
+	 * 
+	 * @return true if copy succeeds, false otherwise
+	 * 
+	 * @throws EncFSCorruptDataException
+	 *             Filename encoding failed
+	 * @throws IOException
+	 *             File provider returned I/O error
+	 */
+	public boolean copyPath(String srcPath, String dstPath)
+			throws EncFSCorruptDataException, IOException {
+		return copyOrMovePath(srcPath, dstPath, PathOperation.COPY);
+	}
+
+	/**
+	 * Moves a file / directory
+	 * 
+	 * @param srcPath
+	 *            Absolute volume path of the file or directory to move
+	 * @param dstPath
+	 *            Absolute volume path of the destination file or directory
+	 * 
+	 * @return true if the move succeeds, false otherwise
+	 * 
+	 * @throws EncFSCorruptDataException
+	 *             Filename encoding failed
+	 * @throws IOException
+	 *             File provider returned I/O error
+	 */
+	public boolean movePath(String srcPath, String dstPath)
+			throws EncFSCorruptDataException, IOException {
+		return copyOrMovePath(srcPath, dstPath, PathOperation.MOVE);
 	}
 
 	/**
