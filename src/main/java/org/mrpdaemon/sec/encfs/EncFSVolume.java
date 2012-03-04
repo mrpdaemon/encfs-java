@@ -735,48 +735,46 @@ public class EncFSVolume {
 		validateAbsoluteFileName(srcPath, "srcPath");
 		validateAbsoluteFileName(dstPath, "dstPath");
 
-		String encSrcFile = EncFSCrypto.encodePath(this, srcPath, "/");
-		String encTargetFile = EncFSCrypto.encodePath(this, dstPath, "/");
+		String encSrcPath = EncFSCrypto.encodePath(this, srcPath, "/");
+		String encDstPath = EncFSCrypto.encodePath(this, dstPath, "/");
 
-		if (fileProvider.isDirectory(encSrcFile)
+		if (fileProvider.isDirectory(encSrcPath)
 				&& getConfig().isChainedNameIV()) {
-			//
-			// To make this safe (for if we fail halfway through) we need to
-			// 1) create the new directory
-			// 2) Recursively move the sub directories / folders
-			// 3) Delete the original directory
-			// We can do it as a rename of the parent / original folder or
-			// we
-			// could be left with files we can't read
-
+			/*
+			 * To make this safe (for if we fail halfway through) we need to:
+			 * 
+			 * 1) create the new directory 2) Recursively move the sub
+			 * directories / folders 3) Delete the original directory
+			 * 
+			 * We can do it as a rename of the parent / original folder or we
+			 * could be left with files we can't read
+			 */
 			boolean result = true;
-			if (fileProvider.mkdir(encTargetFile) == false) {
+
+			if (fileProvider.mkdir(encDstPath) == false) {
 				result = false;
 			}
+
 			if (result) {
 				for (EncFSFile subFile : this.listFilesForPath(srcPath)) {
 					boolean subResult = this.movePath(subFile.getPath(),
-							srcPath + "/" + subFile.getName());
+							dstPath + "/" + subFile.getName());
 					if (!subResult) {
 						result = false;
 						break;
 					}
 				}
-
-				// TODO: Decide how to handle files that are in the native
-				// directory
-				// but not part of this volume (do we move them? Do we leave
-				// them in
-				// the old directory?)
-
 			}
+
 			if (result) {
-				result = fileProvider.delete(encSrcFile);
+				result = fileProvider.delete(encSrcPath);
+			} else {
+				fileProvider.delete(encDstPath);
 			}
 
 			return result;
 		} else {
-			return fileProvider.move(encSrcFile, encTargetFile);
+			return fileProvider.move(encSrcPath, encDstPath);
 		}
 	}
 
