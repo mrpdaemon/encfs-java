@@ -425,6 +425,77 @@ public class EncFSShell {
 						System.out.println("Failed to move '" + srcPath
 								+ "' to '" + dstPath + "'");
 					}
+				} else if (command.equals("cp")) { // copy a file or directory
+					int pathCount = 0;
+					boolean recursive = false;
+					String pathArray[] = new String[2];
+
+					// Option/path parsing
+					while (st.hasMoreTokens()) {
+						String token = st.nextToken();
+						if (token.startsWith("-")) {
+							if (token.contains("r")) {
+								recursive = true;
+							}
+						} else {
+							pathArray[pathCount++] = token;
+						}
+					}
+
+					if (pathCount < 2) {
+						System.out
+								.println("Usage: cp [-r] <srcPath> <dstPath>");
+						continue;
+					}
+
+					EncFSFile lastPathElement;
+					ArrayList<EncFSFile> srcPathList;
+					try {
+						srcPathList = getPath(pathArray[0]);
+						/*
+						 * If source path is a directory require recursive flag
+						 * to proceed
+						 */
+						lastPathElement = srcPathList
+								.get(srcPathList.size() - 1);
+						if (lastPathElement.isDirectory()) {
+							if (recursive == false) {
+								System.out.println("Source path '"
+										+ pathArray[0]
+										+ "' is a directory. Use -r to copy.");
+								continue;
+							}
+						}
+					} catch (FileNotFoundException e) {
+						System.out.println(e.getMessage());
+						continue;
+					}
+
+					String srcPath = srcPathList.get(srcPathList.size() - 1)
+							.getPath();
+
+					// Need to convert destination path to an absolute path
+					String dstPath = null;
+					if (pathArray[1].startsWith("/")) {
+						// Already an absolute path
+						dstPath = pathArray[1];
+					} else {
+						// Combine with current path
+						dstPath = curDir.getPath() + "/" + pathArray[1];
+					}
+
+					boolean result = false;
+					try {
+						result = volume.copyPath(srcPath, dstPath);
+					} catch (IOException e) {
+						System.out.println(e.getMessage());
+						continue;
+					}
+
+					if (result == false) {
+						System.out.println("Failed to copy '" + srcPath
+								+ "' to '" + dstPath + "'");
+					}
 				} else if (command.equals("exit")) { // bail out
 					System.exit(0);
 				} else if (command.equals("cd")) { // go into a child directory
