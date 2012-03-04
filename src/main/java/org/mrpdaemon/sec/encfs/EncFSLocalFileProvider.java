@@ -141,7 +141,7 @@ public class EncFSLocalFileProvider implements EncFSFileProvider {
 	 *            Path for the destination file or directory
 	 * 
 	 * @return true if the move is successful, false otherwise
-	 *
+	 * 
 	 * @throws IOException
 	 *             Source file/dir doesn't exist or misc. I/O error
 	 */
@@ -150,7 +150,8 @@ public class EncFSLocalFileProvider implements EncFSFileProvider {
 		File destFile = new File(rootPath.getAbsoluteFile(), dstPath);
 
 		if (!sourceFile.exists()) {
-			throw new FileNotFoundException("Path '" + srcPath + "' doesn't exist!");
+			throw new FileNotFoundException("Path '" + srcPath
+					+ "' doesn't exist!");
 		}
 
 		return sourceFile.renameTo(destFile);
