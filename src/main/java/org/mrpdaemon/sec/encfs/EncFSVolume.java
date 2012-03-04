@@ -630,7 +630,16 @@ public class EncFSVolume {
 
 		String encryptedPath = EncFSCrypto.encodePath(this, dirPath,
 				ENCFS_VOLUME_ROOT_PATH);
-		return fileProvider.mkdir(encryptedPath);
+
+		boolean result = false;
+		try {
+			result = fileProvider.mkdir(encryptedPath);
+		} catch (FileNotFoundException e) {
+			throw new FileNotFoundException("One or more path element in '"
+					+ dirPath + "' doesn't exist!");
+		}
+
+		return result;
 	}
 
 	/**

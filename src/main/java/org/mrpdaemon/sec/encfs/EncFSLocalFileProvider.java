@@ -183,9 +183,14 @@ public class EncFSLocalFileProvider implements EncFSFileProvider {
 	 * @throws IOException
 	 *             Path doesn't exist or misc. I/O error
 	 */
-	public boolean mkdir(String dirPath) {
-		File toEncFile = new File(rootPath.getAbsoluteFile(), dirPath);
-		boolean result = toEncFile.mkdir();
+	public boolean mkdir(String dirPath) throws IOException {
+		File file = new File(rootPath.getAbsoluteFile(), dirPath);
+		File parentFile = file.getParentFile();
+		if (!parentFile.exists()) {
+			throw new FileNotFoundException("Path '"
+					+ parentFile.getAbsolutePath() + "' doesn't exist!");
+		}
+		boolean result = file.mkdir();
 		return result;
 	}
 
