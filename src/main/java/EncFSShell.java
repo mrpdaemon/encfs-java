@@ -394,6 +394,7 @@ public class EncFSShell {
 						if (force == false) {
 							System.out.println("Destination path '"
 									+ pathArray[1] + "' exists!");
+							continue;
 						}
 					} catch (FileNotFoundException e) {
 						// This is expected without -f
