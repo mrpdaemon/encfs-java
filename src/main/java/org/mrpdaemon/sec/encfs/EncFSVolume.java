@@ -671,7 +671,7 @@ public class EncFSVolume {
 	}
 
 	// Recursive method to delete a directory tree
-	public boolean recursiveDelete(EncFSFile file) throws IOException {
+	private boolean recursiveDelete(EncFSFile file) throws IOException {
 		boolean result = true;
 
 		if (file.isDirectory()) {
