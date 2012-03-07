@@ -84,7 +84,7 @@ public class EncFSConfig {
 		setBlockSize(1024);
 		setUniqueIV(true);
 		setChainedNameIV(true);
-		setHolesAllowed(false); // XXX: Not supported
+		setHolesAllowed(true);
 		setIterationCount(5000);
 		setBlockMACBytes(0);
 		setBlockMACRandBytes(0);
