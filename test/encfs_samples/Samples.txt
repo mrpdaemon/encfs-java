@@ -5,6 +5,7 @@ Enter password: test
 / > ls
 longfile.txt
 test.txt
+zerofile.bin
 / > cat test.txt
 This is a test file.
 
