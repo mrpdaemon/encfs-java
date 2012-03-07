@@ -254,7 +254,7 @@ public class EncFSVolumeIntegrationTest {
 	public void createVolume_1() {
 		File rootDir;
 		try {
-			rootDir = createTempDir();
+			rootDir = EncFSVolumeTestCommon.createTempDir();
 		} catch (IOException e) {
 			Assert.fail("Could not create temporary directory");
 			return;
@@ -282,23 +282,6 @@ public class EncFSVolumeIntegrationTest {
 
 		Assert.assertTrue(rootDir.exists());
 		rootDir.delete();
-	}
-
-	private File createTempDir() throws IOException {
-		File temp;
-
-		temp = File.createTempFile("encfs-java-tmp",
-				Long.toString(System.nanoTime()));
-		if (!temp.delete()) {
-			throw new IOException("Could not delete temporary file "
-					+ temp.getAbsolutePath());
-		}
-
-		if (!temp.mkdir()) {
-			throw new IOException("Could not create temporary directory");
-		}
-
-		return temp;
 	}
 
 	private void assertFileNameEncoding(EncFSFile encfsFileDir)
