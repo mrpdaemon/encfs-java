@@ -334,17 +334,30 @@ public class EncFSShell {
 								+ dirPath + "'");
 					}
 				} else if (command.equals("rm")) { // remove
-					String filePath = (st.hasMoreTokens() ? st.nextToken()
-							: null);
+					String filePath = null;
+					boolean recursive = false;
+
+					// Options / path parsing
+					while (st.hasMoreTokens()) {
+						String token = st.nextToken();
+						if (token.startsWith("-")) {
+							if (token.contains("r")) {
+								recursive = true;
+							}
+						} else {
+							filePath = token;
+						}
+					}
+
 					if (filePath == null) {
-						System.out.println("rm {filename}");
+						System.out.println("rm [-r] <filename>");
 						continue;
 					}
 
 					boolean result;
 					try {
 						result = volume.deletePath(curDir.getPath() + "/"
-								+ filePath);
+								+ filePath, recursive);
 					} catch (FileNotFoundException e) {
 						System.out
 								.println("File not found: '" + filePath + "'");

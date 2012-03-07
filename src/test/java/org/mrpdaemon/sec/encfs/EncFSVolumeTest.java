@@ -181,11 +181,11 @@ public class EncFSVolumeTest {
 				volume.getFile("/dir2/dir3/test.txt").getLength());
 
 		// Try to delete the src dir (should fail as it has files)
-		boolean deleteDirResult = volume.deletePath("/dir1");
+		boolean deleteDirResult = volume.deletePath("/dir1", false);
 		Assert.assertFalse(deleteDirResult);
 
 		// Delete the src file
-		boolean deleteFileResult = volume.deletePath("/dir1/test.txt");
+		boolean deleteFileResult = volume.deletePath("/dir1/test.txt", false);
 		Assert.assertTrue(deleteFileResult);
 
 		// Check the file has been removed
@@ -199,8 +199,24 @@ public class EncFSVolumeTest {
 				volume.listFilesForPath("/dir2/dir3")[0].getName());
 
 		// now delete the empty directory
-		boolean deleteEmptyDirResult = volume.deletePath("/dir1");
+		boolean deleteEmptyDirResult = volume.deletePath("/dir1", false);
 		Assert.assertTrue(deleteEmptyDirResult);
+
+		// recreate the directory
+		mkdirResult = volume.makeDir("/dir1");
+		Assert.assertTrue(mkdirResult);
+
+		// Copy the file back under it
+		copyResult = volume.copyPath("/dir2/dir3/test.txt", "/dir1");
+		Assert.assertTrue(copyResult);
+
+		// Create a few more directories to test recursive deletion
+		mkdirsResult = volume.makeDirs("/dir1/dir4/dir5/dir6/dir7");
+		Assert.assertTrue(mkdirsResult);
+
+		// Attempt to recursively delete the directory - should succeed
+		boolean deleteRecursiveResult = volume.deletePath("/dir1", true);
+		Assert.assertTrue(deleteRecursiveResult);
 
 		// Check the directory has been removed
 		Assert.assertEquals(1, volume.listFilesForPath("/").length);

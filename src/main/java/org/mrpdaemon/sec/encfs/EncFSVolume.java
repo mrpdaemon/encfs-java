@@ -670,11 +670,37 @@ public class EncFSVolume {
 		return fileProvider.mkdirs(encryptedPath);
 	}
 
+	// Recursive method to delete a directory tree
+	public boolean recursiveDelete(EncFSFile file) throws IOException {
+		boolean result = true;
+
+		if (file.isDirectory()) {
+			for (EncFSFile subFile : file.listFiles()) {
+				boolean subResult = recursiveDelete(subFile);
+				if (subResult == false) {
+					result = false;
+					break;
+				}
+			}
+
+			if (result == true) {
+				file.delete();
+			}
+		} else {
+			result = file.delete();
+		}
+
+		return result;
+	}
+
 	/**
 	 * Deletes the given file or directory in the EncFS volume
 	 * 
 	 * @param filePath
 	 *            Absolute volume path of the file/directory to delete
+	 * @param recursive
+	 *            Whether to recursively delete directories. Without this option
+	 *            deletePath will fail to delete non-empty directories
 	 * 
 	 * @return true if deletion succeeds, false otherwise
 	 * 
@@ -685,10 +711,15 @@ public class EncFSVolume {
 	 * @throws EncFSChecksumException
 	 *             Filename encoding failed
 	 */
-	public boolean deletePath(String filePath)
+	public boolean deletePath(String filePath, boolean recursive)
 			throws EncFSCorruptDataException, IOException {
 		EncFSFile file = this.getFile(filePath);
-		return file.delete();
+
+		if (recursive == true) {
+			return recursiveDelete(file);
+		} else {
+			return file.delete();
+		}
 	}
 
 	// Helper function to perform copy/move path operations
