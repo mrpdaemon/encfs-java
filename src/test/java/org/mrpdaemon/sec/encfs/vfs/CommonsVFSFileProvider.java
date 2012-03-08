@@ -10,6 +10,7 @@ import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSystemException;
 import org.apache.commons.vfs2.FileSystemManager;
 import org.apache.commons.vfs2.FileType;
+import org.apache.commons.vfs2.FileUtil;
 import org.mrpdaemon.sec.encfs.EncFSFileInfo;
 import org.mrpdaemon.sec.encfs.EncFSFileProvider;
 
@@ -99,7 +100,7 @@ public class CommonsVFSFileProvider implements EncFSFileProvider {
 		FileObject srcFile = resolveFile(encSrcFileName);
 		FileObject targetFile = resolveFile(encTargetFileName);
 
-		targetFile.copyFrom(srcFile, null);
+		FileUtil.copyContent(srcFile, targetFile);
 		return true;
 	}
 
