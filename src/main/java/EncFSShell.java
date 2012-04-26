@@ -400,11 +400,16 @@ public class EncFSShell {
 						continue;
 					}
 
-					@SuppressWarnings("unused")
-					ArrayList<EncFSFile> dstPathList;
 					try {
-						dstPathList = getPath(pathArray[1]);
-						if (force == false) {
+						ArrayList<EncFSFile> dstPathList = getPath(pathArray[1]);
+						EncFSFile lastPathElement = dstPathList.get(dstPathList
+								.size() - 1);
+						/*
+						 * It is ok for the last path element to exist if it is
+						 * a directory - in that case we'll just move the source
+						 * path into that directory
+						 */
+						if (force == false && !lastPathElement.isDirectory()) {
 							System.out.println("Destination path '"
 									+ pathArray[1] + "' exists!");
 							continue;
