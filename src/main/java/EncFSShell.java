@@ -494,7 +494,11 @@ public class EncFSShell {
 						dstPath = pathArray[1];
 					} else {
 						// Combine with current path
-						dstPath = curDir.getPath() + "/" + pathArray[1];
+						if (curDir == volume.getRootDir()) {
+							dstPath = "/" + pathArray[1];
+						} else {
+							dstPath = curDir.getPath() + "/" + pathArray[1];
+						}
 					}
 
 					boolean result = false;
