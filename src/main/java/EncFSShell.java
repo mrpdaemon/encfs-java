@@ -50,6 +50,12 @@ public class EncFSShell {
 		EncFSFile curFile;
 		boolean found;
 
+		// Root directory handling
+		if (path.equals("/")) {
+			result.add(volume.getRootDir());
+			return result;
+		}
+		
 		// Absolute vs. relative path handling
 		if (path.startsWith("/")) {
 			curFile = volume.getRootDir();
