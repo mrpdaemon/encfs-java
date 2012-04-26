@@ -728,6 +728,10 @@ public class EncFSVolume {
 		validateAbsoluteFileName(srcPath, "srcPath");
 		validateAbsoluteFileName(dstPath, "dstPath");
 
+		if (srcPath.equals(dstPath)) {
+			return false;
+		}
+
 		String encSrcPath = EncFSCrypto.encodePath(this, srcPath, "/");
 		String encDstPath = EncFSCrypto.encodePath(this, dstPath, "/");
 
