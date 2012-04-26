@@ -214,6 +214,17 @@ public class EncFSVolumeTestCommon {
 				.getLength());
 		Assert.assertEquals(contentsLength,
 				volume.getFile("/dir2/dir3/test.txt").getLength());
+		
+		// Try to recursively copy a directory
+		boolean recursiveCopyResult = volume.copyPath("/dir1", "/dir2");
+		Assert.assertTrue(recursiveCopyResult);
+		recursiveCopyResult = volume.pathExists("/dir2/dir1");
+		Assert.assertTrue(recursiveCopyResult);
+		recursiveCopyResult = volume.pathExists("/dir2/dir1/test.txt");
+		Assert.assertTrue(recursiveCopyResult);
+		// Delete the recursively copied directory
+		recursiveCopyResult = volume.deletePath("/dir2/dir1", true);
+		Assert.assertTrue(recursiveCopyResult);
 
 		// Try to delete the src dir (should fail as it has files)
 		try {
