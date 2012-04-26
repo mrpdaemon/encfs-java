@@ -728,8 +728,13 @@ public class EncFSVolume {
 		validateAbsoluteFileName(srcPath, "srcPath");
 		validateAbsoluteFileName(dstPath, "dstPath");
 
+		if (!pathExists(srcPath)) {
+			throw new FileNotFoundException("Source path '" + srcPath
+					+ "' doesn't exist!");
+		}
+
 		if (srcPath.equals(dstPath)) {
-			return false;
+			throw new IOException("Can't copy/move onto the same path!");
 		}
 
 		String encSrcPath = EncFSCrypto.encodePath(this, srcPath, "/");
@@ -789,41 +794,44 @@ public class EncFSVolume {
 
 			return result;
 		} else { // Simple file operation
-			if (op == PathOperation.MOVE) {
-				/*
-				 * If dstPath is an existing directory we need to move srcPath
-				 * under it
-				 */
-				if (pathExists(dstPath)) {
-					EncFSFile dstFile = getFile(dstPath);
-					EncFSFile srcFile = getFile(srcPath);
 
-					if (dstFile.isDirectory()) {
-						if (dstFile == getRootDir()) {
+			EncFSFile srcFile = getFile(srcPath);
+			/*
+			 * If dstPath is an existing directory we need to copy/move srcPath
+			 * under it
+			 */
+			if (pathExists(dstPath)) {
+				EncFSFile dstFile = getFile(dstPath);
+
+				if (dstFile.isDirectory()) {
+					if (dstFile == getRootDir()) {
+						if (op == PathOperation.MOVE) {
 							return this.movePath(srcPath,
 									"/" + srcFile.getName());
 						} else {
+							return this.copyPath(srcPath,
+									"/" + srcFile.getName());
+						}
+					} else {
+						if (op == PathOperation.MOVE) {
 							return this.movePath(srcPath, dstPath + "/"
+									+ srcFile.getName());
+						} else {
+							return this.copyPath(srcPath, dstPath + "/"
 									+ srcFile.getName());
 						}
 					}
-				}
-
-				// dstPath is not an existing directory, perform normal move
-				return fileProvider.move(encSrcPath, encDstPath);
-			} else {
-				if (!pathExists(srcPath)) {
-					throw new FileNotFoundException("Source path '" + srcPath
-							+ "' doesn't exist!");
-				}
-				EncFSFile srcFile = getFile(srcPath);
-				EncFSFile dstFile;
-				if (pathExists(dstPath)) {
-					dstFile = getFile(dstPath);
 				} else {
-					dstFile = createFile(dstPath);
+					throw new IOException("Destination file " + dstPath
+							+ " exists, can't overwrite!");
 				}
-				return srcFile.copy(dstFile);
+			} else {
+				// dstPath doesn't exist, perform normal copy/move
+				if (op == PathOperation.MOVE) {
+					return fileProvider.move(encSrcPath, encDstPath);
+				} else {
+					return srcFile.copy(createFile(dstPath));
+				}
 			}
 		}
 	}
