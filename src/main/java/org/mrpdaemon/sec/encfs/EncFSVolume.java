@@ -732,7 +732,7 @@ public class EncFSVolume {
 		String encDstPath = EncFSCrypto.encodePath(this, dstPath, "/");
 
 		if (fileProvider.isDirectory(encSrcPath)
-				&& getConfig().isChainedNameIV()) {
+				&& (getConfig().isChainedNameIV() || op == PathOperation.COPY)) {
 			/*
 			 * To make this safe (for if we fail halfway through) we need to:
 			 * 
@@ -744,9 +744,17 @@ public class EncFSVolume {
 			 */
 			boolean result = true;
 
-			if (fileProvider.mkdir(encDstPath) == false) {
-				result = false;
+			// Need to copy/move the source dir to the destination
+			EncFSFile thisDir = this.getFile(srcPath);
+			// Update dstPath to point into the new target directory
+			if (pathExists(dstPath)) {
+				// dstPath exists, this is a copy/move into dstPath
+				dstPath = dstPath + "/" + thisDir.getName();
+			} else {
+				// If dstPath doesn't exist this is a rename, keep dstPath as-is
 			}
+
+			result = this.makeDir(dstPath);
 
 			if (result) {
 				for (EncFSFile subFile : this.listFilesForPath(srcPath)) {
