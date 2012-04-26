@@ -786,6 +786,26 @@ public class EncFSVolume {
 			return result;
 		} else { // Simple file operation
 			if (op == PathOperation.MOVE) {
+				/*
+				 * If dstPath is an existing directory we need to move srcPath
+				 * under it
+				 */
+				if (pathExists(dstPath)) {
+					EncFSFile dstFile = getFile(dstPath);
+					EncFSFile srcFile = getFile(srcPath);
+
+					if (dstFile.isDirectory()) {
+						if (dstFile == getRootDir()) {
+							return this.movePath(srcPath,
+									"/" + srcFile.getName());
+						} else {
+							return this.movePath(srcPath, dstPath + "/"
+									+ srcFile.getName());
+						}
+					}
+				}
+
+				// dstPath is not an existing directory, perform normal move
 				return fileProvider.move(encSrcPath, encDstPath);
 			} else {
 				if (!pathExists(srcPath)) {
