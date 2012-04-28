@@ -37,20 +37,20 @@ import javax.crypto.Mac;
  */
 public class EncFSVolume {
 	/** Standard name of the EncFS volume configuration file */
-	public final static String ENCFS_VOLUME_CONFIG_FILE_NAME = ".encfs6.xml";
+	public final static String CONFIG_FILE_NAME = ".encfs6.xml";
 
 	/** Old EncFS config file names */
-	public final static String[] ENCFS_VOLUME_OLD_CONFIG_FILE_NAMES = {
-			".encfs5", ".encfs4", ".encfs3", ".encfs2", ".encfs" };
+	public final static String[] OLD_CONFIG_FILE_NAMES = { ".encfs5",
+			".encfs4", ".encfs3", ".encfs2", ".encfs" };
 
 	/** String denoting the root path of an EncFS volume */
-	public final static String ENCFS_VOLUME_ROOT_PATH = "/";
+	public final static String ROOT_PATH = "/";
 
 	/** String denoting the path separator for EncFS volumes */
-	public final static String ENCFS_VOLUME_PATH_SEPARATOR = "/";
+	public final static String PATH_SEPARATOR = "/";
 
 	/** Length in bytes of the volume initialization vector (IV) */
-	public final static int ENCFS_VOLUME_IV_LENGTH = 16;
+	public final static int IV_LENGTH = 16;
 
 	// Path operations
 	private static enum PathOperation {
@@ -259,7 +259,7 @@ public class EncFSVolume {
 			EncFSCorruptDataException, EncFSInvalidPasswordException,
 			IOException {
 		EncFSConfig config = EncFSConfigParser.parseConfig(fileProvider,
-				ENCFS_VOLUME_CONFIG_FILE_NAME);
+				CONFIG_FILE_NAME);
 		byte[] passwordKey = EncFSCrypto.derivePasswordKey(config, password);
 
 		this.init(fileProvider, config, passwordKey);
@@ -281,7 +281,7 @@ public class EncFSVolume {
 			EncFSCorruptDataException, EncFSInvalidPasswordException,
 			IOException {
 		EncFSConfig config = EncFSConfigParser.parseConfig(fileProvider,
-				ENCFS_VOLUME_CONFIG_FILE_NAME);
+				CONFIG_FILE_NAME);
 
 		this.init(fileProvider, config, passwordKey);
 	}
@@ -314,7 +314,7 @@ public class EncFSVolume {
 
 		// Copy IV data
 		int ivLength = keyData.length - keyLength;
-		if (ivLength != ENCFS_VOLUME_IV_LENGTH) {
+		if (ivLength != IV_LENGTH) {
 			throw new EncFSInvalidConfigException("Non-standard IV length");
 		}
 		this.iv = Arrays.copyOfRange(keyData, keyLength, keyLength + ivLength);
@@ -332,7 +332,7 @@ public class EncFSVolume {
 		// Create block cipher
 		this.blockCipher = EncFSCrypto.newBlockCipher();
 
-		rootDir = getFile(ENCFS_VOLUME_ROOT_PATH);
+		rootDir = getFile(ROOT_PATH);
 	}
 
 	/**
@@ -350,9 +350,9 @@ public class EncFSVolume {
 		String result;
 
 		if (dir == volume.getRootDir()) {
-			result = ENCFS_VOLUME_ROOT_PATH + fileName;
+			result = ROOT_PATH + fileName;
 		} else {
-			result = dir.getPath() + ENCFS_VOLUME_PATH_SEPARATOR + fileName;
+			result = dir.getPath() + PATH_SEPARATOR + fileName;
 		}
 
 		return result;
@@ -383,10 +383,10 @@ public class EncFSVolume {
 	 * @return String representing the combined path
 	 */
 	public static String combinePath(String dirPath, String fileName) {
-		if (dirPath.equals(ENCFS_VOLUME_ROOT_PATH)) {
-			return ENCFS_VOLUME_ROOT_PATH + fileName;
+		if (dirPath.equals(ROOT_PATH)) {
+			return ROOT_PATH + fileName;
 		} else {
-			return dirPath + ENCFS_VOLUME_PATH_SEPARATOR + fileName;
+			return dirPath + PATH_SEPARATOR + fileName;
 		}
 	}
 
@@ -528,8 +528,8 @@ public class EncFSVolume {
 			IOException {
 		validateAbsoluteFileName(filePath, "filePath");
 
-		String encryptedPath = EncFSCrypto.encodePath(this, filePath,
-				ENCFS_VOLUME_ROOT_PATH);
+		String encryptedPath = EncFSCrypto
+				.encodePath(this, filePath, ROOT_PATH);
 
 		if (fileProvider.exists(encryptedPath) == false) {
 			throw new FileNotFoundException();
@@ -537,16 +537,15 @@ public class EncFSVolume {
 		EncFSFileInfo fileInfo = fileProvider.getFileInfo(encryptedPath);
 
 		EncFSFileInfo decodedFileInfo;
-		if (filePath.equals(ENCFS_VOLUME_ROOT_PATH)) {
+		if (filePath.equals(ROOT_PATH)) {
 			decodedFileInfo = EncFSFileInfo.getDecodedFileInfo(this, "",
-					ENCFS_VOLUME_ROOT_PATH, fileInfo);
+					ROOT_PATH, fileInfo);
 		} else {
-			int lastIndexOfSeparator = filePath
-					.lastIndexOf(ENCFS_VOLUME_PATH_SEPARATOR);
+			int lastIndexOfSeparator = filePath.lastIndexOf(PATH_SEPARATOR);
 			String decDirName;
 			String decFilename;
-			if (filePath.lastIndexOf(ENCFS_VOLUME_PATH_SEPARATOR) == 0) {
-				decDirName = ENCFS_VOLUME_PATH_SEPARATOR;
+			if (filePath.lastIndexOf(PATH_SEPARATOR) == 0) {
+				decDirName = PATH_SEPARATOR;
 				decFilename = filePath.substring(1);
 
 			} else {
@@ -577,8 +576,7 @@ public class EncFSVolume {
 	public boolean pathExists(String path) throws EncFSCorruptDataException,
 			IOException {
 		validateAbsoluteFileName(path, "fileName");
-		String encryptedPath = EncFSCrypto.encodePath(this, path,
-				ENCFS_VOLUME_ROOT_PATH);
+		String encryptedPath = EncFSCrypto.encodePath(this, path, ROOT_PATH);
 		return fileProvider.exists(encryptedPath);
 	}
 
@@ -613,7 +611,7 @@ public class EncFSVolume {
 
 		// Create a random volume key + IV pair
 		byte[] randVolKey = new byte[config.getVolumeKeySize() / 8
-				+ EncFSVolume.ENCFS_VOLUME_IV_LENGTH];
+				+ EncFSVolume.IV_LENGTH];
 		random.nextBytes(randVolKey);
 
 		EncFSCrypto.encodeVolumeKey(config, password, randVolKey);
@@ -661,22 +659,21 @@ public class EncFSVolume {
 			throws EncFSCorruptDataException, IOException {
 		validateAbsoluteFileName(filePath, "fileName");
 
-		String encryptedPath = EncFSCrypto.encodePath(this, filePath,
-				ENCFS_VOLUME_ROOT_PATH);
+		String encryptedPath = EncFSCrypto
+				.encodePath(this, filePath, ROOT_PATH);
 
 		EncFSFileInfo fileInfo = fileProvider.createFile(encryptedPath);
 
 		EncFSFileInfo decodedFileInfo;
-		if (filePath.equals(ENCFS_VOLUME_ROOT_PATH)) {
+		if (filePath.equals(ROOT_PATH)) {
 			decodedFileInfo = EncFSFileInfo.getDecodedFileInfo(this, "",
-					ENCFS_VOLUME_ROOT_PATH, fileInfo);
+					ROOT_PATH, fileInfo);
 		} else {
-			int lastIndexOfSeparator = filePath
-					.lastIndexOf(ENCFS_VOLUME_PATH_SEPARATOR);
+			int lastIndexOfSeparator = filePath.lastIndexOf(PATH_SEPARATOR);
 			String decDirName;
 			String decFilename;
-			if (filePath.lastIndexOf(ENCFS_VOLUME_PATH_SEPARATOR) == 0) {
-				decDirName = ENCFS_VOLUME_PATH_SEPARATOR;
+			if (filePath.lastIndexOf(PATH_SEPARATOR) == 0) {
+				decDirName = PATH_SEPARATOR;
 				decFilename = filePath.substring(1);
 
 			} else {
@@ -707,8 +704,7 @@ public class EncFSVolume {
 			IOException {
 		validateAbsoluteFileName(dirPath, "dirPath");
 
-		String encryptedPath = EncFSCrypto.encodePath(this, dirPath,
-				ENCFS_VOLUME_ROOT_PATH);
+		String encryptedPath = EncFSCrypto.encodePath(this, dirPath, ROOT_PATH);
 
 		boolean result = false;
 		try {
@@ -739,8 +735,7 @@ public class EncFSVolume {
 			IOException {
 		validateAbsoluteFileName(dirPath, "dirPath");
 
-		String encryptedPath = EncFSCrypto.encodePath(this, dirPath,
-				ENCFS_VOLUME_ROOT_PATH);
+		String encryptedPath = EncFSCrypto.encodePath(this, dirPath, ROOT_PATH);
 		return fileProvider.mkdirs(encryptedPath);
 	}
 
@@ -811,10 +806,8 @@ public class EncFSVolume {
 			throw new IOException("Can't copy/move onto the same path!");
 		}
 
-		String encSrcPath = EncFSCrypto.encodePath(this, srcPath,
-				ENCFS_VOLUME_ROOT_PATH);
-		String encDstPath = EncFSCrypto.encodePath(this, dstPath,
-				ENCFS_VOLUME_ROOT_PATH);
+		String encSrcPath = EncFSCrypto.encodePath(this, srcPath, ROOT_PATH);
+		String encDstPath = EncFSCrypto.encodePath(this, dstPath, ROOT_PATH);
 
 		if (fileProvider.isDirectory(encSrcPath)
 				&& (getConfig().isChainedNameIV() || op == PathOperation.COPY)) {
@@ -1024,7 +1017,7 @@ public class EncFSVolume {
 		if (fileName.length() == 0) {
 			throw new IllegalArgumentException(name + " must not be blank");
 		}
-		if (fileName.startsWith(ENCFS_VOLUME_PATH_SEPARATOR) == false) {
+		if (fileName.startsWith(PATH_SEPARATOR) == false) {
 			throw new IllegalArgumentException(name + " must absolute");
 		}
 	}

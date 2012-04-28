@@ -126,25 +126,25 @@ public class EncFSCrypto {
 		// TODO: Verify input byte[] lengths, raise Exception on bad ivSeed
 		// length
 
-		byte[] concat = new byte[EncFSVolume.ENCFS_VOLUME_IV_LENGTH + 8];
-		for (int i = 0; i < EncFSVolume.ENCFS_VOLUME_IV_LENGTH; i++)
+		byte[] concat = new byte[EncFSVolume.IV_LENGTH + 8];
+		for (int i = 0; i < EncFSVolume.IV_LENGTH; i++)
 			concat[i] = iv[i];
 
 		if (ivSeed.length == 4) {
 			// Concat 4 bytes of IV seed and 4 bytes of 0
-			for (int i = EncFSVolume.ENCFS_VOLUME_IV_LENGTH; i < EncFSVolume.ENCFS_VOLUME_IV_LENGTH + 4; i++)
-				concat[i] = ivSeed[EncFSVolume.ENCFS_VOLUME_IV_LENGTH + 3 - i];
-			for (int i = EncFSVolume.ENCFS_VOLUME_IV_LENGTH + 4; i < EncFSVolume.ENCFS_VOLUME_IV_LENGTH + 8; i++)
+			for (int i = EncFSVolume.IV_LENGTH; i < EncFSVolume.IV_LENGTH + 4; i++)
+				concat[i] = ivSeed[EncFSVolume.IV_LENGTH + 3 - i];
+			for (int i = EncFSVolume.IV_LENGTH + 4; i < EncFSVolume.IV_LENGTH + 8; i++)
 				concat[i] = 0;
 		} else {
 			// Use 8 bytes from IV seed
-			for (int i = EncFSVolume.ENCFS_VOLUME_IV_LENGTH; i < EncFSVolume.ENCFS_VOLUME_IV_LENGTH + 8; i++)
-				concat[i] = ivSeed[EncFSVolume.ENCFS_VOLUME_IV_LENGTH + 7 - i];
+			for (int i = EncFSVolume.IV_LENGTH; i < EncFSVolume.IV_LENGTH + 8; i++)
+				concat[i] = ivSeed[EncFSVolume.IV_LENGTH + 7 - i];
 		}
 
 		// Take first 16 bytes of the SHA-1 output (20 bytes)
 		byte[] ivResult = Arrays.copyOfRange(mac.doFinal(concat), 0,
-				EncFSVolume.ENCFS_VOLUME_IV_LENGTH);
+				EncFSVolume.IV_LENGTH);
 
 		return new IvParameterSpec(ivResult);
 	}
@@ -218,7 +218,7 @@ public class EncFSCrypto {
 																		// (*)
 																		// Verify
 																		// this
-						EncFSVolume.ENCFS_VOLUME_IV_LENGTH * 8);
+						EncFSVolume.IV_LENGTH * 8);
 		SecretKey pbkdf2Key = null;
 		try {
 			pbkdf2Key = f.generateSecret(ks);
@@ -267,7 +267,7 @@ public class EncFSCrypto {
 		int keySizeInBytes = config.getVolumeKeySize() / 8;
 		byte[] passKeyData = Arrays.copyOfRange(pbkdf2Data, 0, keySizeInBytes);
 		byte[] passIvData = Arrays.copyOfRange(pbkdf2Data, keySizeInBytes,
-				keySizeInBytes + EncFSVolume.ENCFS_VOLUME_IV_LENGTH);
+				keySizeInBytes + EncFSVolume.IV_LENGTH);
 
 		Key passKey = newKey(passKeyData);
 		byte[] ivSeed = Arrays.copyOfRange(cipherVolKeyData, 0, 4);
@@ -326,7 +326,7 @@ public class EncFSCrypto {
 		int keySizeInBytes = config.getVolumeKeySize() / 8;
 		byte[] passKeyData = Arrays.copyOfRange(pbkdf2Data, 0, keySizeInBytes);
 		byte[] passIvData = Arrays.copyOfRange(pbkdf2Data, keySizeInBytes,
-				keySizeInBytes + EncFSVolume.ENCFS_VOLUME_IV_LENGTH);
+				keySizeInBytes + EncFSVolume.IV_LENGTH);
 
 		Key passKey = newKey(passKeyData);
 
@@ -667,11 +667,11 @@ public class EncFSCrypto {
 	private static byte[] computeChainIv(EncFSVolume volume, String volumePath) {
 		byte[] chainIv = new byte[8];
 		StringTokenizer st = new StringTokenizer(volumePath,
-				EncFSVolume.ENCFS_VOLUME_PATH_SEPARATOR);
+				EncFSVolume.PATH_SEPARATOR);
 		while (st.hasMoreTokens()) {
 			String curPath = st.nextToken();
 			if ((curPath.length() > 0)
-					&& (curPath != EncFSVolume.ENCFS_VOLUME_PATH_SEPARATOR)) {
+					&& (curPath != EncFSVolume.PATH_SEPARATOR)) {
 				int padLen = 16 - (curPath.length() % 16);
 				if (padLen == 0) {
 					padLen = 16;
@@ -898,12 +898,11 @@ public class EncFSCrypto {
 	 */
 	public static String encodePath(EncFSVolume volume, String pathName,
 			String volumePath) throws EncFSCorruptDataException {
-		String[] pathParts = pathName
-				.split(EncFSVolume.ENCFS_VOLUME_PATH_SEPARATOR);
+		String[] pathParts = pathName.split(EncFSVolume.PATH_SEPARATOR);
 		String tmpVolumePath = volumePath;
 		String result = "";
-		if (pathName.startsWith(EncFSVolume.ENCFS_VOLUME_PATH_SEPARATOR)) {
-			result += EncFSVolume.ENCFS_VOLUME_PATH_SEPARATOR;
+		if (pathName.startsWith(EncFSVolume.PATH_SEPARATOR)) {
+			result += EncFSVolume.PATH_SEPARATOR;
 		}
 
 		for (int i = 0; i < pathParts.length; i++) {
@@ -916,16 +915,14 @@ public class EncFSCrypto {
 						tmpVolumePath);
 
 				if (result.length() > 0
-						&& result
-								.endsWith(EncFSVolume.ENCFS_VOLUME_PATH_SEPARATOR) == false) {
-					result += EncFSVolume.ENCFS_VOLUME_PATH_SEPARATOR;
+						&& result.endsWith(EncFSVolume.PATH_SEPARATOR) == false) {
+					result += EncFSVolume.PATH_SEPARATOR;
 				}
 
 				result += toEncFileName;
 
-				if (tmpVolumePath
-						.endsWith(EncFSVolume.ENCFS_VOLUME_PATH_SEPARATOR) == false) {
-					tmpVolumePath += EncFSVolume.ENCFS_VOLUME_PATH_SEPARATOR;
+				if (tmpVolumePath.endsWith(EncFSVolume.PATH_SEPARATOR) == false) {
+					tmpVolumePath += EncFSVolume.PATH_SEPARATOR;
 				}
 				tmpVolumePath += pathPart;
 			}

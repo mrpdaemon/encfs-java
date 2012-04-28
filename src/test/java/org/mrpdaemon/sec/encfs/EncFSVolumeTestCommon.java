@@ -94,12 +94,11 @@ public class EncFSVolumeTestCommon {
 		// Check that it's name is encrypted
 		List<EncFSFileInfo> fileList = volume.getFileProvider().listFiles("/");
 		Collections.sort(fileList, new EncFSFileInfoComparator());
-		if (fileList.get(0).getName()
-				.equals(EncFSVolume.ENCFS_VOLUME_CONFIG_FILE_NAME)) {
+		if (fileList.get(0).getName().equals(EncFSVolume.CONFIG_FILE_NAME)) {
 			Assert.assertFalse(fileList.get(1).getName().equals("test.txt"));
 		} else {
-			Assert.assertEquals(EncFSVolume.ENCFS_VOLUME_CONFIG_FILE_NAME,
-					fileList.get(1).getName());
+			Assert.assertEquals(EncFSVolume.CONFIG_FILE_NAME, fileList.get(1)
+					.getName());
 			Assert.assertFalse(fileList.get(1).getName().equals("test.txt"));
 		}
 
@@ -112,14 +111,13 @@ public class EncFSVolumeTestCommon {
 		// Check that the file name has changed
 		List<EncFSFileInfo> fileList2 = volume.getFileProvider().listFiles("/");
 		Collections.sort(fileList2, new EncFSFileInfoComparator());
-		if (fileList2.get(0).getName()
-				.equals(EncFSVolume.ENCFS_VOLUME_CONFIG_FILE_NAME)) {
+		if (fileList2.get(0).getName().equals(EncFSVolume.CONFIG_FILE_NAME)) {
 			// File at index 1 must have changed
 			Assert.assertFalse(fileList2.get(1).getName().equals("test.txt"));
 			Assert.assertFalse(fileList2.get(1).getName().equals(encFileName));
 		} else {
-			Assert.assertEquals(EncFSVolume.ENCFS_VOLUME_CONFIG_FILE_NAME,
-					fileList2.get(1).getName());
+			Assert.assertEquals(EncFSVolume.CONFIG_FILE_NAME, fileList2.get(1)
+					.getName());
 			// File at index 0 must have changed
 			Assert.assertFalse(fileList2.get(0).getName().equals("test.txt"));
 			Assert.assertFalse(fileList2.get(0).getName().equals(encFileName));
@@ -214,7 +212,7 @@ public class EncFSVolumeTestCommon {
 				.getLength());
 		Assert.assertEquals(contentsLength,
 				volume.getFile("/dir2/dir3/test.txt").getLength());
-		
+
 		// Try to recursively copy a directory
 		boolean recursiveCopyResult = volume.copyPath("/dir1", "/dir2");
 		Assert.assertTrue(recursiveCopyResult);

@@ -276,7 +276,7 @@ public class EncFSVolumeIntegrationTest {
 
 		// Clean up after ourselves
 		File configFile = new File(rootDir.getAbsolutePath(),
-				EncFSVolume.ENCFS_VOLUME_CONFIG_FILE_NAME);
+				EncFSVolume.CONFIG_FILE_NAME);
 		Assert.assertTrue(configFile.exists());
 		configFile.delete();
 

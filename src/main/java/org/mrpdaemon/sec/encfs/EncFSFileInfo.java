@@ -66,8 +66,8 @@ public class EncFSFileInfo {
 	public EncFSFileInfo(String name, String parentPath, boolean directory,
 			long lastModified, long size, boolean readable, boolean writable,
 			boolean executable) {
-		if (name.startsWith(EncFSVolume.ENCFS_VOLUME_PATH_SEPARATOR)
-				&& (name.equals(EncFSVolume.ENCFS_VOLUME_ROOT_PATH) == false))
+		if (name.startsWith(EncFSVolume.PATH_SEPARATOR)
+				&& (name.equals(EncFSVolume.ROOT_PATH) == false))
 			throw new IllegalArgumentException("Invalid name " + name);
 
 		this.name = name;
@@ -106,8 +106,8 @@ public class EncFSFileInfo {
 	public String getPath() {
 		String result;
 
-		if (parentPath.endsWith(EncFSVolume.ENCFS_VOLUME_PATH_SEPARATOR)
-				|| name.startsWith(EncFSVolume.ENCFS_VOLUME_PATH_SEPARATOR)) {
+		if (parentPath.endsWith(EncFSVolume.PATH_SEPARATOR)
+				|| name.startsWith(EncFSVolume.PATH_SEPARATOR)) {
 			result = parentPath + name;
 		} else {
 			result = EncFSVolume.combinePath(parentPath, name);

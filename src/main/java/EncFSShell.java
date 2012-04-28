@@ -51,20 +51,20 @@ public class EncFSShell {
 		boolean found;
 
 		// Root directory handling
-		if (path.equals(EncFSVolume.ENCFS_VOLUME_ROOT_PATH)) {
+		if (path.equals(EncFSVolume.ROOT_PATH)) {
 			result.add(volume.getRootDir());
 			return result;
 		}
 
 		// Absolute vs. relative path handling
-		if (path.startsWith(EncFSVolume.ENCFS_VOLUME_PATH_SEPARATOR)) {
+		if (path.startsWith(EncFSVolume.PATH_SEPARATOR)) {
 			curFile = volume.getRootDir();
 		} else {
 			curFile = curDir;
 		}
 
 		StringTokenizer st = new StringTokenizer(path,
-				EncFSVolume.ENCFS_VOLUME_PATH_SEPARATOR);
+				EncFSVolume.PATH_SEPARATOR);
 		while (st.hasMoreTokens()) {
 			String pathElement = st.nextToken();
 			found = false;
@@ -149,9 +149,8 @@ public class EncFSShell {
 				if (curDir == volume.getRootDir()) {
 					System.out.print("/ > ");
 				} else {
-					if (curDir.getParentPath().equals(
-							EncFSVolume.ENCFS_VOLUME_ROOT_PATH)) {
-						System.out.print(EncFSVolume.ENCFS_VOLUME_ROOT_PATH
+					if (curDir.getParentPath().equals(EncFSVolume.ROOT_PATH)) {
+						System.out.print(EncFSVolume.ROOT_PATH
 								+ curDir.getName() + " > ");
 					} else {
 						System.out.print(EncFSVolume.combinePath(
@@ -310,9 +309,8 @@ public class EncFSShell {
 							System.out.println();
 						} else {
 							if (file.isDirectory()) {
-								System.out
-										.println(file.getName()
-												+ EncFSVolume.ENCFS_VOLUME_PATH_SEPARATOR);
+								System.out.println(file.getName()
+										+ EncFSVolume.PATH_SEPARATOR);
 							} else {
 								System.out.println(file.getName());
 							}
@@ -435,8 +433,7 @@ public class EncFSShell {
 
 					// Need to convert destination path to an absolute path
 					String dstPath = null;
-					if (pathArray[1]
-							.startsWith(EncFSVolume.ENCFS_VOLUME_PATH_SEPARATOR)) {
+					if (pathArray[1].startsWith(EncFSVolume.PATH_SEPARATOR)) {
 						// Already an absolute path
 						dstPath = pathArray[1];
 					} else {
@@ -507,8 +504,7 @@ public class EncFSShell {
 
 					// Need to convert destination path to an absolute path
 					String dstPath = null;
-					if (pathArray[1]
-							.startsWith(EncFSVolume.ENCFS_VOLUME_PATH_SEPARATOR)) {
+					if (pathArray[1].startsWith(EncFSVolume.PATH_SEPARATOR)) {
 						// Already an absolute path
 						dstPath = pathArray[1];
 					} else {
@@ -548,7 +544,7 @@ public class EncFSShell {
 					}
 
 					// '/' handling
-					if (dirPath.equals(EncFSVolume.ENCFS_VOLUME_ROOT_PATH)) {
+					if (dirPath.equals(EncFSVolume.ROOT_PATH)) {
 						dirStack.clear();
 						curDir = volume.getRootDir();
 						continue;
@@ -577,8 +573,7 @@ public class EncFSShell {
 					 * Current directory goes into the stack also Special
 					 * handling for absolute paths
 					 */
-					if (dirPath
-							.startsWith(EncFSVolume.ENCFS_VOLUME_PATH_SEPARATOR)) {
+					if (dirPath.startsWith(EncFSVolume.PATH_SEPARATOR)) {
 						// Clear the existing stack first
 						dirStack.clear();
 						dirStack.push(volume.getRootDir());

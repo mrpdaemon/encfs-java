@@ -228,7 +228,7 @@ public class EncFSFile {
 
 		String encDirName;
 		if (this == volume.getRootDir()) {
-			encDirName = EncFSVolume.ENCFS_VOLUME_ROOT_PATH;
+			encDirName = EncFSVolume.ROOT_PATH;
 		} else {
 			encDirName = getEncryptedPath();
 		}

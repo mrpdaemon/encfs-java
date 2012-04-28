@@ -95,7 +95,7 @@ public class EncFSConfigParser {
 		// '/'
 		if (!fileProvider.exists("/" + path)) {
 			// Try old versions
-			for (String altConfigFileName : EncFSVolume.ENCFS_VOLUME_OLD_CONFIG_FILE_NAMES) {
+			for (String altConfigFileName : EncFSVolume.OLD_CONFIG_FILE_NAMES) {
 				if (fileProvider.exists("/" + altConfigFileName)) {
 					throw new EncFSUnsupportedException(
 							"Unsupported EncFS version");
