@@ -59,6 +59,13 @@ public interface EncFSFileProvider {
 	public boolean exists(String srcPath) throws IOException;
 
 	/**
+	 * Returns the path separator for the underlying filesystem
+	 * 
+	 * @return String representing the path separator
+	 */
+	public String getSeparator();
+
+	/**
 	 * Return EncFSFileInfo for the given file or directory
 	 * 
 	 * @param srcPath

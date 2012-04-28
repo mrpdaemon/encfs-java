@@ -35,6 +35,11 @@ import java.util.List;
  */
 public class EncFSLocalFileProvider implements EncFSFileProvider {
 
+	/**
+	 * Path separator for the local filesystem
+	 */
+	public final String separator;
+
 	// Root path of this file provider
 	private final File rootPath;
 
@@ -47,6 +52,7 @@ public class EncFSLocalFileProvider implements EncFSFileProvider {
 	 */
 	public EncFSLocalFileProvider(File rootPath) {
 		this.rootPath = rootPath;
+		this.separator = File.separator;
 	}
 
 	/**
@@ -77,6 +83,15 @@ public class EncFSLocalFileProvider implements EncFSFileProvider {
 	public File getFile(String path) {
 		File file = new File(rootPath.getAbsoluteFile(), path);
 		return file;
+	}
+
+	/**
+	 * Returns the path separator for the underlying filesystem
+	 * 
+	 * @return String representing the path separator
+	 */
+	public final String getSeparator() {
+		return separator;
 	}
 
 	/**
@@ -335,15 +350,16 @@ public class EncFSLocalFileProvider implements EncFSFileProvider {
 		String relativePath;
 		if (file.equals(rootPath.getAbsoluteFile())) {
 			// we're dealing with the root dir
-			relativePath = "/";
+			relativePath = separator;
 		} else if (file.getParentFile().equals(rootPath.getAbsoluteFile())) {
 			// File is child of the root path
-			relativePath = "/";
+			relativePath = separator;
 		} else {
 			relativePath = file.getParentFile().getAbsolutePath()
 					.substring(rootPath.getAbsoluteFile().toString().length());
-			if (!relativePath.equals("/")) {
-				relativePath = "/" + relativePath.replace("\\", "/");
+			if (!relativePath.equals(separator)) {
+				relativePath = separator
+						+ relativePath.replace("\\", separator);
 			}
 		}
 

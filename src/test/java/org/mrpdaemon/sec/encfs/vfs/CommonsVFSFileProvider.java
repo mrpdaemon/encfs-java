@@ -6,6 +6,7 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.vfs2.FileName;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSystemException;
 import org.apache.commons.vfs2.FileSystemManager;
@@ -13,13 +14,21 @@ import org.apache.commons.vfs2.FileType;
 import org.apache.commons.vfs2.FileUtil;
 import org.mrpdaemon.sec.encfs.EncFSFileInfo;
 import org.mrpdaemon.sec.encfs.EncFSFileProvider;
+import org.mrpdaemon.sec.encfs.EncFSVolume;
 
 public class CommonsVFSFileProvider implements EncFSFileProvider {
+
+	public final String separator;
 
 	protected final FileSystemManager fileSystemManager;
 
 	public CommonsVFSFileProvider(FileSystemManager fileSystemManager) {
 		this.fileSystemManager = fileSystemManager;
+		this.separator = FileName.SEPARATOR;
+	}
+
+	public final String getSeparator() {
+		return separator;
 	}
 
 	public boolean move(String encOrigFileName, String encNewFileName)
@@ -29,7 +38,7 @@ public class CommonsVFSFileProvider implements EncFSFileProvider {
 			return false;
 
 		FileObject newFile = resolveFile(encNewFileName);
-		if (encNewFileName.lastIndexOf("/") > 0) {
+		if (encNewFileName.lastIndexOf(separator) > 0) {
 			if (newFile.getParent().exists() == false) {
 				return false;
 			}
@@ -59,7 +68,7 @@ public class CommonsVFSFileProvider implements EncFSFileProvider {
 		if (file.exists()) {
 			return false;
 		} else {
-			if (encDirName.lastIndexOf("/") != 0) {
+			if (encDirName.lastIndexOf(separator) != 0) {
 				if (file.getParent().exists() == false) {
 					return false;
 				}
@@ -70,12 +79,12 @@ public class CommonsVFSFileProvider implements EncFSFileProvider {
 	}
 
 	public boolean mkdirs(String encDirName) throws IOException {
-		String[] dirNameParts = encDirName.split("/");
+		String[] dirNameParts = encDirName.split(separator);
 
 		String tmpDirName = "";
 		for (int i = 0; i < dirNameParts.length; i++) {
-			if (tmpDirName.endsWith("/") == false) {
-				tmpDirName += "/";
+			if (tmpDirName.endsWith(separator) == false) {
+				tmpDirName += separator;
 			}
 			tmpDirName += dirNameParts[i];
 
@@ -141,9 +150,9 @@ public class CommonsVFSFileProvider implements EncFSFileProvider {
 		String name = fileObject.getName().getBaseName();
 		String volumePath = fileObject.getName().getPath();
 		volumePath = volumePath.substring(0,
-				volumePath.length() - (name.length() + "/".length()));
+				volumePath.length() - (name.length() + 1));
 		if (volumePath.equals("")) {
-			volumePath = "/";
+			volumePath = EncFSVolume.ROOT_PATH;
 		}
 
 		boolean isDirectory = fileObject.getType() == FileType.FOLDER;
