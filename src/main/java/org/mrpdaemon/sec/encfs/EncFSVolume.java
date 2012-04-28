@@ -46,6 +46,9 @@ public class EncFSVolume {
 	/** String denoting the root path of an EncFS volume */
 	public final static String ENCFS_VOLUME_ROOT_PATH = "/";
 
+	/** String denoting the path separator for EncFS volumes */
+	public final static String ENCFS_VOLUME_PATH_SEPARATOR = "/";
+
 	/** Length in bytes of the volume initialization vector (IV) */
 	public final static int ENCFS_VOLUME_IV_LENGTH = 16;
 
@@ -347,9 +350,9 @@ public class EncFSVolume {
 		String result;
 
 		if (dir == volume.getRootDir()) {
-			result = "/" + fileName;
+			result = ENCFS_VOLUME_ROOT_PATH + fileName;
 		} else {
-			result = dir.getPath() + "/" + fileName;
+			result = dir.getPath() + ENCFS_VOLUME_PATH_SEPARATOR + fileName;
 		}
 
 		return result;
@@ -380,10 +383,10 @@ public class EncFSVolume {
 	 * @return String representing the combined path
 	 */
 	public static String combinePath(String dirPath, String fileName) {
-		if (dirPath.equals("/")) {
-			return "/" + fileName;
+		if (dirPath.equals(ENCFS_VOLUME_ROOT_PATH)) {
+			return ENCFS_VOLUME_ROOT_PATH + fileName;
 		} else {
-			return dirPath + "/" + fileName;
+			return dirPath + ENCFS_VOLUME_PATH_SEPARATOR + fileName;
 		}
 	}
 
@@ -504,7 +507,7 @@ public class EncFSVolume {
 			throws EncFSCorruptDataException, EncFSChecksumException,
 			IOException {
 		validateAbsoluteFileName(parentPath, "parentPath");
-		return getFile(parentPath + "/" + fileName);
+		return getFile(combinePath(parentPath, fileName));
 	}
 
 	/**
@@ -535,19 +538,20 @@ public class EncFSVolume {
 
 		EncFSFileInfo decodedFileInfo;
 		if (filePath.equals(ENCFS_VOLUME_ROOT_PATH)) {
-			decodedFileInfo = EncFSFileInfo.getDecodedFileInfo(this, "", "/",
-					fileInfo);
+			decodedFileInfo = EncFSFileInfo.getDecodedFileInfo(this, "",
+					ENCFS_VOLUME_ROOT_PATH, fileInfo);
 		} else {
-			int lastIndexOfSlash = filePath.lastIndexOf("/");
+			int lastIndexOfSeparator = filePath
+					.lastIndexOf(ENCFS_VOLUME_PATH_SEPARATOR);
 			String decDirName;
 			String decFilename;
-			if (filePath.lastIndexOf("/") == 0) {
-				decDirName = "/";
+			if (filePath.lastIndexOf(ENCFS_VOLUME_PATH_SEPARATOR) == 0) {
+				decDirName = ENCFS_VOLUME_PATH_SEPARATOR;
 				decFilename = filePath.substring(1);
 
 			} else {
-				decDirName = filePath.substring(0, lastIndexOfSlash);
-				decFilename = filePath.substring(lastIndexOfSlash + 1);
+				decDirName = filePath.substring(0, lastIndexOfSeparator);
+				decFilename = filePath.substring(lastIndexOfSeparator + 1);
 			}
 			decodedFileInfo = EncFSFileInfo.getDecodedFileInfo(this,
 					decDirName, decFilename, fileInfo);
@@ -637,7 +641,7 @@ public class EncFSVolume {
 			throws EncFSCorruptDataException, EncFSChecksumException,
 			IOException {
 		validateAbsoluteFileName(parentPath, "volumePath");
-		return createFile(parentPath + "/" + fileName);
+		return createFile(combinePath(parentPath, fileName));
 	}
 
 	/**
@@ -664,19 +668,20 @@ public class EncFSVolume {
 
 		EncFSFileInfo decodedFileInfo;
 		if (filePath.equals(ENCFS_VOLUME_ROOT_PATH)) {
-			decodedFileInfo = EncFSFileInfo.getDecodedFileInfo(this, "", "/",
-					fileInfo);
+			decodedFileInfo = EncFSFileInfo.getDecodedFileInfo(this, "",
+					ENCFS_VOLUME_ROOT_PATH, fileInfo);
 		} else {
-			int lastIndexOfSlash = filePath.lastIndexOf("/");
+			int lastIndexOfSeparator = filePath
+					.lastIndexOf(ENCFS_VOLUME_PATH_SEPARATOR);
 			String decDirName;
 			String decFilename;
-			if (filePath.lastIndexOf("/") == 0) {
-				decDirName = "/";
+			if (filePath.lastIndexOf(ENCFS_VOLUME_PATH_SEPARATOR) == 0) {
+				decDirName = ENCFS_VOLUME_PATH_SEPARATOR;
 				decFilename = filePath.substring(1);
 
 			} else {
-				decDirName = filePath.substring(0, lastIndexOfSlash);
-				decFilename = filePath.substring(lastIndexOfSlash + 1);
+				decDirName = filePath.substring(0, lastIndexOfSeparator);
+				decFilename = filePath.substring(lastIndexOfSeparator + 1);
 			}
 			decodedFileInfo = EncFSFileInfo.getDecodedFileInfo(this,
 					decDirName, decFilename, fileInfo);
@@ -806,8 +811,10 @@ public class EncFSVolume {
 			throw new IOException("Can't copy/move onto the same path!");
 		}
 
-		String encSrcPath = EncFSCrypto.encodePath(this, srcPath, "/");
-		String encDstPath = EncFSCrypto.encodePath(this, dstPath, "/");
+		String encSrcPath = EncFSCrypto.encodePath(this, srcPath,
+				ENCFS_VOLUME_ROOT_PATH);
+		String encDstPath = EncFSCrypto.encodePath(this, dstPath,
+				ENCFS_VOLUME_ROOT_PATH);
 
 		if (fileProvider.isDirectory(encSrcPath)
 				&& (getConfig().isChainedNameIV() || op == PathOperation.COPY)) {
@@ -826,8 +833,12 @@ public class EncFSVolume {
 			EncFSFile thisDir = this.getFile(srcPath);
 			// Update dstPath to point into the new target directory
 			if (pathExists(dstPath)) {
-				// dstPath exists, this is a copy/move into dstPath
-				dstPath = dstPath + "/" + thisDir.getName();
+				if (!fileProvider.isDirectory(encDstPath)) {
+					throw new IOException(
+							"Can't copy/move a directory onto a file!");
+				}
+				// dstPath is an existing dir, this is a copy/move into it
+				dstPath = combinePath(dstPath, thisDir);
 			} else {
 				// If dstPath doesn't exist this is a rename, keep dstPath as-is
 			}
@@ -838,11 +849,11 @@ public class EncFSVolume {
 				for (EncFSFile subFile : this.listFilesForPath(srcPath)) {
 					boolean subResult;
 					if (op == PathOperation.MOVE) {
-						subResult = this.movePath(subFile.getPath(), dstPath
-								+ "/" + subFile.getName());
+						subResult = this.movePath(subFile.getPath(),
+								combinePath(dstPath, subFile));
 					} else {
-						subResult = this.copyPath(subFile.getPath(), dstPath
-								+ "/" + subFile.getName());
+						subResult = this.copyPath(subFile.getPath(),
+								combinePath(dstPath, subFile));
 					}
 					if (!subResult) {
 						result = false;
@@ -873,22 +884,12 @@ public class EncFSVolume {
 				EncFSFile dstFile = getFile(dstPath);
 
 				if (dstFile.isDirectory()) {
-					if (dstFile == getRootDir()) {
-						if (op == PathOperation.MOVE) {
-							return this.movePath(srcPath,
-									"/" + srcFile.getName());
-						} else {
-							return this.copyPath(srcPath,
-									"/" + srcFile.getName());
-						}
+					if (op == PathOperation.MOVE) {
+						return this.movePath(srcPath,
+								combinePath(dstPath, srcFile));
 					} else {
-						if (op == PathOperation.MOVE) {
-							return this.movePath(srcPath, dstPath + "/"
-									+ srcFile.getName());
-						} else {
-							return this.copyPath(srcPath, dstPath + "/"
-									+ srcFile.getName());
-						}
+						return this.copyPath(srcPath,
+								combinePath(dstPath, srcFile));
 					}
 				} else {
 					throw new IOException("Destination file " + dstPath
@@ -1023,7 +1024,7 @@ public class EncFSVolume {
 		if (fileName.length() == 0) {
 			throw new IllegalArgumentException(name + " must not be blank");
 		}
-		if (fileName.startsWith("/") == false) {
+		if (fileName.startsWith(ENCFS_VOLUME_PATH_SEPARATOR) == false) {
 			throw new IllegalArgumentException(name + " must absolute");
 		}
 	}

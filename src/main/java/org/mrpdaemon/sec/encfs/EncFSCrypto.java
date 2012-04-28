@@ -666,10 +666,12 @@ public class EncFSCrypto {
 	// Compute chain IV for the given volume path
 	private static byte[] computeChainIv(EncFSVolume volume, String volumePath) {
 		byte[] chainIv = new byte[8];
-		StringTokenizer st = new StringTokenizer(volumePath, "/");
+		StringTokenizer st = new StringTokenizer(volumePath,
+				EncFSVolume.ENCFS_VOLUME_PATH_SEPARATOR);
 		while (st.hasMoreTokens()) {
 			String curPath = st.nextToken();
-			if ((curPath.length() > 0) && (curPath != "/")) {
+			if ((curPath.length() > 0)
+					&& (curPath != EncFSVolume.ENCFS_VOLUME_PATH_SEPARATOR)) {
 				int padLen = 16 - (curPath.length() % 16);
 				if (padLen == 0) {
 					padLen = 16;
@@ -896,11 +898,12 @@ public class EncFSCrypto {
 	 */
 	public static String encodePath(EncFSVolume volume, String pathName,
 			String volumePath) throws EncFSCorruptDataException {
-		String[] pathParts = pathName.split("/");
+		String[] pathParts = pathName
+				.split(EncFSVolume.ENCFS_VOLUME_PATH_SEPARATOR);
 		String tmpVolumePath = volumePath;
 		String result = "";
-		if (pathName.startsWith("/")) {
-			result += "/";
+		if (pathName.startsWith(EncFSVolume.ENCFS_VOLUME_PATH_SEPARATOR)) {
+			result += EncFSVolume.ENCFS_VOLUME_PATH_SEPARATOR;
 		}
 
 		for (int i = 0; i < pathParts.length; i++) {
@@ -912,14 +915,17 @@ public class EncFSCrypto {
 				String toEncFileName = EncFSCrypto.encodeName(volume, pathPart,
 						tmpVolumePath);
 
-				if (result.length() > 0 && result.endsWith("/") == false) {
-					result += "/";
+				if (result.length() > 0
+						&& result
+								.endsWith(EncFSVolume.ENCFS_VOLUME_PATH_SEPARATOR) == false) {
+					result += EncFSVolume.ENCFS_VOLUME_PATH_SEPARATOR;
 				}
 
 				result += toEncFileName;
 
-				if (tmpVolumePath.endsWith("/") == false) {
-					tmpVolumePath += "/";
+				if (tmpVolumePath
+						.endsWith(EncFSVolume.ENCFS_VOLUME_PATH_SEPARATOR) == false) {
+					tmpVolumePath += EncFSVolume.ENCFS_VOLUME_PATH_SEPARATOR;
 				}
 				tmpVolumePath += pathPart;
 			}

@@ -51,19 +51,20 @@ public class EncFSShell {
 		boolean found;
 
 		// Root directory handling
-		if (path.equals("/")) {
+		if (path.equals(EncFSVolume.ENCFS_VOLUME_ROOT_PATH)) {
 			result.add(volume.getRootDir());
 			return result;
 		}
-		
+
 		// Absolute vs. relative path handling
-		if (path.startsWith("/")) {
+		if (path.startsWith(EncFSVolume.ENCFS_VOLUME_PATH_SEPARATOR)) {
 			curFile = volume.getRootDir();
 		} else {
 			curFile = curDir;
 		}
 
-		StringTokenizer st = new StringTokenizer(path, "/");
+		StringTokenizer st = new StringTokenizer(path,
+				EncFSVolume.ENCFS_VOLUME_PATH_SEPARATOR);
 		while (st.hasMoreTokens()) {
 			String pathElement = st.nextToken();
 			found = false;
@@ -150,10 +151,12 @@ public class EncFSShell {
 				} else {
 					if (curDir.getParentPath().equals(
 							EncFSVolume.ENCFS_VOLUME_ROOT_PATH)) {
-						System.out.print("/" + curDir.getName() + " > ");
-					} else {
-						System.out.print(curDir.getParentPath() + "/"
+						System.out.print(EncFSVolume.ENCFS_VOLUME_ROOT_PATH
 								+ curDir.getName() + " > ");
+					} else {
+						System.out.print(EncFSVolume.combinePath(
+								curDir.getParentPath(), curDir.getName())
+								+ " > ");
 					}
 				}
 
@@ -307,7 +310,9 @@ public class EncFSShell {
 							System.out.println();
 						} else {
 							if (file.isDirectory()) {
-								System.out.println(file.getName() + "/");
+								System.out
+										.println(file.getName()
+												+ EncFSVolume.ENCFS_VOLUME_PATH_SEPARATOR);
 							} else {
 								System.out.println(file.getName());
 							}
@@ -324,15 +329,15 @@ public class EncFSShell {
 					boolean result;
 					if (command.equals("mkdir")) {
 						try {
-							result = volume.makeDir(curDir.getPath() + "/"
-									+ dirPath);
+							result = volume.makeDir(EncFSVolume.combinePath(
+									curDir, dirPath));
 						} catch (FileNotFoundException e) {
 							System.out.println(e.getMessage());
 							continue;
 						}
 					} else {
-						result = volume.makeDirs(curDir.getPath() + "/"
-								+ dirPath);
+						result = volume.makeDirs(EncFSVolume.combinePath(
+								curDir, dirPath));
 					}
 
 					if (result == false) {
@@ -362,8 +367,9 @@ public class EncFSShell {
 
 					boolean result;
 					try {
-						result = volume.deletePath(curDir.getPath() + "/"
-								+ filePath, recursive);
+						result = volume.deletePath(
+								EncFSVolume.combinePath(curDir, filePath),
+								recursive);
 					} catch (FileNotFoundException e) {
 						System.out
 								.println("File not found: '" + filePath + "'");
@@ -429,12 +435,13 @@ public class EncFSShell {
 
 					// Need to convert destination path to an absolute path
 					String dstPath = null;
-					if (pathArray[1].startsWith("/")) {
+					if (pathArray[1]
+							.startsWith(EncFSVolume.ENCFS_VOLUME_PATH_SEPARATOR)) {
 						// Already an absolute path
 						dstPath = pathArray[1];
 					} else {
 						// Combine with current path
-						dstPath = curDir.getPath() + "/" + pathArray[1];
+						dstPath = EncFSVolume.combinePath(curDir, pathArray[1]);
 					}
 
 					boolean result = false;
@@ -500,16 +507,13 @@ public class EncFSShell {
 
 					// Need to convert destination path to an absolute path
 					String dstPath = null;
-					if (pathArray[1].startsWith("/")) {
+					if (pathArray[1]
+							.startsWith(EncFSVolume.ENCFS_VOLUME_PATH_SEPARATOR)) {
 						// Already an absolute path
 						dstPath = pathArray[1];
 					} else {
 						// Combine with current path
-						if (curDir == volume.getRootDir()) {
-							dstPath = "/" + pathArray[1];
-						} else {
-							dstPath = curDir.getPath() + "/" + pathArray[1];
-						}
+						dstPath = EncFSVolume.combinePath(curDir, pathArray[1]);
 					}
 
 					boolean result = false;
@@ -544,7 +548,7 @@ public class EncFSShell {
 					}
 
 					// '/' handling
-					if (dirPath.equals("/")) {
+					if (dirPath.equals(EncFSVolume.ENCFS_VOLUME_ROOT_PATH)) {
 						dirStack.clear();
 						curDir = volume.getRootDir();
 						continue;
@@ -573,7 +577,8 @@ public class EncFSShell {
 					 * Current directory goes into the stack also Special
 					 * handling for absolute paths
 					 */
-					if (dirPath.startsWith("/")) {
+					if (dirPath
+							.startsWith(EncFSVolume.ENCFS_VOLUME_PATH_SEPARATOR)) {
 						// Clear the existing stack first
 						dirStack.clear();
 						dirStack.push(volume.getRootDir());
