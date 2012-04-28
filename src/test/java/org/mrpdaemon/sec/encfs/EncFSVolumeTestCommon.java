@@ -67,7 +67,8 @@ public class EncFSVolumeTestCommon {
 			EncFSChecksumException {
 		// Create a file
 		Assert.assertFalse(volume.pathExists("/test.txt"));
-		Assert.assertEquals(0, volume.listFilesForPath("/").length);
+		Assert.assertEquals(0,
+				volume.listFilesForPath(EncFSVolume.ROOT_PATH).length);
 		EncFSFile outFile = volume.createFile("/test.txt");
 		OutputStream os = outFile.openOutputStream();
 		try {
@@ -77,7 +78,8 @@ public class EncFSVolumeTestCommon {
 		}
 
 		// Check the file got created
-		Assert.assertEquals(1, volume.listFilesForPath("/").length);
+		Assert.assertEquals(1,
+				volume.listFilesForPath(EncFSVolume.ROOT_PATH).length);
 		Assert.assertEquals(2, volume.getFileProvider().listFiles("/").size()); // 1
 																				// for
 																				// the
@@ -152,7 +154,7 @@ public class EncFSVolumeTestCommon {
 
 		// Check the dir got created
 		ArrayList<EncFSFile> volumeFileList = new ArrayList<EncFSFile>(
-				Arrays.asList(volume.listFilesForPath("/")));
+				Arrays.asList(volume.listFilesForPath(EncFSVolume.ROOT_PATH)));
 		Collections.sort(volumeFileList, new EncFSFileComparator());
 		Assert.assertEquals(2, volumeFileList.size());
 		Assert.assertEquals(true, volumeFileList.get(0).isDirectory());
@@ -185,7 +187,7 @@ public class EncFSVolumeTestCommon {
 
 		// Check the file was moved
 		volumeFileList = new ArrayList<EncFSFile>(Arrays.asList(volume
-				.listFilesForPath("/")));
+				.listFilesForPath(EncFSVolume.ROOT_PATH)));
 		Collections.sort(volumeFileList, new EncFSFileComparator());
 		Assert.assertEquals(1, volumeFileList.size());
 		Assert.assertEquals("dir1", volumeFileList.get(0).getName());
@@ -237,9 +239,10 @@ public class EncFSVolumeTestCommon {
 		Assert.assertTrue(deleteFileResult);
 
 		// Check the file has been removed
-		Assert.assertEquals(2, volume.listFilesForPath("/").length);
+		Assert.assertEquals(2,
+				volume.listFilesForPath(EncFSVolume.ROOT_PATH).length);
 		volumeFileList = new ArrayList<EncFSFile>(Arrays.asList(volume
-				.listFilesForPath("/")));
+				.listFilesForPath(EncFSVolume.ROOT_PATH)));
 		Collections.sort(volumeFileList, new EncFSFileComparator());
 		Assert.assertEquals("dir1", volumeFileList.get(0).getName());
 		Assert.assertEquals("dir2", volumeFileList.get(1).getName());
@@ -272,8 +275,10 @@ public class EncFSVolumeTestCommon {
 		Assert.assertTrue(deleteRecursiveResult);
 
 		// Check the directory has been removed
-		Assert.assertEquals(1, volume.listFilesForPath("/").length);
-		Assert.assertEquals("dir2", volume.listFilesForPath("/")[0].getName());
+		Assert.assertEquals(1,
+				volume.listFilesForPath(EncFSVolume.ROOT_PATH).length);
+		Assert.assertEquals("dir2",
+				volume.listFilesForPath(EncFSVolume.ROOT_PATH)[0].getName());
 		Assert.assertEquals(1, volume.listFilesForPath("/dir2").length);
 		Assert.assertEquals(1, volume.listFilesForPath("/dir2/dir3").length);
 		volumeFileList = new ArrayList<EncFSFile>(Arrays.asList(volume

@@ -396,8 +396,8 @@ public class EncFSVolumeIntegrationTest {
 				sb.append("\n");
 			}
 			sb.append(encFile.getParentPath());
-			if (encFile.getParentPath().equals("/") == false) {
-				sb.append("/");
+			if (encFile.getParentPath().equals(EncFSVolume.ROOT_PATH) == false) {
+				sb.append(EncFSVolume.PATH_SEPARATOR);
 			}
 			sb.append(encFile.getName());
 			if (encFile.isDirectory() && recursive) {
