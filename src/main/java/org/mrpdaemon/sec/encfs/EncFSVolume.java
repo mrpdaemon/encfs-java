@@ -333,6 +333,75 @@ public class EncFSVolume {
 	}
 
 	/**
+	 * Combine the given directory and file name into a path string
+	 * 
+	 * @param dir
+	 *            Directory forming the first path component
+	 * @param fileName
+	 *            Filename forming the second path component
+	 * 
+	 * @return String representing the combined path
+	 */
+	public static String combinePath(EncFSFile dir, String fileName) {
+		EncFSVolume volume = dir.getVolume();
+		String result;
+
+		if (dir == volume.getRootDir()) {
+			result = "/" + fileName;
+		} else {
+			result = dir.getPath() + "/" + fileName;
+		}
+
+		return result;
+	}
+
+	/**
+	 * Combine the given directory and file name into a path string
+	 * 
+	 * @param dir
+	 *            Directory forming the first path component
+	 * @param file
+	 *            File forming the second path component
+	 * 
+	 * @return String representing the combined path
+	 */
+	public static String combinePath(EncFSFile dir, EncFSFile file) {
+		return combinePath(dir, file.getName());
+	}
+
+	/**
+	 * Combine the given directory and file name into a path string
+	 * 
+	 * @param dirPath
+	 *            Directory path forming the first path component
+	 * @param fileName
+	 *            File name forming the second path component
+	 * 
+	 * @return String representing the combined path
+	 */
+	public static String combinePath(String dirPath, String fileName) {
+		if (dirPath.equals("/")) {
+			return "/" + fileName;
+		} else {
+			return dirPath + "/" + fileName;
+		}
+	}
+
+	/**
+	 * Combine the given directory and file name into a path string
+	 * 
+	 * @param dirPath
+	 *            Directory path forming the first path component
+	 * @param file
+	 *            File forming the second path component
+	 * 
+	 * @return String representing the combined path
+	 */
+	public static String combinePath(String dirPath, EncFSFile file) {
+		return combinePath(dirPath, file.getName());
+	}
+
+	/**
 	 * Returns the configuration object for this volume
 	 * 
 	 * @return Configuration for this EncFS volume
