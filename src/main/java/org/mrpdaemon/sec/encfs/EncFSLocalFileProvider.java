@@ -95,6 +95,15 @@ public class EncFSLocalFileProvider implements EncFSFileProvider {
 	}
 
 	/**
+	 * Returns the root path for the underlying filesystem
+	 * 
+	 * @return String representing the root path
+	 */
+	public final String getRootPath() {
+		return "/";
+	}
+
+	/**
 	 * Returns whether the file or directory exists
 	 * 
 	 * @param srcPath

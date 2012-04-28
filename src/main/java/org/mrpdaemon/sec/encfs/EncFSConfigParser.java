@@ -93,10 +93,11 @@ public class EncFSConfigParser {
 		EncFSConfig config;
 		// TODO: Need to implement a connector method in EncFSFileProvider for
 		// '/'
-		if (!fileProvider.exists("/" + path)) {
+		if (!fileProvider.exists(fileProvider.getRootPath() + path)) {
 			// Try old versions
 			for (String altConfigFileName : EncFSVolume.OLD_CONFIG_FILE_NAMES) {
-				if (fileProvider.exists("/" + altConfigFileName)) {
+				if (fileProvider.exists(fileProvider.getRootPath()
+						+ altConfigFileName)) {
 					throw new EncFSUnsupportedException(
 							"Unsupported EncFS version");
 				}
@@ -109,7 +110,7 @@ public class EncFSConfigParser {
 		// Parse the configuration file
 		try {
 			config = EncFSConfigParser.parseFile(fileProvider
-					.openInputStream("/" + path));
+					.openInputStream(fileProvider.getRootPath() + path));
 		} catch (ParserConfigurationException e2) {
 			throw new EncFSUnsupportedException("XML parser not supported");
 		} catch (SAXException e2) {

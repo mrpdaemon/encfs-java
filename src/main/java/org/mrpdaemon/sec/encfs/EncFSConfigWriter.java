@@ -124,7 +124,8 @@ public class EncFSConfigWriter {
 	public static void writeConfig(EncFSFileProvider fileProvider,
 			EncFSConfig config, String password)
 			throws EncFSUnsupportedException, IOException {
-		String configFileName = "/" + EncFSVolume.CONFIG_FILE_NAME;
+		String configFileName = fileProvider.getRootPath()
+				+ EncFSVolume.CONFIG_FILE_NAME;
 
 		if (fileProvider.exists(configFileName)) {
 			throw new EncFSUnsupportedException("Config file already exists");

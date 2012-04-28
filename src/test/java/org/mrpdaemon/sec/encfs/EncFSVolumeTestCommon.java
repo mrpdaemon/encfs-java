@@ -80,9 +80,13 @@ public class EncFSVolumeTestCommon {
 		// Check the file got created
 		Assert.assertEquals(1,
 				volume.listFilesForPath(EncFSVolume.ROOT_PATH).length);
-		Assert.assertEquals(2, volume.getFileProvider().listFiles("/").size()); // 1
-																				// for
-																				// the
+		Assert.assertEquals(
+				2,
+				volume.getFileProvider()
+						.listFiles(volume.getFileProvider().getRootPath())
+						.size()); // 1
+		// for
+		// the
 		// config
 		// file & 1
 		// data file
@@ -94,7 +98,8 @@ public class EncFSVolumeTestCommon {
 		long contentsLength = encFsFile.getLength();
 
 		// Check that it's name is encrypted
-		List<EncFSFileInfo> fileList = volume.getFileProvider().listFiles("/");
+		List<EncFSFileInfo> fileList = volume.getFileProvider().listFiles(
+				volume.getFileProvider().getRootPath());
 		Collections.sort(fileList, new EncFSFileInfoComparator());
 		if (fileList.get(0).getName().equals(EncFSVolume.CONFIG_FILE_NAME)) {
 			Assert.assertFalse(fileList.get(1).getName().equals("test.txt"));
@@ -111,7 +116,8 @@ public class EncFSVolumeTestCommon {
 		Assert.assertTrue(moveResult);
 
 		// Check that the file name has changed
-		List<EncFSFileInfo> fileList2 = volume.getFileProvider().listFiles("/");
+		List<EncFSFileInfo> fileList2 = volume.getFileProvider().listFiles(
+				volume.getFileProvider().getRootPath());
 		Collections.sort(fileList2, new EncFSFileInfoComparator());
 		if (fileList2.get(0).getName().equals(EncFSVolume.CONFIG_FILE_NAME)) {
 			// File at index 1 must have changed

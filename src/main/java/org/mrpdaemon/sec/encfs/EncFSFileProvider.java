@@ -66,6 +66,13 @@ public interface EncFSFileProvider {
 	public String getSeparator();
 
 	/**
+	 * Returns the root path for the underlying filesystem
+	 * 
+	 * @return String representing the root path
+	 */
+	public String getRootPath();
+
+	/**
 	 * Return EncFSFileInfo for the given file or directory
 	 * 
 	 * @param srcPath

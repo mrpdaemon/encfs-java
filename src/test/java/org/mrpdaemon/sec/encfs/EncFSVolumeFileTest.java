@@ -59,8 +59,10 @@ public class EncFSVolumeFileTest {
 
 		Assert.assertNotNull(volume);
 
-		Assert.assertEquals(1, fileProvider.listFiles("/").size());
-		Assert.assertTrue(fileProvider.exists("/.encfs6.xml"));
+		Assert.assertEquals(1,
+				fileProvider.listFiles(fileProvider.getRootPath()).size());
+		Assert.assertTrue(fileProvider.exists(fileProvider.getRootPath()
+				+ ".encfs6.xml"));
 	}
 
 	// Default volume

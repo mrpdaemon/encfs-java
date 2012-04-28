@@ -31,6 +31,10 @@ public class CommonsVFSFileProvider implements EncFSFileProvider {
 		return separator;
 	}
 
+	public final String getRootPath() {
+		return FileName.ROOT_PATH;
+	}
+
 	public boolean move(String encOrigFileName, String encNewFileName)
 			throws IOException {
 		FileObject origFile = resolveFile(encOrigFileName);
