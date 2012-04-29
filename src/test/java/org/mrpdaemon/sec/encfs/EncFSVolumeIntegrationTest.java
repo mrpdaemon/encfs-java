@@ -142,6 +142,37 @@ public class EncFSVolumeIntegrationTest {
 	}
 
 	@Test
+	public void testStreamName() throws EncFSInvalidPasswordException,
+			EncFSInvalidConfigException, EncFSCorruptDataException,
+			EncFSUnsupportedException, EncFSChecksumException, IOException {
+		File encFSDir = new File("test/encfs_samples/testvol-streamname");
+		Assert.assertTrue(encFSDir.exists());
+
+		String password = "test";
+		EncFSVolume volume = new EncFSVolume(encFSDir.getAbsolutePath(),
+				password);
+		EncFSFile rootDir = volume.getRootDir();
+		EncFSFile[] files = rootDir.listFiles();
+		Assert.assertEquals(1, files.length);
+
+		EncFSFile dir = files[0];
+		Assert.assertTrue(dir.isDirectory());
+		Assert.assertEquals("dir", dir.getName());
+		
+		EncFSFile[] dirFiles = dir.listFiles();
+		Assert.assertEquals(1, files.length);
+		
+		EncFSFile encFSFile = dirFiles[0];
+		Assert.assertFalse(encFSFile.isDirectory());
+		Assert.assertEquals("testfile.txt", encFSFile.getName());
+		String contents = readInputStreamAsString(encFSFile);
+		Assert.assertEquals("stream name algorithm\n", contents);
+
+		assertFileNameEncoding(rootDir);
+		assertEncFSFileRoundTrip(rootDir);
+	}
+
+	@Test
 	public void testBlockMAC() throws EncFSInvalidPasswordException,
 			EncFSInvalidConfigException, EncFSCorruptDataException,
 			EncFSUnsupportedException, EncFSChecksumException, IOException {

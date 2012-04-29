@@ -672,19 +672,28 @@ public class EncFSCrypto {
 			String curPath = st.nextToken();
 			if ((curPath.length() > 0)
 					&& (curPath != EncFSVolume.PATH_SEPARATOR)) {
-				int padLen = 16 - (curPath.length() % 16);
-				if (padLen == 0) {
-					padLen = 16;
-				}
-				byte[] encodeBytes = new byte[curPath.length() + padLen];
+				
+				byte[] encodeBytes;
 
-				for (int i = 0; i < curPath.length(); i++) {
-					encodeBytes[i] = curPath.getBytes()[i];
-				}
-
-				// Pad to the nearest 16 bytes, add a full block if needed
-				for (int i = 0; i < padLen; i++) {
-					encodeBytes[curPath.length() + i] = (byte) padLen;
+				if (volume.getConfig().getNameAlgorithm() == 
+						EncFSConfig.ENCFS_CONFIG_NAME_ALG_BLOCK) {					
+					// Only pad for block mode
+					int padLen = 16 - (curPath.length() % 16);
+					if (padLen == 0) {
+						padLen = 16;
+					}
+					encodeBytes = new byte[curPath.length() + padLen];
+	
+					for (int i = 0; i < curPath.length(); i++) {
+						encodeBytes[i] = curPath.getBytes()[i];
+					}
+	
+					// Pad to the nearest 16 bytes, add a full block if needed
+					for (int i = 0; i < padLen; i++) {
+						encodeBytes[curPath.length() + i] = (byte) padLen;
+					}
+				} else {
+					encodeBytes = curPath.getBytes(); 
 				}
 
 				// Update chain IV
