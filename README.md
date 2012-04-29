@@ -4,8 +4,8 @@ encfs-java
 encfs-java is a Java library for accessing data in
 [EncFS](http://www.arg0.net/encfs) volumes. It is able to derive the volume key
 from a user password, decode encrypted filenames (IV chaining is implemented),
-decrypt file contents, create new volumes, moving/copying/renaming files and
-directories within the volume as well as encrypting file contents into the
+decrypt file contents, create new volumes, move/copy/rename files and
+directories within the volume as well as encrypt file contents into the
 volume
 
 We do support all encfs volume configuration options, and are interoperable
