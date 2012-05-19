@@ -30,6 +30,7 @@ import org.mrpdaemon.sec.encfs.EncFSFile;
 import org.mrpdaemon.sec.encfs.EncFSFileInputStream;
 import org.mrpdaemon.sec.encfs.EncFSInvalidConfigException;
 import org.mrpdaemon.sec.encfs.EncFSInvalidPasswordException;
+import org.mrpdaemon.sec.encfs.EncFSProgressListener;
 import org.mrpdaemon.sec.encfs.EncFSUnsupportedException;
 import org.mrpdaemon.sec.encfs.EncFSUtil;
 import org.mrpdaemon.sec.encfs.EncFSVolume;
@@ -367,7 +368,7 @@ public class EncFSShell {
 					try {
 						result = volume.deletePath(
 								EncFSVolume.combinePath(curDir, filePath),
-								recursive);
+								recursive, new EncFSShellProgressListener());
 					} catch (FileNotFoundException e) {
 						System.out
 								.println("File not found: '" + filePath + "'");
@@ -443,7 +444,8 @@ public class EncFSShell {
 
 					boolean result = false;
 					try {
-						result = volume.movePath(srcPath, dstPath);
+						result = volume.movePath(srcPath, dstPath,
+								new EncFSShellProgressListener());
 					} catch (IOException e) {
 						System.out.println(e.getMessage());
 						continue;
@@ -514,7 +516,8 @@ public class EncFSShell {
 
 					boolean result = false;
 					try {
-						result = volume.copyPath(srcPath, dstPath);
+						result = volume.copyPath(srcPath, dstPath,
+								new EncFSShellProgressListener());
 					} catch (IOException e) {
 						System.out.println(e.getMessage());
 						continue;
@@ -636,6 +639,37 @@ public class EncFSShell {
 				System.out.println(e.getMessage());
 				e.printStackTrace();
 				System.exit(1);
+			}
+		}
+	}
+
+	static class EncFSShellProgressListener extends EncFSProgressListener {
+
+		int numProcessed = 0;
+
+		@Override
+		public void handleEvent(int eventType) {
+			switch (eventType) {
+			case EncFSProgressListener.FILES_COUNTED_EVENT:
+				break;
+			case EncFSProgressListener.NEW_FILE_EVENT:
+				if (this.getNumFiles() != 0) {
+					System.out.println("[" + (numProcessed * 100)
+							/ this.getNumFiles() + "%] Processing: "
+							+ this.getCurrentFile());
+					numProcessed++;
+				} else {
+					System.out.println("Processing: " + this.getCurrentFile());
+				}
+				break;
+			case EncFSProgressListener.FILE_PROCESS_EVENT:
+				break;
+			case EncFSProgressListener.OP_COMPLETE_EVENT:
+				System.out.println("[100%] Operation complete!");
+				break;
+			default:
+				System.out.println("Unknown event type: " + eventType);
+				break;
 			}
 		}
 	}

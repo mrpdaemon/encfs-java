@@ -405,6 +405,28 @@ public class EncFSVolume {
 	}
 
 	/**
+	 * Count files and directories under the given file
+	 * 
+	 * @param file
+	 *            File to count under
+	 * @return Number of files/directories under the file
+	 */
+	public static int countFiles(EncFSFile file) {
+		if (file.isDirectory()) {
+			int dirCount = 1;
+			try {
+				for (EncFSFile subFile : file.listFiles()) {
+					dirCount += countFiles(subFile);
+				}
+			} catch (Exception e) { /* Do nothing */
+			}
+			return dirCount;
+		} else {
+			return 1;
+		}
+	}
+
+	/**
 	 * Returns the configuration object for this volume
 	 * 
 	 * @return Configuration for this EncFS volume
@@ -740,12 +762,13 @@ public class EncFSVolume {
 	}
 
 	// Recursive method to delete a directory tree
-	private boolean recursiveDelete(EncFSFile file) throws IOException {
+	private boolean recursiveDelete(EncFSFile file,
+			EncFSProgressListener progressListener) throws IOException {
 		boolean result = true;
 
 		if (file.isDirectory()) {
 			for (EncFSFile subFile : file.listFiles()) {
-				boolean subResult = recursiveDelete(subFile);
+				boolean subResult = recursiveDelete(subFile, progressListener);
 				if (subResult == false) {
 					result = false;
 					break;
@@ -753,13 +776,90 @@ public class EncFSVolume {
 			}
 
 			if (result == true) {
-				file.delete();
+				if (progressListener != null) {
+					progressListener.setCurrentFile(file.getPath());
+				}
+
+				result = file.delete();
+
+				if (progressListener != null) {
+					progressListener
+							.postEvent(EncFSProgressListener.FILE_PROCESS_EVENT);
+				}
 			}
 		} else {
+			if (progressListener != null) {
+				progressListener.setCurrentFile(file.getPath());
+			}
+
 			result = file.delete();
+
+			if (progressListener != null) {
+				progressListener
+						.postEvent(EncFSProgressListener.FILE_PROCESS_EVENT);
+			}
 		}
 
 		return result;
+	}
+
+	/**
+	 * Deletes the given file or directory in the EncFS volume
+	 * 
+	 * @param filePath
+	 *            Absolute volume path of the file/directory to delete
+	 * @param recursive
+	 *            Whether to recursively delete directories. Without this option
+	 *            deletePath will fail to delete non-empty directories
+	 * @param progressListener
+	 *            Progress listener for getting individual file updates
+	 * 
+	 * @return true if deletion succeeds, false otherwise
+	 * 
+	 * @throws EncFSCorruptDataException
+	 *             Filename encoding failed
+	 * @throws IOException
+	 *             File provider returned I/O error
+	 * @throws EncFSChecksumException
+	 *             Filename encoding failed
+	 */
+	public boolean deletePath(String filePath, boolean recursive,
+			EncFSProgressListener progressListener)
+			throws EncFSCorruptDataException, IOException {
+		EncFSFile file = this.getFile(filePath);
+		boolean result;
+
+		if (recursive == true) {
+
+			if (progressListener != null) {
+				progressListener.setNumFiles(countFiles(file));
+			}
+
+			result = recursiveDelete(file, progressListener);
+
+			if (progressListener != null) {
+				progressListener
+						.postEvent(EncFSProgressListener.OP_COMPLETE_EVENT);
+			}
+
+			return result;
+		} else {
+			if (progressListener != null) {
+				progressListener.setNumFiles(1);
+				progressListener.setCurrentFile(file.getPath());
+			}
+
+			result = file.delete();
+
+			if (progressListener != null) {
+				progressListener
+						.postEvent(EncFSProgressListener.FILE_PROCESS_EVENT);
+				progressListener
+						.postEvent(EncFSProgressListener.OP_COMPLETE_EVENT);
+			}
+
+			return result;
+		}
 	}
 
 	/**
@@ -782,18 +882,13 @@ public class EncFSVolume {
 	 */
 	public boolean deletePath(String filePath, boolean recursive)
 			throws EncFSCorruptDataException, IOException {
-		EncFSFile file = this.getFile(filePath);
-
-		if (recursive == true) {
-			return recursiveDelete(file);
-		} else {
-			return file.delete();
-		}
+		return deletePath(filePath, recursive, null);
 	}
 
 	// Helper function to perform copy/move path operations
 	private boolean copyOrMovePath(String srcPath, String dstPath,
-			PathOperation op) throws EncFSCorruptDataException, IOException {
+			PathOperation op, EncFSProgressListener progressListener)
+			throws EncFSCorruptDataException, IOException {
 		validateAbsoluteFileName(srcPath, "srcPath");
 		validateAbsoluteFileName(dstPath, "dstPath");
 
@@ -836,18 +931,22 @@ public class EncFSVolume {
 				// If dstPath doesn't exist this is a rename, keep dstPath as-is
 			}
 
+			if (progressListener != null) {
+				progressListener.setCurrentFile(dstPath);
+			}
+
 			result = this.makeDir(dstPath);
+
+			if (progressListener != null) {
+				progressListener
+						.postEvent(EncFSProgressListener.FILE_PROCESS_EVENT);
+			}
 
 			if (result) {
 				for (EncFSFile subFile : this.listFilesForPath(srcPath)) {
-					boolean subResult;
-					if (op == PathOperation.MOVE) {
-						subResult = this.movePath(subFile.getPath(),
-								combinePath(dstPath, subFile));
-					} else {
-						subResult = this.copyPath(subFile.getPath(),
-								combinePath(dstPath, subFile));
-					}
+					boolean subResult = copyOrMovePath(subFile.getPath(),
+							combinePath(dstPath, subFile), op, progressListener);
+
 					if (!subResult) {
 						result = false;
 						break;
@@ -877,26 +976,68 @@ public class EncFSVolume {
 				EncFSFile dstFile = getFile(dstPath);
 
 				if (dstFile.isDirectory()) {
-					if (op == PathOperation.MOVE) {
-						return this.movePath(srcPath,
-								combinePath(dstPath, srcFile));
-					} else {
-						return this.copyPath(srcPath,
-								combinePath(dstPath, srcFile));
-					}
+					return copyOrMovePath(srcPath,
+							combinePath(dstPath, srcFile), op, progressListener);
 				} else {
 					throw new IOException("Destination file " + dstPath
 							+ " exists, can't overwrite!");
 				}
 			} else {
 				// dstPath doesn't exist, perform normal copy/move
-				if (op == PathOperation.MOVE) {
-					return fileProvider.move(encSrcPath, encDstPath);
-				} else {
-					return srcFile.copy(createFile(dstPath));
+				boolean result;
+
+				if (progressListener != null) {
+					progressListener.setCurrentFile(dstPath);
 				}
+
+				if (op == PathOperation.MOVE) {
+					result = fileProvider.move(encSrcPath, encDstPath);
+				} else {
+					result = srcFile.copy(createFile(dstPath));
+				}
+
+				if (progressListener != null) {
+					progressListener
+							.postEvent(EncFSProgressListener.FILE_PROCESS_EVENT);
+				}
+
+				return result;
 			}
 		}
+	}
+
+	/**
+	 * Copies the source file or directory to the target file or directory
+	 * 
+	 * @param srcPath
+	 *            Absolute volume path of the source file or directory
+	 * @param dstPath
+	 *            Absolute volume path of the target file or directory
+	 * @param progressListener
+	 *            Progress listener for getting individual file updates
+	 * 
+	 * @return true if copy succeeds, false otherwise
+	 * 
+	 * @throws EncFSCorruptDataException
+	 *             Filename encoding failed
+	 * @throws IOException
+	 *             File provider returned I/O error
+	 */
+	public boolean copyPath(String srcPath, String dstPath,
+			EncFSProgressListener progressListener)
+			throws EncFSCorruptDataException, IOException {
+		if (progressListener != null) {
+			progressListener.setNumFiles(countFiles(getFile(srcPath)) + 1);
+		}
+
+		boolean result = copyOrMovePath(srcPath, dstPath, PathOperation.COPY,
+				progressListener);
+
+		if (progressListener != null) {
+			progressListener.postEvent(EncFSProgressListener.OP_COMPLETE_EVENT);
+		}
+
+		return result;
 	}
 
 	/**
@@ -916,7 +1057,41 @@ public class EncFSVolume {
 	 */
 	public boolean copyPath(String srcPath, String dstPath)
 			throws EncFSCorruptDataException, IOException {
-		return copyOrMovePath(srcPath, dstPath, PathOperation.COPY);
+		return copyPath(srcPath, dstPath, null);
+	}
+
+	/**
+	 * Moves a file / directory
+	 * 
+	 * @param srcPath
+	 *            Absolute volume path of the file or directory to move
+	 * @param dstPath
+	 *            Absolute volume path of the destination file or directory
+	 * @param progressListener
+	 *            Progress listener for getting individual file updates
+	 * 
+	 * @return true if the move succeeds, false otherwise
+	 * 
+	 * @throws EncFSCorruptDataException
+	 *             Filename encoding failed
+	 * @throws IOException
+	 *             File provider returned I/O error
+	 */
+	public boolean movePath(String srcPath, String dstPath,
+			EncFSProgressListener progressListener)
+			throws EncFSCorruptDataException, IOException {
+		if (progressListener != null) {
+			progressListener.setNumFiles(countFiles(getFile(srcPath)) + 1);
+		}
+
+		boolean result = copyOrMovePath(srcPath, dstPath, PathOperation.MOVE,
+				progressListener);
+
+		if (progressListener != null) {
+			progressListener.postEvent(EncFSProgressListener.OP_COMPLETE_EVENT);
+		}
+
+		return result;
 	}
 
 	/**
@@ -936,7 +1111,7 @@ public class EncFSVolume {
 	 */
 	public boolean movePath(String srcPath, String dstPath)
 			throws EncFSCorruptDataException, IOException {
-		return copyOrMovePath(srcPath, dstPath, PathOperation.MOVE);
+		return movePath(srcPath, dstPath, null);
 	}
 
 	/**
