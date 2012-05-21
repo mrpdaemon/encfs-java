@@ -366,10 +366,6 @@ public class EncFSLocalFileProvider implements EncFSFileProvider {
 		} else {
 			relativePath = file.getParentFile().getAbsolutePath()
 					.substring(rootPath.getAbsoluteFile().toString().length());
-			if (!relativePath.equals(separator)) {
-				relativePath = separator
-						+ relativePath.replace("\\", separator);
-			}
 		}
 
 		String name = file.getName();
