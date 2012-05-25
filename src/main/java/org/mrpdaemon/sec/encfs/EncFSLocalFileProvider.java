@@ -343,6 +343,25 @@ public class EncFSLocalFileProvider implements EncFSFileProvider {
 	 *             Misc. I/O error
 	 */
 	public OutputStream openOutputStream(String dstFilePath) throws IOException {
+		return openOutputStream(dstFilePath, 0);
+	}
+
+	/**
+	 * Open an OutputStream to the given file
+	 * 
+	 * @param dstFilePath
+	 *            Path to the destination file
+	 * @param outputLength
+	 *            Length in bytes of the stream that will be written to this
+	 *            stream. It is ignored by this class.
+	 * 
+	 * @return OutputStream to write to the file
+	 * 
+	 * @throws IOException
+	 *             Misc. I/O error
+	 */
+	public OutputStream openOutputStream(String dstFilePath, long outputLength)
+			throws IOException {
 		File srcF = new File(rootPath.getAbsoluteFile(), dstFilePath);
 		if (srcF.exists() == false) {
 			try {

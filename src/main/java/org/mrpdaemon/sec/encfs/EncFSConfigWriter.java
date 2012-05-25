@@ -131,9 +131,10 @@ public class EncFSConfigWriter {
 			throw new EncFSUnsupportedException("Config file already exists");
 		}
 
-		OutputStream os = fileProvider.openOutputStream(configFileName);
-
 		String configFileContents = createConfigFileContents(config, password);
+
+		OutputStream os = fileProvider.openOutputStream(configFileName,
+				configFileContents.length());
 
 		os.write(configFileContents.getBytes());
 		os.close();

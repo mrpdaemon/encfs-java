@@ -70,7 +70,7 @@ public class EncFSVolumeTestCommon {
 		Assert.assertEquals(0,
 				volume.listFilesForPath(EncFSVolume.ROOT_PATH).length);
 		EncFSFile outFile = volume.createFile("/test.txt");
-		OutputStream os = outFile.openOutputStream();
+		OutputStream os = outFile.openOutputStream(11);
 		try {
 			os.write("hello\nworld".getBytes());
 		} finally {

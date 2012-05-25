@@ -296,7 +296,14 @@ public class EncFSFile {
 	 * Opens the file as an OutputStream that encrypts the file contents
 	 * automatically
 	 * 
+	 * @param inputLength
+	 *            Length of the input file that will be written to this output
+	 *            stream. Note that this parameter is optional if using
+	 *            EncFSLocalFileProvider, but some network based storage API's
+	 *            require knowing the file length in advance.
+	 * 
 	 * @return OutputStream that encrypts file contents
+	 * 
 	 * 
 	 * @throws EncFSCorruptDataException
 	 *             Filename encoding failed
@@ -305,10 +312,12 @@ public class EncFSFile {
 	 * @throws IOException
 	 *             File provider returned I/O error
 	 */
-	public OutputStream openOutputStream() throws EncFSUnsupportedException,
-			EncFSCorruptDataException, IOException {
+	public OutputStream openOutputStream(long inputLength)
+			throws EncFSUnsupportedException, EncFSCorruptDataException,
+			IOException {
 		return new EncFSOutputStream(volume, volume.getFileProvider()
-				.openOutputStream(getEncryptedPath()));
+				.openOutputStream(getEncryptedPath(),
+						volume.getEncryptedFileLength(inputLength)));
 	}
 
 	/**
@@ -354,7 +363,8 @@ public class EncFSFile {
 				 */
 				try {
 					EncFSUtil.copyWholeStream(this.openInputStream(),
-							dstPath.openOutputStream(), true, true);
+							dstPath.openOutputStream(plainFileInfo.getSize()),
+							true, true);
 				} catch (EncFSCorruptDataException e) {
 					throw new IOException(e);
 				} catch (EncFSUnsupportedException e) {

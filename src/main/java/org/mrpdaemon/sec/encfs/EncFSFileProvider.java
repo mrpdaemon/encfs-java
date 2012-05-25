@@ -205,11 +205,16 @@ public interface EncFSFileProvider {
 	 * 
 	 * @param dstFilePath
 	 *            Path to the destination file
+	 * @param outputLength
+	 *            Length in bytes of the stream that will be written to this
+	 *            stream. It is up to the file provider to determine whether
+	 *            this parameter is optional or required.
 	 * 
 	 * @return OutputStream to write to the file
 	 * 
 	 * @throws IOException
 	 *             Misc. I/O error
 	 */
-	public OutputStream openOutputStream(String dstFilePath) throws IOException;
+	public OutputStream openOutputStream(String dstFilePath, long outputLength)
+			throws IOException;
 }

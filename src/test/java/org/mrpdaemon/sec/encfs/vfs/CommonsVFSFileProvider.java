@@ -135,7 +135,8 @@ public class CommonsVFSFileProvider implements EncFSFileProvider {
 		return srcFile.getContent().getInputStream();
 	}
 
-	public OutputStream openOutputStream(String encSrcFile) throws IOException {
+	public OutputStream openOutputStream(String encSrcFile, long outputLength)
+			throws IOException {
 		FileObject srcFile = resolveFile(encSrcFile);
 		return srcFile.getContent().getOutputStream();
 	}

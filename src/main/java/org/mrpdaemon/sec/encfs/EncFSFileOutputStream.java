@@ -32,6 +32,11 @@ public class EncFSFileOutputStream extends OutputStream {
 	 * 
 	 * @param encfsFile
 	 *            EncFSFile to open an output stream to
+	 * @param inputLength
+	 *            Length of the input file that will be written to this output
+	 *            stream. Note that this parameter is optional if using
+	 *            EncFSLocalFileProvider, but some network based storage API's
+	 *            require knowing the file length in advance.
 	 * 
 	 * @throws EncFSCorruptDataException
 	 *             Filename encoding failed
@@ -40,10 +45,10 @@ public class EncFSFileOutputStream extends OutputStream {
 	 * @throws IOException
 	 *             File provider returned I/O error
 	 */
-	public EncFSFileOutputStream(EncFSFile encfsFile) throws IOException,
-			EncFSUnsupportedException, EncFSCorruptDataException,
-			EncFSChecksumException {
-		this.encfsOs = encfsFile.openOutputStream();
+	public EncFSFileOutputStream(EncFSFile encfsFile, long inputLength)
+			throws IOException, EncFSUnsupportedException,
+			EncFSCorruptDataException, EncFSChecksumException {
+		this.encfsOs = encfsFile.openOutputStream(inputLength);
 	}
 
 	/*

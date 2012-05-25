@@ -582,6 +582,80 @@ public class EncFSVolume {
 	}
 
 	/**
+	 * Returns the decrypted length a file would have in this volume given its
+	 * encrypted length
+	 * 
+	 * @param encryptedFileLength
+	 *            Length of the encrypted file
+	 * 
+	 * @return Length of the file after decryption
+	 */
+	public long getDecryptedFileLength(long encryptedFileLength) {
+		long size = encryptedFileLength;
+
+		if (size == 0) {
+			return 0;
+		}
+
+		// Account for file header
+		if (config.isUniqueIV()) {
+			size -= EncFSFile.HEADER_SIZE;
+		}
+
+		// Account for block headers
+		long headerLength = config.getBlockMACBytes()
+				+ config.getBlockMACRandBytes();
+		if (headerLength > 0) {
+			long blockLength = config.getBlockSize() + headerLength;
+
+			// Calculate number of blocks
+			long numBlocks = ((size - 1) / blockLength) + 1;
+
+			// Subtract headers
+			size -= numBlocks * headerLength;
+		}
+
+		return size;
+	}
+
+	/**
+	 * Returns the encrypted length a file would have in this volume given its
+	 * decrypted length
+	 * 
+	 * @param decryptedFileLength
+	 *            Length of the decrypted file
+	 * 
+	 * @return Length of the file after encryption
+	 */
+	public long getEncryptedFileLength(long decryptedFileLength) {
+		long size = decryptedFileLength;
+
+		if (size == 0) {
+			return 0;
+		}
+
+		// Account for block headers
+		long headerLength = config.getBlockMACBytes()
+				+ config.getBlockMACRandBytes();
+		if (headerLength > 0) {
+			long blockLength = config.getBlockSize() + headerLength;
+
+			// Calculate number of blocks
+			long numBlocks = ((size - 1) / blockLength) + 1;
+
+			// Add headers
+			size += numBlocks * headerLength;
+		}
+
+		// Account for file header
+		if (config.isUniqueIV()) {
+			size += EncFSFile.HEADER_SIZE;
+		}
+
+		return size;
+	}
+
+	/**
 	 * Checks whether the file or directory with the given path exists in the
 	 * volume
 	 * 
@@ -1163,6 +1237,11 @@ public class EncFSVolume {
 	 * 
 	 * @param filePath
 	 *            Absolute volume path of the file
+	 * @param outputLength
+	 *            Length of the output data that will be written to the returned
+	 *            output stream. Note that this parameter is optional if using
+	 *            EncFSLocalFileProvider, but some network based storage API's
+	 *            require knowing the file length in advance.
 	 * 
 	 * @return OutputStream that encrypts file contents
 	 * 
@@ -1173,11 +1252,11 @@ public class EncFSVolume {
 	 * @throws IOException
 	 *             File provider returned I/O error
 	 */
-	public OutputStream openOutputStreamForPath(String filePath)
-			throws EncFSCorruptDataException, EncFSUnsupportedException,
-			IOException, EncFSChecksumException {
+	public OutputStream openOutputStreamForPath(String filePath,
+			long outputLength) throws EncFSCorruptDataException,
+			EncFSUnsupportedException, IOException, EncFSChecksumException {
 		EncFSFile file = this.getFile(filePath);
-		return file.openOutputStream();
+		return file.openOutputStream(outputLength);
 	}
 
 	// Validate the given absolute file name format
