@@ -106,6 +106,7 @@ public class EncFSVolumeIntegrationTest {
 
 		assertFileNameEncoding(rootDir);
 		assertEncFSFileRoundTrip(rootDir);
+		assertLengthCalculations(rootDir);
 	}
 
 	@Test
@@ -139,6 +140,7 @@ public class EncFSVolumeIntegrationTest {
 
 		assertFileNameEncoding(rootDir);
 		assertEncFSFileRoundTrip(rootDir);
+		assertLengthCalculations(rootDir);
 	}
 
 	@Test
@@ -158,10 +160,10 @@ public class EncFSVolumeIntegrationTest {
 		EncFSFile dir = files[0];
 		Assert.assertTrue(dir.isDirectory());
 		Assert.assertEquals("dir", dir.getName());
-		
+
 		EncFSFile[] dirFiles = dir.listFiles();
 		Assert.assertEquals(1, files.length);
-		
+
 		EncFSFile encFSFile = dirFiles[0];
 		Assert.assertFalse(encFSFile.isDirectory());
 		Assert.assertEquals("testfile.txt", encFSFile.getName());
@@ -170,6 +172,7 @@ public class EncFSVolumeIntegrationTest {
 
 		assertFileNameEncoding(rootDir);
 		assertEncFSFileRoundTrip(rootDir);
+		assertLengthCalculations(rootDir);
 	}
 
 	@Test
@@ -197,6 +200,7 @@ public class EncFSVolumeIntegrationTest {
 
 		assertFileNameEncoding(rootDir);
 		assertEncFSFileRoundTrip(rootDir);
+		assertLengthCalculations(rootDir);
 	}
 
 	@Test
@@ -222,6 +226,7 @@ public class EncFSVolumeIntegrationTest {
 
 		assertFileNameEncoding(rootDir);
 		assertEncFSFileRoundTrip(rootDir);
+		assertLengthCalculations(rootDir);
 	}
 
 	@Test
@@ -258,6 +263,7 @@ public class EncFSVolumeIntegrationTest {
 
 		assertFileNameEncoding(rootDir);
 		assertEncFSFileRoundTrip(rootDir);
+		assertLengthCalculations(rootDir);
 	}
 
 	@Test
@@ -279,6 +285,7 @@ public class EncFSVolumeIntegrationTest {
 
 		assertFileNameEncoding(rootDir);
 		assertEncFSFileRoundTrip(rootDir);
+		assertLengthCalculations(rootDir);
 	}
 
 	@Test
@@ -394,6 +401,23 @@ public class EncFSVolumeIntegrationTest {
 		}
 	}
 
+	private void assertLengthCalculations(EncFSFile encFsFile)
+			throws IOException, EncFSCorruptDataException,
+			EncFSUnsupportedException {
+		if (encFsFile.isDirectory() == false) {
+			long encryptedSize = encFsFile.getVolume().getFileProvider()
+					.getFileInfo(encFsFile.getEncryptedPath()).getSize();
+			assertInputStreamLength(encFsFile.openInputStream(), encFsFile
+					.getVolume().getDecryptedFileLength(encryptedSize));
+			Assert.assertEquals(encryptedSize, encFsFile.getVolume()
+					.getEncryptedFileLength(encFsFile.getLength()));
+		} else {
+			for (EncFSFile subEncfFile : encFsFile.listFiles()) {
+				assertLengthCalculations(subEncfFile);
+			}
+		}
+	}
+
 	private void assertInputStreamsAreEqual(String msg, InputStream encfsIs,
 			InputStream decFsIs) throws IOException {
 		int bytesRead = 0, bytesRead2 = 0;
@@ -407,6 +431,21 @@ public class EncFSVolumeIntegrationTest {
 			Assert.assertEquals(msg, bytesRead, bytesRead2);
 			Assert.assertArrayEquals(msg, readBuf, readBuf2);
 		}
+	}
+
+	private void assertInputStreamLength(InputStream encfsIs, long length)
+			throws IOException {
+		int bytesRead = 0;
+		long totalSize = 0;
+		while (bytesRead >= 0) {
+			totalSize += bytesRead;
+
+			byte[] readBuf = new byte[128];
+
+			bytesRead = encfsIs.read(readBuf);
+		}
+
+		Assert.assertEquals(totalSize, length);
 	}
 
 	private static String getDirListing(EncFSFile rootDir, boolean recursive)
