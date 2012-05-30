@@ -206,7 +206,7 @@ public class EncFSShell {
 							}
 						} else {
 							// Path specifier
-							pathStr =  readFileName(st,token);
+							pathStr = readFileName(st, token);
 						}
 					}
 
@@ -318,7 +318,7 @@ public class EncFSShell {
 						}
 					}
 				} else if (command.equals("mkdir") || command.equals("mkdirs")) {
-					String dirPath = (st.hasMoreTokens() ?  readFileName(st)
+					String dirPath = (st.hasMoreTokens() ? readFileName(st)
 							: null);
 					if (dirPath == null) {
 						System.out.println("mkdir {dirname}");
@@ -355,7 +355,7 @@ public class EncFSShell {
 								recursive = true;
 							}
 						} else {
-							filePath =  readFileName(st,token);
+							filePath = readFileName(st, token);
 						}
 					}
 
@@ -393,7 +393,7 @@ public class EncFSShell {
 								force = true;
 							}
 						} else {
-							pathArray[pathCount++] =  readFileName(st,token);
+							pathArray[pathCount++] = readFileName(st, token);
 						}
 					}
 
@@ -468,7 +468,7 @@ public class EncFSShell {
 								recursive = true;
 							}
 						} else {
-							pathArray[pathCount++] =  readFileName(st,token);
+							pathArray[pathCount++] = readFileName(st, token);
 						}
 					}
 
@@ -534,7 +534,7 @@ public class EncFSShell {
 						System.out.println("No directory name specified");
 						continue;
 					}
-					String dirPath =  readFileName(st);
+					String dirPath = readFileName(st);
 
 					// .. handling
 					if (dirPath.equals("..")) {
@@ -672,22 +672,24 @@ public class EncFSShell {
 			}
 		}
 	}
-	static String readFileName(StringTokenizer st)
-	{
+
+	static String readFileName(StringTokenizer st) {
 		return readFileName(st, null);
 	}
-	// Read a path orfilename from StringTokenizer st - can include spaces is quoted with "token1 token2 token3"
+
+	// Read a path orfilename from StringTokenizer st - can include spaces is
+	// quoted with "token1 token2 token3"
 	// if token != null, this is the first token already read from st
-	// if the path starts with ", read multiple tokens (separated by " ") until the name ends with " or the last token is read.
-	static String readFileName(StringTokenizer st, String token)
-	{
-		String filePath = (token==null)?st.nextToken():token;
+	// if the path starts with ", read multiple tokens (separated by "
+	// ") until the name ends with " or the last token is read.
+	static String readFileName(StringTokenizer st, String token) {
+		String filePath = (token == null) ? st.nextToken() : token;
 		if (filePath.startsWith("\"")) {
-			filePath=filePath.substring(1);
+			filePath = filePath.substring(1);
 			while (st.hasMoreTokens()) {
-				filePath+=" "+st.nextToken();
+				filePath += " " + st.nextToken();
 				if (filePath.endsWith("\"")) {
-					filePath=filePath.substring(0,filePath.length()-1);
+					filePath = filePath.substring(0, filePath.length() - 1);
 					break;
 				}
 			}
