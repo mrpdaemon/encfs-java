@@ -253,7 +253,27 @@ public class EncFSInputStream extends InputStream {
 		byte[] cipherBuf = new byte[blockSize];
 		boolean zeroBlock = false;
 
-		int bytesRead = in.read(cipherBuf, 0, blockSize);
+		int bytesRead = 0;
+		int lastBytesRead = 0;
+
+		// Read until we read a whole block or we reach the end of the input
+		while (bytesRead < blockSize) {
+			lastBytesRead = in
+					.read(cipherBuf, bytesRead, blockSize - bytesRead);
+			if (lastBytesRead > 0) {
+				bytesRead += lastBytesRead;
+			} else if (lastBytesRead < 0) {
+				/*
+				 * If we read some bytes return that, if not then we're at the
+				 * end of the stream
+				 */
+				if (bytesRead == 0) {
+					bytesRead = -1;
+				}
+				break;
+			}
+		}
+
 		if (bytesRead == blockSize) { // block decode
 			/*
 			 * If file holes are allowed then we need to test whether the whole
