@@ -91,18 +91,18 @@ public class EncFSVolumeIntegrationTest {
 
 		encFSFile = files[1];
 		Assert.assertFalse(encFSFile.isDirectory());
-		Assert.assertEquals("test.txt", encFSFile.getName());
-		contents = readInputStreamAsString(encFSFile);
-		Assert.assertEquals("This is a test file.\n", contents);
-
-		encFSFile = files[2];
-		Assert.assertFalse(encFSFile.isDirectory());
 		Assert.assertEquals("zerofile.bin", encFSFile.getName());
 		byte zeroBytes[] = readInputStreamAsByteArray(encFSFile);
 		Assert.assertEquals(zeroBytes.length, 10000);
 		for (int i = 0; i < zeroBytes.length; i++) {
 			Assert.assertTrue(zeroBytes[i] == 0);
 		}
+
+		encFSFile = files[2];
+		Assert.assertFalse(encFSFile.isDirectory());
+		Assert.assertEquals("test.txt", encFSFile.getName());
+		contents = readInputStreamAsString(encFSFile);
+		Assert.assertEquals("This is a test file.\n", contents);
 
 		assertFileNameEncoding(rootDir);
 		assertEncFSFileRoundTrip(rootDir);
@@ -243,22 +243,22 @@ public class EncFSVolumeIntegrationTest {
 		EncFSFile[] files = rootDir.listFiles();
 		Assert.assertEquals(2, files.length);
 
-		EncFSFile encFSSubDir = files[0];
-		Assert.assertTrue(encFSSubDir.isDirectory());
-		Assert.assertEquals("Dir1", encFSSubDir.getName());
-
-		EncFSFile encFSFile = files[1];
+		EncFSFile encFSFile = files[0];
 		Assert.assertFalse(encFSFile.isDirectory());
 		Assert.assertEquals("file1.txt", encFSFile.getName());
+
+		EncFSFile encFSSubDir = files[1];
+		Assert.assertTrue(encFSSubDir.isDirectory());
+		Assert.assertEquals("Dir1", encFSSubDir.getName());
 
 		String contents = readInputStreamAsString(encFSFile);
 		Assert.assertEquals("Some contents for file1", contents);
 
 		String dirListing = getDirListing(rootDir, true);
 		String expectedListing = "";
+		expectedListing += "/file1.txt" + "\n";
 		expectedListing += "/Dir1" + "\n";
-		expectedListing += "/Dir1/file2.txt" + "\n";
-		expectedListing += "/file1.txt";
+		expectedListing += "/Dir1/file2.txt";
 		Assert.assertEquals(expectedListing, dirListing);
 
 		assertFileNameEncoding(rootDir);
