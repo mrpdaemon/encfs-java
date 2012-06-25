@@ -686,7 +686,32 @@ public class EncFSVolume {
      *              File provider returned I/O error
      */
     public static boolean isEncFSVolume(String path) throws IOException {
-        EncFSFileProvider fileProvider = new EncFSLocalFileProvider(new File(path));
+        return isEncFSVolume(new File(path));
+    }
+
+    /**
+     * Tests if the provided path contains EncFS volume
+     *
+     * @param file
+     *            File for the presumed EncFS volume
+     * @return true if the volume is EncFS, false otherwise
+     * @throws IOException
+     *              File provider returned I/O error
+     */
+    public static boolean isEncFSVolume(File file) throws IOException {
+        return isEncFSVolume(new EncFSLocalFileProvider(file));
+    }
+
+    /**
+     * Tests if the provided path contains EncFS volume
+     *
+     * @param fileProvider
+     *            File provider for the presumed EncFS volume
+     * @return true if the volume is EncFS, false otherwise
+     * @throws IOException
+     *              File provider returned I/O error
+     */
+    public static boolean isEncFSVolume(EncFSFileProvider fileProvider) throws IOException {
         return (fileProvider.exists(fileProvider.getRootPath() + EncFSVolume.CONFIG_FILE_NAME));
     }
 
