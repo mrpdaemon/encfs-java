@@ -48,11 +48,12 @@ public class EncFSVolumeIntegrationTest {
 	public void tearDown() throws Exception {
 	}
 
-    @Test
-    public void testIsEncFSVolume() throws IOException {
-         Assert.assertTrue(EncFSVolume.isEncFSVolume("test/encfs_samples/boxcryptor_1"));
-         Assert.assertFalse(EncFSVolume.isEncFSVolume("test/encfs_samples"));
-    }
+	@Test
+	public void testIsEncFSVolume() throws IOException {
+		Assert.assertTrue(EncFSVolume
+				.isEncFSVolume("test/encfs_samples/boxcryptor_1"));
+		Assert.assertFalse(EncFSVolume.isEncFSVolume("test/encfs_samples"));
+	}
 
 	@Test
 	public void testBoxCryptor_1_badPassword()

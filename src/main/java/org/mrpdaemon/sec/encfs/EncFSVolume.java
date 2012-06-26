@@ -658,12 +658,12 @@ public class EncFSVolume {
 	/**
 	 * Checks whether the file or directory with the given path exists in the
 	 * volume
-	 *
+	 * 
 	 * @param path
 	 *            Absolute volume path of the file or directory
-	 *
+	 * 
 	 * @return true if path exists in the volume, false otherwise
-	 *
+	 * 
 	 * @throws EncFSCorruptDataException
 	 *             Filename encoding failed
 	 * @throws IOException
@@ -676,44 +676,46 @@ public class EncFSVolume {
 		return fileProvider.exists(encryptedPath);
 	}
 
-    /**
-     * Tests if the provided path contains EncFS volume
-     *
-     * @param path
-     *            Path to the presumed EncFS volume
-     * @return true if the volume is EncFS, false otherwise
-     * @throws IOException
-     *              File provider returned I/O error
-     */
-    public static boolean isEncFSVolume(String path) throws IOException {
-        return isEncFSVolume(new File(path));
-    }
+	/**
+	 * Tests if the provided path contains EncFS volume
+	 * 
+	 * @param path
+	 *            Path to the presumed EncFS volume
+	 * @return true if the volume is EncFS, false otherwise
+	 * @throws IOException
+	 *             File provider returned I/O error
+	 */
+	public static boolean isEncFSVolume(String path) throws IOException {
+		return isEncFSVolume(new File(path));
+	}
 
-    /**
-     * Tests if the provided path contains EncFS volume
-     *
-     * @param file
-     *            File for the presumed EncFS volume
-     * @return true if the volume is EncFS, false otherwise
-     * @throws IOException
-     *              File provider returned I/O error
-     */
-    public static boolean isEncFSVolume(File file) throws IOException {
-        return isEncFSVolume(new EncFSLocalFileProvider(file));
-    }
+	/**
+	 * Tests if the provided path contains EncFS volume
+	 * 
+	 * @param file
+	 *            File for the presumed EncFS volume
+	 * @return true if the volume is EncFS, false otherwise
+	 * @throws IOException
+	 *             File provider returned I/O error
+	 */
+	public static boolean isEncFSVolume(File file) throws IOException {
+		return isEncFSVolume(new EncFSLocalFileProvider(file));
+	}
 
-    /**
-     * Tests if the provided path contains EncFS volume
-     *
-     * @param fileProvider
-     *            File provider for the presumed EncFS volume
-     * @return true if the volume is EncFS, false otherwise
-     * @throws IOException
-     *              File provider returned I/O error
-     */
-    public static boolean isEncFSVolume(EncFSFileProvider fileProvider) throws IOException {
-        return (fileProvider.exists(fileProvider.getRootPath() + EncFSVolume.CONFIG_FILE_NAME));
-    }
+	/**
+	 * Tests if the provided path contains EncFS volume
+	 * 
+	 * @param fileProvider
+	 *            File provider for the presumed EncFS volume
+	 * @return true if the volume is EncFS, false otherwise
+	 * @throws IOException
+	 *             File provider returned I/O error
+	 */
+	public static boolean isEncFSVolume(EncFSFileProvider fileProvider)
+			throws IOException {
+		return (fileProvider.exists(fileProvider.getRootPath()
+				+ EncFSVolume.CONFIG_FILE_NAME));
+	}
 
 	/**
 	 * Creates a new EncFS volume on the supplied file provider using the
