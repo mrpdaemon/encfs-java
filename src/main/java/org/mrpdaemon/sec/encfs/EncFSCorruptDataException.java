@@ -18,7 +18,7 @@ package org.mrpdaemon.sec.encfs;
 /**
  * Class representing a corrupt data exception
  */
-public class EncFSCorruptDataException extends Exception {
+public class EncFSCorruptDataException extends EncFSException {
 
 	// Serialization version
 	private static final long serialVersionUID = 1L;

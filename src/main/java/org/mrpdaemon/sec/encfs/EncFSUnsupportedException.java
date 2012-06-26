@@ -18,7 +18,7 @@ package org.mrpdaemon.sec.encfs;
 /**
  * Class representing an unsupported exception
  */
-public class EncFSUnsupportedException extends Exception {
+public class EncFSUnsupportedException extends EncFSException {
 
 	// Serialization version
 	private static final long serialVersionUID = 1L;

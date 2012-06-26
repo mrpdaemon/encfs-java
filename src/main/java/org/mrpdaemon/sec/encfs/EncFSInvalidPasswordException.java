@@ -18,7 +18,7 @@ package org.mrpdaemon.sec.encfs;
 /**
  * Class representing an invalid password exception
  */
-public class EncFSInvalidPasswordException extends Exception {
+public class EncFSInvalidPasswordException extends EncFSException {
 
 	// Serialization version
 	private static final long serialVersionUID = 1L;

@@ -18,7 +18,7 @@ package org.mrpdaemon.sec.encfs;
 /**
  * Class representing a checksum exception
  */
-public class EncFSChecksumException extends Exception {
+public class EncFSChecksumException extends EncFSException {
 
 	// Serialization version
 	private static final long serialVersionUID = 1L;

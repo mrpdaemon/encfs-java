@@ -6,7 +6,7 @@
  * it under the terms of the GNU Lesser General Public License as published
  * by the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- *  
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
@@ -16,49 +16,49 @@
 package org.mrpdaemon.sec.encfs;
 
 /**
- * Class representing an invalid configuration exception
+ * Parent class of all encfs-java exceptions
  */
-public class EncFSInvalidConfigException extends EncFSException {
+public class EncFSException extends Exception {
 
 	// Serialization version
 	private static final long serialVersionUID = 1L;
 
 	/**
-	 * Creates a new EncFSInvalidConfigException
+	 * Creates a new EncFSException
 	 */
-	public EncFSInvalidConfigException() {
+	public EncFSException() {
 		super();
 	}
 
 	/**
-	 * Creates a new EncFSInvalidConfigException
-	 * 
+	 * Creates a new EncFSException
+	 *
 	 * @param message
 	 *            Exception message
 	 */
-	public EncFSInvalidConfigException(String message) {
+	public EncFSException(String message) {
 		super(message);
 	}
 
 	/**
-	 * Creates a new EncFSInvalidConfigException
-	 * 
+	 * Creates a new EncFSException
+	 *
 	 * @param cause
 	 *            Underlying Throwable for the exception
 	 */
-	public EncFSInvalidConfigException(Throwable cause) {
+	public EncFSException(Throwable cause) {
 		super(cause);
 	}
 
 	/**
-	 * Creates a new EncFSInvalidConfigException
-	 * 
+	 * Creates a new EncFSException
+	 *
 	 * @param message
 	 *            Exception message
 	 * @param cause
 	 *            Underlying Throwable for the exception
 	 */
-	public EncFSInvalidConfigException(String message, Throwable cause) {
+	public EncFSException(String message, Throwable cause) {
 		super(message, cause);
 	}
 
