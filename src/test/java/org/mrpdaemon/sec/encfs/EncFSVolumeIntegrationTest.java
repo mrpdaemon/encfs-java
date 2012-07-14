@@ -87,7 +87,7 @@ public class EncFSVolumeIntegrationTest {
 		EncFSFile[] files = rootDir.listFiles();
 		Assert.assertEquals(3, files.length);
 
-		EncFSFile encFSFile = files[0];
+		EncFSFile encFSFile = files[2];
 		Assert.assertFalse(encFSFile.isDirectory());
 		Assert.assertEquals("longfile.txt", encFSFile.getName());
 		String contents = readInputStreamAsString(encFSFile);
@@ -105,7 +105,7 @@ public class EncFSVolumeIntegrationTest {
 			Assert.assertTrue(zeroBytes[i] == 0);
 		}
 
-		encFSFile = files[2];
+		encFSFile = files[0];
 		Assert.assertFalse(encFSFile.isDirectory());
 		Assert.assertEquals("test.txt", encFSFile.getName());
 		contents = readInputStreamAsString(encFSFile);
