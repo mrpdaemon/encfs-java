@@ -87,29 +87,35 @@ public class EncFSVolumeIntegrationTest {
 		EncFSFile[] files = rootDir.listFiles();
 		Assert.assertEquals(3, files.length);
 
-		EncFSFile encFSFile = files[2];
-		Assert.assertFalse(encFSFile.isDirectory());
-		Assert.assertEquals("longfile.txt", encFSFile.getName());
-		String contents = readInputStreamAsString(encFSFile);
-		Assert.assertEquals(contents.length(), 6000);
-		for (int i = 0; i < contents.length(); i++) {
-			Assert.assertTrue(contents.charAt(i) == 'a');
+		String contents;
+		int numMatches = 0;
+
+		for (EncFSFile encFSFile : files) {
+			if (encFSFile.getName().equals("longfile.txt")) {
+				numMatches++;
+				Assert.assertFalse(encFSFile.isDirectory());
+				contents = readInputStreamAsString(encFSFile);
+				Assert.assertEquals(contents.length(), 6000);
+				for (int i = 0; i < contents.length(); i++) {
+					Assert.assertTrue(contents.charAt(i) == 'a');
+				}
+			} else if (encFSFile.getName().equals("zerofile.bin")) {
+				numMatches++;
+				Assert.assertFalse(encFSFile.isDirectory());
+				byte zeroBytes[] = readInputStreamAsByteArray(encFSFile);
+				Assert.assertEquals(zeroBytes.length, 10000);
+				for (int i = 0; i < zeroBytes.length; i++) {
+					Assert.assertTrue(zeroBytes[i] == 0);
+				}
+			} else if (encFSFile.getName().equals("test.txt")) {
+				numMatches++;
+				Assert.assertFalse(encFSFile.isDirectory());
+				contents = readInputStreamAsString(encFSFile);
+				Assert.assertEquals("This is a test file.\n", contents);
+			}
 		}
 
-		encFSFile = files[1];
-		Assert.assertFalse(encFSFile.isDirectory());
-		Assert.assertEquals("zerofile.bin", encFSFile.getName());
-		byte zeroBytes[] = readInputStreamAsByteArray(encFSFile);
-		Assert.assertEquals(zeroBytes.length, 10000);
-		for (int i = 0; i < zeroBytes.length; i++) {
-			Assert.assertTrue(zeroBytes[i] == 0);
-		}
-
-		encFSFile = files[0];
-		Assert.assertFalse(encFSFile.isDirectory());
-		Assert.assertEquals("test.txt", encFSFile.getName());
-		contents = readInputStreamAsString(encFSFile);
-		Assert.assertEquals("This is a test file.\n", contents);
+		Assert.assertEquals(numMatches, 3);
 
 		assertFileNameEncoding(rootDir);
 		assertEncFSFileRoundTrip(rootDir);
@@ -130,20 +136,29 @@ public class EncFSVolumeIntegrationTest {
 		EncFSFile[] files = rootDir.listFiles();
 		Assert.assertEquals(2, files.length);
 
-		EncFSFile encFSFile = files[0];
-		Assert.assertFalse(encFSFile.isDirectory());
-		Assert.assertEquals("longfile.txt", encFSFile.getName());
-		String contents = readInputStreamAsString(encFSFile);
-		Assert.assertEquals(contents.length(), 6000);
-		for (int i = 0; i < contents.length(); i++) {
-			Assert.assertTrue(contents.charAt(i) == 'a');
+		String contents;
+		int numMatches = 0;
+
+		for (EncFSFile encFSFile : files) {
+			if (encFSFile.getName().equals("longfile.txt")) {
+				numMatches++;
+				Assert.assertFalse(encFSFile.isDirectory());
+				contents = readInputStreamAsString(encFSFile);
+				Assert.assertEquals(contents.length(), 6000);
+				for (int i = 0; i < contents.length(); i++) {
+					Assert.assertTrue(contents.charAt(i) == 'a');
+				}
+			} else if (encFSFile.getName().equals("testfile.txt")) {
+				numMatches++;
+				Assert.assertFalse(encFSFile.isDirectory());
+				Assert.assertEquals("testfile.txt", encFSFile.getName());
+				contents = readInputStreamAsString(encFSFile);
+				Assert.assertEquals("Test file for non-unique-IV file.\n",
+						contents);
+			}
 		}
 
-		encFSFile = files[1];
-		Assert.assertFalse(encFSFile.isDirectory());
-		Assert.assertEquals("testfile.txt", encFSFile.getName());
-		contents = readInputStreamAsString(encFSFile);
-		Assert.assertEquals("Test file for non-unique-IV file.\n", contents);
+		Assert.assertEquals(numMatches, 2);
 
 		assertFileNameEncoding(rootDir);
 		assertEncFSFileRoundTrip(rootDir);
@@ -250,23 +265,26 @@ public class EncFSVolumeIntegrationTest {
 		EncFSFile[] files = rootDir.listFiles();
 		Assert.assertEquals(2, files.length);
 
-		EncFSFile encFSFile = files[0];
-		Assert.assertFalse(encFSFile.isDirectory());
-		Assert.assertEquals("file1.txt", encFSFile.getName());
+		String contents;
+		int numMatches = 0;
 
-		EncFSFile encFSSubDir = files[1];
-		Assert.assertTrue(encFSSubDir.isDirectory());
-		Assert.assertEquals("Dir1", encFSSubDir.getName());
+		for (EncFSFile encFSFile : files) {
+			if (encFSFile.getName().equals("file1.txt")) {
+				numMatches++;
+				Assert.assertFalse(encFSFile.isDirectory());
+				contents = readInputStreamAsString(encFSFile);
+				Assert.assertEquals("Some contents for file1", contents);
+			} else if (encFSFile.getName().equals("Dir1")) {
+				numMatches++;
+				Assert.assertTrue(encFSFile.isDirectory());
 
-		String contents = readInputStreamAsString(encFSFile);
-		Assert.assertEquals("Some contents for file1", contents);
+				EncFSFile[] subFiles = encFSFile.listFiles();
+				Assert.assertEquals(subFiles.length, 1);
+				Assert.assertEquals(subFiles[0].getName(), "file2.txt");
+			}
+		}
 
-		String dirListing = getDirListing(rootDir, true);
-		String expectedListing = "";
-		expectedListing += "/file1.txt" + "\n";
-		expectedListing += "/Dir1" + "\n";
-		expectedListing += "/Dir1/file2.txt";
-		Assert.assertEquals(expectedListing, dirListing);
+		Assert.assertEquals(numMatches, 2);
 
 		assertFileNameEncoding(rootDir);
 		assertEncFSFileRoundTrip(rootDir);
