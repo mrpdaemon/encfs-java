@@ -354,29 +354,10 @@ public class EncFSFile {
 			}
 
 			return this.copy(realDstPath);
-		} else { // Trying to copy a file into a file
-			if (volume.getConfig().isUniqueIV()) {
-				/*
-				 * More complicated as we need to copy the files by reading them
-				 * in as a stream & writing them out again so that we generate
-				 * unique headers for the file copies
-				 */
-				try {
-					EncFSUtil.copyWholeStream(this.openInputStream(),
-							dstPath.openOutputStream(plainFileInfo.getSize()),
-							true, true);
-				} catch (EncFSCorruptDataException e) {
-					throw new IOException(e);
-				} catch (EncFSUnsupportedException e) {
-					throw new IOException(e);
-				}
-			} else {
-				// Can just do a regular copy, no need to rewrite contents
-				return volume.getFileProvider().copy(getEncryptedPath(),
-						dstPath.getEncryptedPath());
-			}
-
-			return true;
+		} else {
+			// Trying to copy a file into a file
+			return volume.getFileProvider().copy(getEncryptedPath(),
+					dstPath.getEncryptedPath());
 		}
 	}
 
