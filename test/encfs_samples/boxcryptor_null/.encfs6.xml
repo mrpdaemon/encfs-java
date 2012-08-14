@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<!DOCTYPE boost_serialization>
+<boost_serialization signature="serialization::archive" version="7">
+  <cfg class_id="0" tracking_level="0" version="20">
+    <version>20100713</version>
+    <creator>BoxCryptor 1.3.2.0</creator>
+    <cipherAlg class_id="1" tracking_level="0" version="0">
+      <name>ssl/aes</name>
+      <major>3</major>
+      <minor>0</minor>
+    </cipherAlg>
+    <nameAlg>
+      <name>nameio/null</name>
+      <major>1</major>
+      <minor>0</minor>
+    </nameAlg>
+    <keySize>256</keySize>
+    <blockSize>4096</blockSize>
+    <uniqueIV>0</uniqueIV>
+    <chainedNameIV>0</chainedNameIV>
+    <externalIVChaining>0</externalIVChaining>
+    <blockMACBytes>0</blockMACBytes>
+    <blockMACRandBytes>0</blockMACRandBytes>
+    <allowHoles>1</allowHoles>
+    <encodedKeySize>52</encodedKeySize>
+    <encodedKeyData>oZxF/rvM3gexO3TNxaAZvBm/nsMzxm+2eLAFR7IfLBuOfziqgjyt4MEjWfGZEQEyhyRUig== </encodedKeyData>
+    <saltLen>20</saltLen>
+    <saltData>NFehLBmSc50W+R9QPVPDdWU/5AE= </saltData>
+    <kdfIterations>5000</kdfIterations>
+    <desiredKDFDuration>500</desiredKDFDuration>
+  </cfg>
+</boost_serialization>

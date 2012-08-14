@@ -26,6 +26,9 @@ public class EncFSConfig {
 	/** Volume configuration uses nameio/stream for filename encryption */
 	public static final int ENCFS_CONFIG_NAME_ALG_STREAM = 2;
 
+	/** Volume configuration uses nameio/null for filename encryption */
+	public final static int ENCFS_CONFIG_NAME_ALG_NULL = 3;
+
 	// Size of the volume encryption key in bits.
 	private int volumeKeySize;
 

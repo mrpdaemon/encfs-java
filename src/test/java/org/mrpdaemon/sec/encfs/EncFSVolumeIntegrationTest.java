@@ -314,6 +314,32 @@ public class EncFSVolumeIntegrationTest {
 	}
 
 	@Test
+	public void testBoxCryptor_null() throws EncFSInvalidPasswordException,
+			EncFSInvalidConfigException, EncFSCorruptDataException,
+			EncFSUnsupportedException, EncFSChecksumException, IOException {
+		File encFSDir = new File("test/encfs_samples/boxcryptor_null");
+		Assert.assertTrue(encFSDir.exists());
+
+		String password = "test";
+		EncFSVolume volume = new EncFSVolume(encFSDir.getAbsolutePath(),
+				password);
+		EncFSFile rootDir = volume.getRootDir();
+		EncFSFile[] files = rootDir.listFiles();
+		Assert.assertEquals(1, files.length);
+
+		EncFSFile encFSFile = files[0];
+		Assert.assertFalse(encFSFile.isDirectory());
+		Assert.assertEquals("testfile.txt", encFSFile.getName());
+
+		String contents = readInputStreamAsString(encFSFile);
+		Assert.assertEquals("Contents for test fileAlpha.txt", contents);
+
+		assertFileNameEncoding(rootDir);
+		assertEncFSFileRoundTrip(rootDir);
+		assertLengthCalculations(rootDir);
+	}
+
+	@Test
 	public void createVolume_1() {
 		File rootDir;
 		try {

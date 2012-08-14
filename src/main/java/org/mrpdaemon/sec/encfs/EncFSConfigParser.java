@@ -172,6 +172,8 @@ public class EncFSConfigParser {
 								config.setNameAlgorithm(EncFSConfig.ENCFS_CONFIG_NAME_ALG_BLOCK);
 							} else if (algName.equals("nameio/stream")) {
 								config.setNameAlgorithm(EncFSConfig.ENCFS_CONFIG_NAME_ALG_STREAM);
+							} else if (algName.equals("nameio/null")) {
+								config.setNameAlgorithm(EncFSConfig.ENCFS_CONFIG_NAME_ALG_NULL);
 							} else {
 								throw new EncFSInvalidConfigException(
 										"Unknown name algorithm in config file: "

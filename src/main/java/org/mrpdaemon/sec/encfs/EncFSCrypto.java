@@ -672,28 +672,27 @@ public class EncFSCrypto {
 			String curPath = st.nextToken();
 			if ((curPath.length() > 0)
 					&& (curPath != EncFSVolume.PATH_SEPARATOR)) {
-				
+
 				byte[] encodeBytes;
 
-				if (volume.getConfig().getNameAlgorithm() == 
-						EncFSConfig.ENCFS_CONFIG_NAME_ALG_BLOCK) {					
+				if (volume.getConfig().getNameAlgorithm() == EncFSConfig.ENCFS_CONFIG_NAME_ALG_BLOCK) {
 					// Only pad for block mode
 					int padLen = 16 - (curPath.length() % 16);
 					if (padLen == 0) {
 						padLen = 16;
 					}
 					encodeBytes = new byte[curPath.length() + padLen];
-	
+
 					for (int i = 0; i < curPath.length(); i++) {
 						encodeBytes[i] = curPath.getBytes()[i];
 					}
-	
+
 					// Pad to the nearest 16 bytes, add a full block if needed
 					for (int i = 0; i < padLen; i++) {
 						encodeBytes[curPath.length() + i] = (byte) padLen;
 					}
 				} else {
-					encodeBytes = curPath.getBytes(); 
+					encodeBytes = curPath.getBytes();
 				}
 
 				// Update chain IV
@@ -724,6 +723,17 @@ public class EncFSCrypto {
 	public static String decodeName(EncFSVolume volume, String fileName,
 			String volumePath) throws EncFSCorruptDataException,
 			EncFSChecksumException {
+
+		// No decryption for nameio/null algorithm
+		if (volume.getConfig().getNameAlgorithm() == EncFSConfig.ENCFS_CONFIG_NAME_ALG_NULL) {
+			// Filter out config file
+			if (volumePath.equals(volume.getRootDir().getPath())
+					&& fileName.equals(EncFSVolume.CONFIG_FILE_NAME)) {
+				return null;
+			}
+			return new String(fileName);
+		}
+
 		byte[] base256FileName = EncFSBase64.decodeEncfs(fileName.getBytes());
 
 		byte[] encFileName = Arrays.copyOfRange(base256FileName, 2,
@@ -811,6 +821,12 @@ public class EncFSCrypto {
 	 */
 	public static String encodeName(EncFSVolume volume, String fileName,
 			String volumePath) throws EncFSCorruptDataException {
+
+		// No encryption for nameio/null algorithm
+		if (volume.getConfig().getNameAlgorithm() == EncFSConfig.ENCFS_CONFIG_NAME_ALG_NULL) {
+			return new String(fileName);
+		}
+
 		byte[] decFileName = fileName.getBytes();
 
 		byte[] paddedDecFileName;

@@ -46,11 +46,15 @@ public class EncFSConfigWriter {
 			result += "\t\t<name>nameio/block</name>\n";
 			result += "\t\t<major>3</major>\n";
 			result += "\t\t<minor>0</minor>\n";
-		} else {
-			assert (config.getNameAlgorithm() == EncFSConfig.ENCFS_CONFIG_NAME_ALG_STREAM);
+		} else if (config.getNameAlgorithm() == EncFSConfig.ENCFS_CONFIG_NAME_ALG_STREAM) {
 			result += "\t\t<name>nameio/stream</name>\n";
 			result += "\t\t<major>2</major>\n";
 			result += "\t\t<minor>1</minor>\n";
+		} else {
+			assert (config.getNameAlgorithm() == EncFSConfig.ENCFS_CONFIG_NAME_ALG_NULL);
+			result += "\t\t<name>nameio/null</name>\n";
+			result += "\t\t<major>1</major>\n";
+			result += "\t\t<minor>0</minor>\n";
 		}
 		result += "\t</nameAlg>\n";
 
