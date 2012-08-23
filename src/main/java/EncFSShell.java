@@ -25,13 +25,11 @@ import java.util.Iterator;
 import java.util.Stack;
 import java.util.StringTokenizer;
 
-import org.mrpdaemon.sec.encfs.EncFSCorruptDataException;
+import org.mrpdaemon.sec.encfs.EncFSException;
 import org.mrpdaemon.sec.encfs.EncFSFile;
 import org.mrpdaemon.sec.encfs.EncFSFileInputStream;
-import org.mrpdaemon.sec.encfs.EncFSInvalidConfigException;
 import org.mrpdaemon.sec.encfs.EncFSInvalidPasswordException;
 import org.mrpdaemon.sec.encfs.EncFSProgressListener;
-import org.mrpdaemon.sec.encfs.EncFSUnsupportedException;
 import org.mrpdaemon.sec.encfs.EncFSUtil;
 import org.mrpdaemon.sec.encfs.EncFSVolume;
 
@@ -120,17 +118,11 @@ public class EncFSShell {
 		// Create a new EncFS volume
 		try {
 			volume = new EncFSVolume(args[0], password);
-		} catch (EncFSUnsupportedException e) {
-			System.out.println(e.getMessage());
-			System.exit(1);
-		} catch (EncFSInvalidConfigException e) {
-			System.out.println(e.getMessage());
-			System.exit(1);
-		} catch (EncFSCorruptDataException e) {
-			System.out.println(e.getMessage());
-			System.exit(1);
 		} catch (EncFSInvalidPasswordException e) {
 			System.out.println("Invalid password!");
+			System.exit(1);
+		} catch (EncFSException e) {
+			System.out.println(e.getMessage());
 			System.exit(1);
 		} catch (FileNotFoundException e) {
 			System.out.println(e.getMessage());
@@ -622,15 +614,11 @@ public class EncFSShell {
 					System.out.println();
 				}
 
-			} catch (EncFSCorruptDataException e) {
+			} catch (EncFSException e) {
 				System.out.println(e.getMessage());
 				e.printStackTrace();
 				System.exit(1);
 			} catch (FileNotFoundException e) {
-				System.out.println(e.getMessage());
-				e.printStackTrace();
-				System.exit(1);
-			} catch (EncFSUnsupportedException e) {
 				System.out.println(e.getMessage());
 				e.printStackTrace();
 				System.exit(1);
