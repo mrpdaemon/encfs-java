@@ -13,6 +13,11 @@
  * GNU Lesser General Public License for more details.
  */
 
+/*
+ * Adapted from the public domain implementation by Robert Harder at:
+ * http://iharder.sourceforge.net/current/java/base64/
+ */
+
 package org.mrpdaemon.sec.encfs;
 
 import java.math.BigInteger;
@@ -1538,7 +1543,7 @@ public class EncFSBase64 {
 					public Class<?> resolveClass(
 							java.io.ObjectStreamClass streamClass)
 							throws java.io.IOException, ClassNotFoundException {
-						Class c = Class.forName(streamClass.getName(), false,
+						Class<?> c = Class.forName(streamClass.getName(), false,
 								loader);
 						if (c == null) {
 							return super.resolveClass(streamClass);
