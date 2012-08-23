@@ -58,7 +58,7 @@ public class EncFSConfigParser {
 	 */
 	public static EncFSConfig parseFile(File configFile)
 			throws ParserConfigurationException, SAXException, IOException,
-			EncFSInvalidConfigException {
+			EncFSInvalidConfigException, EncFSUnsupportedException {
 		FileInputStream inputStream = new FileInputStream(configFile);
 		try {
 			return parseFile(inputStream);
@@ -142,7 +142,7 @@ public class EncFSConfigParser {
 	 */
 	public static EncFSConfig parseFile(InputStream inputStream)
 			throws ParserConfigurationException, SAXException, IOException,
-			EncFSInvalidConfigException {
+			EncFSInvalidConfigException, EncFSUnsupportedException {
 		EncFSConfig config = new EncFSConfig();
 
 		DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
@@ -213,6 +213,11 @@ public class EncFSConfigParser {
 				} else if (cfgNode.getNodeName().equals("blockMACRandBytes")) {
 					config.setBlockMACRandBytes(Integer
 							.parseInt(getNodeValue(cfgNode)));
+				} else if (cfgNode.getNodeName().equals("externalIVChaining")) {
+					if (Integer.parseInt(getNodeValue(cfgNode)) != 0) {
+						throw new EncFSUnsupportedException(
+								"externalIVChaining option not supported.");
+					}
 				}
 			}
 		}
