@@ -15,6 +15,7 @@
 
 package org.mrpdaemon.sec.encfs;
 
+import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.security.InvalidAlgorithmParameterException;
@@ -23,10 +24,10 @@ import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
 
 /**
- * InputStream extension that allows decrypted data to be read from a file on an
- * EncFS volume.
+ * FilterInputStream extension that allows decrypted data to be read from a file
+ * on an EncFS volume.
  */
-public class EncFSInputStream extends InputStream {
+public class EncFSInputStream extends FilterInputStream {
 
 	// Volume that underlying file belongs to
 	private final EncFSVolume volume;
@@ -58,9 +59,6 @@ public class EncFSInputStream extends InputStream {
 	// File IV computed from the first 8 bytes of the file
 	private byte[] fileIv;
 
-	// Input stream to read data from
-	private final InputStream in;
-
 	/**
 	 * Create a new EncFSInputStream for reading decrypted data off a file on an
 	 * EncFS volume
@@ -79,8 +77,7 @@ public class EncFSInputStream extends InputStream {
 	 */
 	public EncFSInputStream(EncFSVolume volume, InputStream in)
 			throws EncFSCorruptDataException, EncFSUnsupportedException {
-		super();
-		this.in = in;
+		super(in);
 		this.volume = volume;
 		this.config = volume.getConfig();
 		this.blockSize = config.getBlockSize();
@@ -229,12 +226,6 @@ public class EncFSInputStream extends InputStream {
 	public boolean markSupported() {
 		// TODO: could support mark()/reset()
 		return false;
-	}
-
-	@Override
-	public void close() throws IOException {
-		in.close();
-		super.close();
 	}
 
 	// Return the block IV for the current block

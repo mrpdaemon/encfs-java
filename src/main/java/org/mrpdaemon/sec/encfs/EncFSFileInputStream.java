@@ -15,17 +15,14 @@
 
 package org.mrpdaemon.sec.encfs;
 
+import java.io.FilterInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 
 /**
  * FileInputStream abstraction that allows decrypted data to be read from a file
  * on an EncFS volume.
  */
-public class EncFSFileInputStream extends InputStream {
-
-	// Underlying input stream
-	private final InputStream is;
+public class EncFSFileInputStream extends FilterInputStream {
 
 	/**
 	 * Creates an EncFSFileInputStream to read decrypted data from a file under
@@ -44,36 +41,6 @@ public class EncFSFileInputStream extends InputStream {
 	public EncFSFileInputStream(EncFSFile encfsFile)
 			throws EncFSCorruptDataException, EncFSUnsupportedException,
 			IOException {
-		is = encfsFile.openInputStream();
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see java.io.InputStream#read(byte[])
-	 */
-	@Override
-	public int read(byte[] b) throws IOException {
-		return is.read(b);
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see java.io.InputStream#read(byte[], int, int)
-	 */
-	@Override
-	public int read(byte[] b, int off, int len) throws IOException {
-		return is.read(b, off, len);
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see java.io.InputStream#read()
-	 */
-	@Override
-	public int read() throws IOException {
-		return is.read();
+		super(encfsFile.openInputStream());
 	}
 }

@@ -14,17 +14,14 @@
  */
 package org.mrpdaemon.sec.encfs;
 
+import java.io.FilterOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
 
 /**
- * FileOutputStream abstraction that allows writing encrypted data to a file on
- * an EncFS volume.
+ * FilterOutputStream abstraction that allows writing encrypted data to a file
+ * on an EncFS volume.
  */
-public class EncFSFileOutputStream extends OutputStream {
-
-	// Underlying EncFSOutputStream
-	private final OutputStream encfsOs;
+public class EncFSFileOutputStream extends FilterOutputStream {
 
 	/**
 	 * Creates an EncFSFileOutputStream to write encrypted data to a file under
@@ -48,57 +45,6 @@ public class EncFSFileOutputStream extends OutputStream {
 	public EncFSFileOutputStream(EncFSFile encfsFile, long inputLength)
 			throws IOException, EncFSUnsupportedException,
 			EncFSCorruptDataException, EncFSChecksumException {
-		this.encfsOs = encfsFile.openOutputStream(inputLength);
+		super(encfsFile.openOutputStream(inputLength));
 	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see java.io.OutputStream#write(int)
-	 */
-	@Override
-	public void write(int b) throws IOException {
-		encfsOs.write(b);
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see java.io.OutputStream#write(byte[])
-	 */
-	@Override
-	public void write(byte[] b) throws IOException {
-		encfsOs.write(b);
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see java.io.OutputStream#write(byte[])
-	 */
-	@Override
-	public void write(byte[] b, int off, int len) throws IOException {
-		encfsOs.write(b, off, len);
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see java.io.OutputStream#write(byte[])
-	 */
-	@Override
-	public void close() throws IOException {
-		encfsOs.close();
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see java.io.OutputStream#write(byte[])
-	 */
-	@Override
-	public void flush() throws IOException {
-		encfsOs.flush();
-	}
-
 }
