@@ -16,8 +16,6 @@
 package org.mrpdaemon.sec.encfs;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -274,10 +272,10 @@ public class EncFSFile {
 	}
 
 	/**
-	 * Opens the file as an InputStream that decodes the file contents
+	 * Opens the file as an EncFSInputStream that decodes the file contents
 	 * automatically
 	 * 
-	 * @return InputStream that decodes file contents
+	 * @return EncFSInputStream that decodes file contents
 	 * 
 	 * @throws EncFSCorruptDataException
 	 *             Filename encoding failed
@@ -286,14 +284,14 @@ public class EncFSFile {
 	 * @throws IOException
 	 *             File provider returned I/O error
 	 */
-	public InputStream openInputStream() throws EncFSCorruptDataException,
+	public EncFSInputStream openInputStream() throws EncFSCorruptDataException,
 			EncFSUnsupportedException, IOException {
 		return new EncFSInputStream(volume, volume.getFileProvider()
 				.openInputStream(getEncryptedPath()));
 	}
 
 	/**
-	 * Opens the file as an OutputStream that encrypts the file contents
+	 * Opens the file as an EncFSOutputStream that encrypts the file contents
 	 * automatically
 	 * 
 	 * @param inputLength
@@ -302,7 +300,7 @@ public class EncFSFile {
 	 *            EncFSLocalFileProvider, but some network based storage API's
 	 *            require knowing the file length in advance.
 	 * 
-	 * @return OutputStream that encrypts file contents
+	 * @return EncFSOutputStream that encrypts file contents
 	 * 
 	 * 
 	 * @throws EncFSCorruptDataException
@@ -312,7 +310,7 @@ public class EncFSFile {
 	 * @throws IOException
 	 *             File provider returned I/O error
 	 */
-	public OutputStream openOutputStream(long inputLength)
+	public EncFSOutputStream openOutputStream(long inputLength)
 			throws EncFSUnsupportedException, EncFSCorruptDataException,
 			IOException {
 		return new EncFSOutputStream(volume, volume.getFileProvider()

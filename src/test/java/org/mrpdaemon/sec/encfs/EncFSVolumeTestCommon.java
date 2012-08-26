@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -70,7 +69,7 @@ public class EncFSVolumeTestCommon {
 		Assert.assertEquals(0,
 				volume.listFilesForPath(EncFSVolume.ROOT_PATH).length);
 		EncFSFile outFile = volume.createFile("/test.txt");
-		OutputStream os = outFile.openOutputStream(11);
+		EncFSOutputStream os = outFile.openOutputStream(11);
 		try {
 			os.write("hello\nworld".getBytes());
 		} finally {

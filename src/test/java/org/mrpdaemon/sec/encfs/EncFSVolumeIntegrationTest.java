@@ -458,8 +458,8 @@ public class EncFSVolumeIntegrationTest {
 		if (encFsFile.isDirectory() == false) {
 			long encryptedSize = encFsFile.getVolume().getFileProvider()
 					.getFileInfo(encFsFile.getEncryptedPath()).getSize();
-			assertInputStreamLength(encFsFile.openInputStream(), encFsFile
-					.getVolume().getDecryptedFileLength(encryptedSize));
+			assertInputStreamLength((InputStream) encFsFile.openInputStream(),
+					encFsFile.getVolume().getDecryptedFileLength(encryptedSize));
 			Assert.assertEquals(encryptedSize, encFsFile.getVolume()
 					.getEncryptedFileLength(encFsFile.getLength()));
 		} else {
