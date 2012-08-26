@@ -43,6 +43,12 @@ you can generate JavaDoc's using Maven:
 
 Which will place your documentation in ${PROJECT_ROOT}/target/site/apidocs/
 
+## API Documentation
+
+For API documentation, see:
+
+http://mrpdaemon.github.com/encfs-java/apidocs/index.html
+
 ## Common issues
 
 If you are getting an exception due to "Illegal key size" and you are using Sun's JDK,
