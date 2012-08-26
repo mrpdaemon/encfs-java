@@ -16,12 +16,49 @@
 package org.mrpdaemon.sec.encfs;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Properties;
 
 /**
  * Writer methods that write an EncFSConfig into a file
  */
 public class EncFSConfigWriter {
+
+	// Version to use if the properties file can't be read
+	private static final String ENCFS_JAVA_LIB_VERSION_DEV = "dev";
+
+	// Property file
+	private static final String ENCFS_JAVA_LIB_PROPERTY_FILE = "library.properties";
+
+	// Property key for version
+	private static final String ENCFS_JAVA_LIB_VERSION_KEY = "library.version";
+
+	// Retrieve library version
+	private static String getLibraryVersion() {
+		Properties prop = new Properties();
+		InputStream in = EncFSConfigWriter.class
+				.getResourceAsStream(ENCFS_JAVA_LIB_PROPERTY_FILE);
+
+		if (in != null) {
+			try {
+				prop.load(in);
+				String version = prop.getProperty(ENCFS_JAVA_LIB_VERSION_KEY);
+				if (version != null) {
+					return version;
+				} else {
+					/*XXX*/System.out.println("version is NULL");
+					return ENCFS_JAVA_LIB_VERSION_DEV;
+				}
+			} catch (IOException e) {
+				/*XXX*/System.out.println("IO Exception");
+				return ENCFS_JAVA_LIB_VERSION_DEV;
+			}
+		} else {
+			/*XXX*/System.out.println("in is NULL");
+			return ENCFS_JAVA_LIB_VERSION_DEV;
+		}
+	}
 
 	// Create config file contents from a given EncFSConfig / password
 	private static String createConfigFileContents(EncFSConfig config,
@@ -34,7 +71,8 @@ public class EncFSConfigWriter {
 		result += "<boost_serialization signature=\"serialization::archive\" version=\"9\">\n";
 		result += " <cfg class_id=\"0\" tracking_level=\"0\" version=\"20\">\n";
 		result += "\t<version>20100713</version>\n";
-		result += "\t<creator>encfs-java 0.1</creator>\n";
+		result += "\t<creator>encfs-java " + getLibraryVersion()
+				+ "</creator>\n";
 		result += "\t<cipherAlg class_id=\"1\" tracking_level=\"0\" version=\"0\">\n";
 		result += "\t\t<name>ssl/aes</name>\n";
 		result += "\t\t<major>3</major>\n";
