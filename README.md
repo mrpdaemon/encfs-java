@@ -36,18 +36,19 @@ on an EncFS volume. After building the library, add the
     $ java -classpath ${PROJECT_ROOT}/target/classes EncFSShell /path/to/an/encfs/volume
 
 For using the library from another project, include the .JAR file in your
-classpath and import the org.mrpdaemon.encfs.sec package. For API documentation,
-you can generate JavaDoc's using Maven:
-
-    $ mvn javadoc:javadoc
-
-Which will place your documentation in ${PROJECT_ROOT}/target/site/apidocs/
+classpath and import the org.mrpdaemon.encfs.sec package.s
 
 ## API Documentation
 
 For API documentation, see:
 
 http://mrpdaemon.github.com/encfs-java/apidocs/index.html
+
+To test your own comment changes, generate up-to-date docs using Maven:
+
+    $ mvn javadoc:javadoc
+
+Which will place your documentation in ${PROJECT_ROOT}/target/site/apidocs/
 
 ## Common issues
 
