@@ -18,8 +18,6 @@ package org.mrpdaemon.sec.encfs;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.security.InvalidKeyException;
 import java.security.Key;
 import java.security.SecureRandom;
@@ -1250,13 +1248,13 @@ public class EncFSVolume {
 	}
 
 	/**
-	 * Opens the specified file as an InputStream that decrypts the file
+	 * Opens the specified file as an EncFSInputStream that decrypts the file
 	 * contents automatically
 	 * 
 	 * @param filePath
 	 *            Absolute volume path of the file
 	 * 
-	 * @return InputStream that decrypts file contents
+	 * @return EncFSInputStream that decrypts file contents
 	 * 
 	 * @throws EncFSCorruptDataException
 	 *             Filename encoding failed
@@ -1265,7 +1263,7 @@ public class EncFSVolume {
 	 * @throws IOException
 	 *             File provider returned I/O error
 	 */
-	public InputStream openInputStreamForPath(String filePath)
+	public EncFSInputStream openInputStreamForPath(String filePath)
 			throws EncFSCorruptDataException, EncFSUnsupportedException,
 			IOException {
 		EncFSFile file = getFile(filePath);
@@ -1273,7 +1271,7 @@ public class EncFSVolume {
 	}
 
 	/**
-	 * Opens the specified file as an OutputStream that encrypts the file
+	 * Opens the specified file as an EncFSOutputStream that encrypts the file
 	 * contents automatically
 	 * 
 	 * @param filePath
@@ -1284,7 +1282,7 @@ public class EncFSVolume {
 	 *            EncFSLocalFileProvider, but some network based storage API's
 	 *            require knowing the file length in advance.
 	 * 
-	 * @return OutputStream that encrypts file contents
+	 * @return EncFSOutputStream that encrypts file contents
 	 * 
 	 * @throws EncFSCorruptDataException
 	 *             Filename encoding failed
@@ -1293,7 +1291,7 @@ public class EncFSVolume {
 	 * @throws IOException
 	 *             File provider returned I/O error
 	 */
-	public OutputStream openOutputStreamForPath(String filePath,
+	public EncFSOutputStream openOutputStreamForPath(String filePath,
 			long outputLength) throws EncFSCorruptDataException,
 			EncFSUnsupportedException, IOException, EncFSChecksumException {
 		EncFSFile file = this.getFile(filePath);
