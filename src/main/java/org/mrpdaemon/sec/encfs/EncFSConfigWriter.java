@@ -47,15 +47,12 @@ public class EncFSConfigWriter {
 				if (version != null) {
 					return version;
 				} else {
-					/*XXX*/System.out.println("version is NULL");
 					return ENCFS_JAVA_LIB_VERSION_DEV;
 				}
 			} catch (IOException e) {
-				/*XXX*/System.out.println("IO Exception");
 				return ENCFS_JAVA_LIB_VERSION_DEV;
 			}
 		} else {
-			/*XXX*/System.out.println("in is NULL");
 			return ENCFS_JAVA_LIB_VERSION_DEV;
 		}
 	}
