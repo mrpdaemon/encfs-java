@@ -181,6 +181,20 @@ public class EncFSLocalFileProvider implements EncFSFileProvider {
 		return sourceFile.renameTo(destFile);
 	}
 
+	/*
+	 * Recursive delete function
+	 */
+	private void recursiveDelete(File file) throws IOException {
+		if (file.isDirectory()) {
+			for (File childFile : file.listFiles()) {
+				recursiveDelete(childFile);
+			}
+		}
+		if (!file.delete()) {
+			throw new IOException("Failed to delete file " + file);
+		}
+	}
+
 	/**
 	 * Delete the file or directory with the given path
 	 * 
@@ -194,8 +208,14 @@ public class EncFSLocalFileProvider implements EncFSFileProvider {
 	 */
 	public boolean delete(String srcPath) {
 		File toEncFile = new File(rootPath.getAbsoluteFile(), srcPath);
-		boolean result = toEncFile.delete();
-		return result;
+
+		try {
+			recursiveDelete(toEncFile);
+		} catch (IOException e) {
+			return false;
+		}
+
+		return true;
 	}
 
 	/**

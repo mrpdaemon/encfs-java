@@ -231,14 +231,6 @@ public class EncFSVolumeTestCommon {
 		recursiveCopyResult = volume.deletePath("/dir2/dir1", true);
 		Assert.assertTrue(recursiveCopyResult);
 
-		// Try to delete the src dir (should fail as it has files)
-		try {
-			boolean deleteDirResult = volume.deletePath("/dir1", false);
-			Assert.assertFalse(deleteDirResult);
-		} catch (FileNotFoundException e) {
-			// Some file providers throw exceptions instead of returning false
-		}
-
 		// Delete the src file
 		boolean deleteFileResult = volume.deletePath("/dir1/test.txt", false);
 		Assert.assertTrue(deleteFileResult);
