@@ -116,7 +116,6 @@ public class EncFSConfigWriter {
 				+ Integer.toString(config.getBlockMACRandBytes())
 				+ "</blockMACRandBytes>\n";
 
-		// XXX: We don't properly support holes in files either
 		result += "\t<allowHoles>"
 				+ (config.isHolesAllowed() == true ? "1" : "0")
 				+ "</allowHoles>\n";
