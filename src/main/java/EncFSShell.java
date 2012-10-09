@@ -14,6 +14,7 @@
  */
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -25,10 +26,12 @@ import java.util.Iterator;
 import java.util.Stack;
 import java.util.StringTokenizer;
 
+import org.mrpdaemon.sec.encfs.EncFSConfig;
 import org.mrpdaemon.sec.encfs.EncFSException;
 import org.mrpdaemon.sec.encfs.EncFSFile;
 import org.mrpdaemon.sec.encfs.EncFSFileInputStream;
 import org.mrpdaemon.sec.encfs.EncFSInvalidPasswordException;
+import org.mrpdaemon.sec.encfs.EncFSLocalFileProvider;
 import org.mrpdaemon.sec.encfs.EncFSProgressListener;
 import org.mrpdaemon.sec.encfs.EncFSUtil;
 import org.mrpdaemon.sec.encfs.EncFSVolume;
@@ -42,6 +45,9 @@ public class EncFSShell {
 
 	// EncFSVolume that we're working on
 	private static EncFSVolume volume;
+
+	// Buffered reader for reading input stream
+	private static BufferedReader br;
 
 	// Search method that returns individual path elements for a given path
 	private static ArrayList<EncFSFile> getPath(String path) throws IOException {
@@ -96,6 +102,73 @@ public class EncFSShell {
 		return result;
 	}
 
+	// Method for accepting password input
+	private static String passwordInput() {
+		System.out.print("Enter password: ");
+		String password = null;
+
+		try {
+			password = br.readLine();
+		} catch (IOException e) {
+			e.printStackTrace();
+			System.exit(1);
+		}
+
+		return password;
+	}
+
+	// Method to create a new volume
+	private static boolean createVolume(String path) {
+		System.out.print("No EncFS volume found at '" + path
+				+ "' would you like to create it? [Yes/No]: ");
+
+		String response = null;
+		try {
+			response = br.readLine();
+		} catch (IOException e) {
+			e.printStackTrace();
+			return false;
+		}
+
+		if (response.toLowerCase().equals("yes")
+				|| response.toLowerCase().equals("y")) {
+
+			// If the directory doesn't exist create it first
+			File inputDir = new File(path);
+			if (!inputDir.exists()) {
+				if (!inputDir.mkdir()) {
+					return true;
+				}
+			}
+
+			String password = passwordInput();
+
+			// Create the volume
+			try {
+				EncFSVolume.createVolume(new EncFSLocalFileProvider(inputDir),
+						new EncFSConfig(), password);
+			} catch (Exception e) {
+				e.printStackTrace();
+				return false;
+			}
+
+			System.out.println("New volume '" + path
+					+ "' created successfully.");
+
+			// Open the volume
+			try {
+				volume = new EncFSVolume(path, password);
+			} catch (Exception e) {
+				System.out.println(e.getMessage());
+				return false;
+			}
+
+			return true;
+		}
+
+		return false;
+	}
+
 	public static void main(String[] args) {
 
 		if (args.length != 1) {
@@ -104,32 +177,37 @@ public class EncFSShell {
 			System.exit(1);
 		}
 
-		// Password input
-		System.out.print("Enter password: ");
-		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-		String password = null;
-		try {
-			password = br.readLine();
-		} catch (IOException e) {
-			e.printStackTrace();
-			System.exit(1);
-		}
+		br = new BufferedReader(new InputStreamReader(System.in));
 
-		// Create a new EncFS volume
-		try {
-			volume = new EncFSVolume(args[0], password);
-		} catch (EncFSInvalidPasswordException e) {
-			System.out.println("Invalid password!");
-			System.exit(1);
-		} catch (EncFSException e) {
-			System.out.println(e.getMessage());
-			System.exit(1);
-		} catch (FileNotFoundException e) {
-			System.out.println(e.getMessage());
-			System.exit(1);
-		} catch (IOException e) {
-			System.out.println(e.getMessage());
-			System.exit(1);
+		/*
+		 * If the given directory or the config file doesn't exist ask for
+		 * creation.
+		 */
+		File inputDir = new File(args[0]);
+		File configFile = new File(args[0], EncFSVolume.CONFIG_FILE_NAME);
+		if (!inputDir.exists() || !configFile.exists()) {
+			if (!createVolume(args[0])) {
+				System.exit(1);
+			}
+		} else {
+			String password = passwordInput();
+
+			// Try to open the EncFSVolume at args[0] using the given password
+			try {
+				volume = new EncFSVolume(args[0], password);
+			} catch (EncFSInvalidPasswordException e) {
+				System.out.println("Invalid password!");
+				System.exit(1);
+			} catch (EncFSException e) {
+				System.out.println(e.getMessage());
+				System.exit(1);
+			} catch (FileNotFoundException e) {
+				System.out.println(e.getMessage());
+				System.exit(1);
+			} catch (IOException e) {
+				System.out.println(e.getMessage());
+				System.exit(1);
+			}
 		}
 
 		// Start at the root of the EncFS volume
