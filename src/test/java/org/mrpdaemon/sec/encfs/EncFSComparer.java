@@ -184,8 +184,8 @@ public class EncFSComparer {
 								encFsFile),
 								new EncFSOutputStream(encFsDir.getVolume(),
 										new BufferedOutputStream(
-												new FileOutputStream(t))),
-								true, true);
+												new FileOutputStream(t)),
+										encFsFile.getPath()), true, true);
 
 						FileInputStream reEncFSIs = new FileInputStream(t);
 						try {

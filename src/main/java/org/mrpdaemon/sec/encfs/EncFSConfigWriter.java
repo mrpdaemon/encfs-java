@@ -106,8 +106,9 @@ public class EncFSConfigWriter {
 				+ (config.isChainedNameIV() == true ? "1" : "0")
 				+ "</chainedNameIV>\n";
 
-		// XXX: We don't support external IV chaining yet
-		result += "\t<externalIVChaining>0</externalIVChaining>\n";
+		result += "\t<externalIVChaining>"
+				+ (config.isExternalIVChaining() == true ? "1" : "0")
+				+ "</externalIVChaining>\n";
 
 		result += "\t<blockMACBytes>"
 				+ Integer.toString(config.getBlockMACBytes())

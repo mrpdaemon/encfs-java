@@ -78,6 +78,9 @@ public class EncFSConfig {
 	// Number of random bytes in each block MAC header
 	private int blockMACRandBytes;
 
+	// Whether externalIVChaining is supported
+	private boolean externalIVChaining;
+
 	/**
 	 * Creates a default EncFS configuration that encfs-java supports
 	 */
@@ -91,6 +94,7 @@ public class EncFSConfig {
 		setIterationCount(5000);
 		setBlockMACBytes(0);
 		setBlockMACRandBytes(0);
+		setExternalIVChaining(false);
 	}
 
 	/**
@@ -350,9 +354,29 @@ public class EncFSConfig {
 		this.blockMACRandBytes = blockMACRandBytes;
 	}
 
+	/**
+	 * Checks whether external IV chaining is used.
+	 *
+	 * @return whether external IV chaining is used.
+	 */
+	public boolean isExternalIVChaining() {
+		return externalIVChaining;
+	}
+
+	/**
+	 * When using external IV chaining, each parent element in a file's path
+	 * contributes to the IV that is used to encrypt the file's contents.
+	 *
+	 * @param externalIVChaining
+	 *            whether external IV chaining is being used.
+	 */
+	public void setExternalIVChaining(boolean externalIVChaining) {
+		this.externalIVChaining = externalIVChaining;
+	}
+
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see java.lang.Object#toString()
 	 */
 	@Override
@@ -363,7 +387,9 @@ public class EncFSConfig {
 				+ ", encodedKeyLength=" + encodedKeyLength + ", encodedKeyStr="
 				+ encodedKeyStr + ", saltLength=" + saltLength + ", saltStr="
 				+ saltStr + ", iterationCount=" + iterationCount
-				+ ", nameAlgorithm=" + nameAlgorithm + "]";
+				+ ", nameAlgorithm=" + nameAlgorithm + ", blockMACBytes="
+				+ blockMACBytes + ", blockMACRandBytes=" + blockMACRandBytes
+				+ ", externalIVChaining=" + externalIVChaining + "]";
 	}
 
 }

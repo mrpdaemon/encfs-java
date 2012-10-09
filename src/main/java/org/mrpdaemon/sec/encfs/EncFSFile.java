@@ -287,7 +287,7 @@ public class EncFSFile {
 	public EncFSInputStream openInputStream() throws EncFSCorruptDataException,
 			EncFSUnsupportedException, IOException {
 		return new EncFSInputStream(volume, volume.getFileProvider()
-				.openInputStream(getEncryptedPath()));
+				.openInputStream(getEncryptedPath()), getPath());
 	}
 
 	/**
@@ -315,7 +315,7 @@ public class EncFSFile {
 			IOException {
 		return new EncFSOutputStream(volume, volume.getFileProvider()
 				.openOutputStream(getEncryptedPath(),
-						volume.getEncryptedFileLength(inputLength)));
+						volume.getEncryptedFileLength(inputLength)), getPath());
 	}
 
 	/**

@@ -67,6 +67,9 @@ public class EncFSInputStream extends FilterInputStream {
 	 *            Volume hosting the file to read
 	 * @param in
 	 *            Input stream to access the raw (encrypted) file contents
+	 * @param volumePath
+	 *            Volume path of the file being decrypted (needed for
+	 *            externalIVChaining)
 	 * 
 	 * @throws EncFSCorruptDataException
 	 *             File data is corrupt
@@ -75,8 +78,9 @@ public class EncFSInputStream extends FilterInputStream {
 	 * @throws IOException
 	 *             File provider returned I/O error
 	 */
-	public EncFSInputStream(EncFSVolume volume, InputStream in)
-			throws EncFSCorruptDataException, EncFSUnsupportedException {
+	public EncFSInputStream(EncFSVolume volume, InputStream in,
+			String volumePath) throws EncFSCorruptDataException,
+			EncFSUnsupportedException {
 		super(in);
 		this.volume = volume;
 		this.config = volume.getConfig();
@@ -96,10 +100,21 @@ public class EncFSInputStream extends FilterInputStream {
 			} catch (IOException e) {
 				throw new EncFSCorruptDataException("Could't read file IV");
 			}
-			byte[] zeroIv = new byte[8];
-			// TODO: external IV chaining changes zeroIv
+
+			byte[] initIv;
+			if (config.isExternalIVChaining()) {
+				/*
+				 * When using external IV chaining we compute initIv based on
+				 * the file path.
+				 */
+				initIv = EncFSCrypto.computeChainIv(volume, volumePath);
+			} else {
+				// When not using external IV chaining initIv is just zero's.
+				initIv = new byte[8];
+			}
+
 			try {
-				this.fileIv = EncFSCrypto.streamDecode(volume, zeroIv,
+				this.fileIv = EncFSCrypto.streamDecode(volume, initIv,
 						fileHeader);
 			} catch (InvalidAlgorithmParameterException e) {
 				e.printStackTrace();

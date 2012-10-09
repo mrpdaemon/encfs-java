@@ -82,14 +82,18 @@ public class EncFSOutputStream extends FilterOutputStream {
 	 *            Volume hosting the file to write
 	 * @param out
 	 *            Output stream for writing the encrypted (raw) data
+	 * @param volumePath
+	 *            Volume path of the file being encrypted (needed for
+	 *            externalIVChaining)
 	 * 
 	 * @throws EncFSCorruptDataException
 	 *             File data is corrupt
 	 * @throws EncFSUnsupportedException
 	 *             Unsupported EncFS configuration
 	 */
-	public EncFSOutputStream(EncFSVolume volume, OutputStream out)
-			throws EncFSUnsupportedException, EncFSCorruptDataException {
+	public EncFSOutputStream(EncFSVolume volume, OutputStream out,
+			String volumePath) throws EncFSUnsupportedException,
+			EncFSCorruptDataException {
 		super(out);
 		this.volume = volume;
 		this.config = volume.getConfig();
@@ -106,10 +110,20 @@ public class EncFSOutputStream extends FilterOutputStream {
 
 			secureRandom.nextBytes(fileHeader);
 
-			byte[] zeroIv = new byte[8];
-			// TODO: external IV chaining changes zeroIv
+			byte[] initIv;
+			if (config.isExternalIVChaining()) {
+				/*
+				 * When using external IV chaining we compute initIv based on
+				 * the file path.
+				 */
+				initIv = EncFSCrypto.computeChainIv(volume, volumePath);
+			} else {
+				// When not using external IV chaining initIv is just zero's.
+				initIv = new byte[8];
+			}
+
 			try {
-				this.fileIv = EncFSCrypto.streamDecode(volume, zeroIv,
+				this.fileIv = EncFSCrypto.streamDecode(volume, initIv,
 						Arrays.copyOf(fileHeader, fileHeader.length));
 			} catch (InvalidAlgorithmParameterException e) {
 				e.printStackTrace();

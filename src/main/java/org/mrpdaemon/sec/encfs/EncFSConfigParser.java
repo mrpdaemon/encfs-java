@@ -214,10 +214,8 @@ public class EncFSConfigParser {
 					config.setBlockMACRandBytes(Integer
 							.parseInt(getNodeValue(cfgNode)));
 				} else if (cfgNode.getNodeName().equals("externalIVChaining")) {
-					if (Integer.parseInt(getNodeValue(cfgNode)) != 0) {
-						throw new EncFSUnsupportedException(
-								"externalIVChaining option not supported.");
-					}
+					config.setExternalIVChaining(Integer
+							.parseInt(getNodeValue(cfgNode)) == 1);
 				}
 			}
 		}

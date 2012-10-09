@@ -663,8 +663,16 @@ public class EncFSCrypto {
 		return blockOperation(volume, ivSeed, data, Cipher.ENCRYPT_MODE);
 	}
 
-	// Compute chain IV for the given volume path
-	private static byte[] computeChainIv(EncFSVolume volume, String volumePath) {
+	/**
+	 * Compute chain IV for the given volume path
+	 *
+	 * @param volume
+	 *            Volume to compute chain IV for
+	 * @param volumePath
+	 *            Volume path to compute chain IV for
+	 * @return Computed chain IV
+	 */
+	public static byte[] computeChainIv(EncFSVolume volume, String volumePath) {
 		byte[] chainIv = new byte[8];
 		StringTokenizer st = new StringTokenizer(volumePath,
 				EncFSVolume.PATH_SEPARATOR);

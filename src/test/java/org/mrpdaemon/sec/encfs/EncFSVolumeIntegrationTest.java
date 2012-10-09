@@ -402,10 +402,12 @@ public class EncFSVolumeIntegrationTest {
 			// the file is the same
 			File t = File.createTempFile(this.getClass().getName(), ".tmp");
 			try {
-				EncFSUtil.copyWholeStream(new EncFSFileInputStream(encFsFile),
+				EncFSUtil.copyWholeStream(
+						new EncFSFileInputStream(encFsFile),
 						new EncFSOutputStream(encFsFile.getVolume(),
 								new BufferedOutputStream(
-										new FileOutputStream(t))), true, true);
+										new FileOutputStream(t)), encFsFile
+										.getPath()), true, true);
 
 				if (encFsFile.getVolume().getConfig().isUniqueIV() == false) {
 					FileInputStream reEncFSIs = new FileInputStream(t);
@@ -428,7 +430,8 @@ public class EncFSVolumeIntegrationTest {
 							encFsFile);
 					try {
 						EncFSInputStream efisCopy = new EncFSInputStream(
-								encFsFile.getVolume(), new FileInputStream(t));
+								encFsFile.getVolume(), new FileInputStream(t),
+								encFsFile.getPath());
 						try {
 							assertInputStreamsAreEqual(encFsFile.getPath(),
 									efis, efisCopy);
