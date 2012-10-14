@@ -374,6 +374,22 @@ public class EncFSConfig {
 		this.externalIVChaining = externalIVChaining;
 	}
 
+	/**
+	 * Validate this configuration
+	 *
+	 * @throws EncFSInvalidConfigException
+	 *             Configuration is invalid
+	 */
+	public void validate() throws EncFSInvalidConfigException {
+		if (isExternalIVChaining()) {
+			if (!isChainedNameIV() || !isUniqueIV()) {
+				throw new EncFSInvalidConfigException(
+						"External IV chaining requires chained name IV and "
+								+ "unique IV to be enabled");
+			}
+		}
+	}
+
 	/*
 	 * (non-Javadoc)
 	 *

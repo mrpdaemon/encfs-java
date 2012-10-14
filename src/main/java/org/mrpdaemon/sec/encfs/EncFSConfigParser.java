@@ -119,6 +119,9 @@ public class EncFSConfigParser {
 			throw new EncFSInvalidConfigException("Couldn't open config file");
 		}
 
+		// Validate the configuration
+		config.validate();
+
 		return config;
 	}
 
