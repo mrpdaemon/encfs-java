@@ -226,6 +226,56 @@ public class EncFSVolumeIntegrationTest {
 	}
 
 	@Test
+	public void testExtIvChain() throws EncFSInvalidPasswordException,
+			EncFSInvalidConfigException, EncFSCorruptDataException,
+			EncFSUnsupportedException, EncFSChecksumException, IOException {
+		File encFSDir = new File("test/encfs_samples/testvol-extivchn");
+		Assert.assertTrue(encFSDir.exists());
+
+		String password = "test";
+		EncFSVolume volume = new EncFSVolume(encFSDir.getAbsolutePath(),
+				password);
+		EncFSFile rootDir = volume.getRootDir();
+		EncFSFile[] files = rootDir.listFiles();
+		Assert.assertEquals(2, files.length);
+
+		String contents;
+		int numOuterMatches = 0, numInnerMatches = 0;
+
+		for (EncFSFile encFSFile : files) {
+			if (encFSFile.getName().equals("test.txt")) {
+				numOuterMatches++;
+				Assert.assertFalse(encFSFile.isDirectory());
+				contents = readInputStreamAsString(encFSFile);
+				Assert.assertEquals(
+						"this is a test file with external IV chaining",
+						contents);
+			} else if (encFSFile.getName().equals("directory")) {
+				numOuterMatches++;
+				Assert.assertTrue(encFSFile.isDirectory());
+
+				// Traverse down the directory
+				for (EncFSFile subFile : encFSFile.listFiles()) {
+					numInnerMatches++;
+					Assert.assertEquals(subFile.getName(),
+							"another-test-file.txt");
+					contents = readInputStreamAsString(subFile);
+					Assert.assertEquals(
+							"this is another test file with external IV chaining",
+							contents);
+				}
+			}
+		}
+
+		Assert.assertEquals(numOuterMatches, 2);
+		Assert.assertEquals(numInnerMatches, 1);
+
+		assertFileNameEncoding(rootDir);
+		assertEncFSFileRoundTrip(rootDir);
+		assertLengthCalculations(rootDir);
+	}
+
+	@Test
 	public void testBoxCryptor_1() throws EncFSInvalidPasswordException,
 			EncFSInvalidConfigException, EncFSCorruptDataException,
 			EncFSUnsupportedException, EncFSChecksumException, IOException {
