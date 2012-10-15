@@ -1104,7 +1104,21 @@ public class EncFSVolume {
 				}
 
 				if (op == PathOperation.MOVE) {
-					result = fileProvider.move(encSrcPath, encDstPath);
+					if (getConfig().isExternalIVChaining()) {
+						/*
+						 * Need to re-encrypt the file contents while moving
+						 * since external IV chaining is being used. We'll just
+						 * copy the file over to the destination path and delete
+						 * the original file afterwards.
+						 */
+						result = srcFile.copy(createFile(dstPath));
+						if (result == true) {
+							result = srcFile.delete();
+						}
+					} else {
+						// Simply move the file
+						result = fileProvider.move(encSrcPath, encDstPath);
+					}
 				} else {
 					result = srcFile.copy(createFile(dstPath));
 				}

@@ -354,9 +354,23 @@ public class EncFSFile {
 			return this.copy(realDstPath);
 		} else {
 			// Trying to copy a file into a file
-			return volume.getFileProvider().copy(getEncryptedPath(),
-					dstPath.getEncryptedPath());
+			if (volume.getConfig().isExternalIVChaining()) {
+				/*
+				 * Need to re-encrypt the file since external IV chaining is
+				 * used.
+				 */
+				try {
+					EncFSUtil.copyWholeStream(openInputStream(),
+							dstPath.openOutputStream(getLength()), true, true);
+				} catch (EncFSException e) {
+					throw new IOException(e);
+				}
+				return true;
+			} else {
+				// Simply copy the file using the file provider
+				return volume.getFileProvider().copy(getEncryptedPath(),
+						dstPath.getEncryptedPath());
+			}
 		}
 	}
-
 }
