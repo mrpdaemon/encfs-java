@@ -1,4 +1,6 @@
-package org.mrpdaemon.sec.encfs;
+package org.mrpdaemon.sec.encfs.tests;
+
+import org.mrpdaemon.sec.encfs.*;
 
 import java.io.File;
 import java.io.FileNotFoundException;

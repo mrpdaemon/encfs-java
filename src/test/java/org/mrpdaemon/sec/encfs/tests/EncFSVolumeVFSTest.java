@@ -1,6 +1,7 @@
-package org.mrpdaemon.sec.encfs;
+package org.mrpdaemon.sec.encfs.tests;
 
-import java.io.File;
+import org.mrpdaemon.sec.encfs.*;
+
 import java.io.IOException;
 
 import junit.framework.Assert;
@@ -8,31 +9,21 @@ import junit.framework.Assert;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.mrpdaemon.sec.encfs.tests.vfs.CommonsVFSRamFileProvider;
 
-public class EncFSVolumeFileTest {
+public class EncFSVolumeVFSTest {
 
-	private EncFSLocalFileProvider fileProvider;
-	private File tempDir;
+	private CommonsVFSRamFileProvider fileProvider;
 
 	@Before
 	public void setUp() throws Exception {
-		tempDir = EncFSVolumeTestCommon.createTempDir();
-		this.fileProvider = new EncFSLocalFileProvider(tempDir);
-	}
-
-	private void recursiveDelete(File file) {
-		if (file.isDirectory()) {
-			for (File subFile : file.listFiles()) {
-				recursiveDelete(subFile);
-			}
-		} else {
-			file.delete();
-		}
+		this.fileProvider = new CommonsVFSRamFileProvider();
+		this.fileProvider.init();
 	}
 
 	@After
 	public void tearDown() throws Exception {
-		recursiveDelete(tempDir);
+		this.fileProvider.close();
 	}
 
 	@Test
@@ -61,8 +52,7 @@ public class EncFSVolumeFileTest {
 
 		Assert.assertEquals(1,
 				fileProvider.listFiles(fileProvider.getRootPath()).size());
-		Assert.assertTrue(fileProvider.exists(fileProvider.getRootPath()
-				+ ".encfs6.xml"));
+		Assert.assertTrue(fileProvider.exists("/.encfs6.xml"));
 	}
 
 	// Default volume

@@ -1,4 +1,4 @@
-package org.mrpdaemon.sec.encfs.vfs;
+package org.mrpdaemon.sec.encfs.tests.vfs;
 
 import java.io.IOException;
 import java.io.InputStream;
