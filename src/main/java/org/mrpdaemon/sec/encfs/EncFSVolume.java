@@ -114,6 +114,36 @@ public class EncFSVolume {
 	 * @param rootPath
 	 *            Path of the root directory of the EncFS volume on the local
 	 *            filesystem
+	 * @param password
+	 *            User supplied password to decrypt volume key
+	 * @param pbkdf2Provider
+	 *            Custom PBKDF2 computation provider
+	 * 
+	 * @throws EncFSInvalidPasswordException
+	 *             Given password is incorrect
+	 * @throws EncFSCorruptDataException
+	 *             Corrupt data detected (checksum error)
+	 * @throws EncFSInvalidConfigException
+	 *             Configuration file format not recognized
+	 * @throws EncFSUnsupportedException
+	 *             Unsupported EncFS version or options
+	 * @throws IOException
+	 *             File provider returned I/O error
+	 */
+	public EncFSVolume(String rootPath, String password,
+			EncFSPBKDF2Provider pbkdf2Provider)
+			throws EncFSInvalidPasswordException, EncFSInvalidConfigException,
+			EncFSCorruptDataException, EncFSUnsupportedException, IOException {
+		this.init(new EncFSLocalFileProvider(new File(rootPath)), password,
+				pbkdf2Provider);
+	}
+
+	/**
+	 * Creates a new object representing an existing EncFS volume
+	 * 
+	 * @param rootPath
+	 *            Path of the root directory of the EncFS volume on the local
+	 *            filesystem
 	 * @param passwordKey
 	 *            Cached password-based key/IV data. Can be obtained using
 	 *            getPasswordKey() on a volume created with a regular password.
@@ -160,6 +190,34 @@ public class EncFSVolume {
 			throws EncFSInvalidPasswordException, EncFSInvalidConfigException,
 			EncFSCorruptDataException, EncFSUnsupportedException, IOException {
 		this.init(fileProvider, password);
+	}
+
+	/**
+	 * Creates a new object representing an existing EncFS volume
+	 * 
+	 * @param fileProvider
+	 *            File provider for access to files stored in non-local storage
+	 * @param password
+	 *            User supplied password to decrypt volume key
+	 * @param pbkdf2Provider
+	 *            Custom PBKDF2 computation provider
+	 * 
+	 * @throws EncFSInvalidPasswordException
+	 *             Given password is incorrect
+	 * @throws EncFSCorruptDataException
+	 *             Corrupt data detected (checksum error)
+	 * @throws EncFSInvalidConfigException
+	 *             Configuration file format not recognized
+	 * @throws EncFSUnsupportedException
+	 *             Unsupported EncFS version or options
+	 * @throws IOException
+	 *             File provider returned I/O error
+	 */
+	public EncFSVolume(EncFSFileProvider fileProvider, String password,
+			EncFSPBKDF2Provider pbkdf2Provider)
+			throws EncFSInvalidPasswordException, EncFSInvalidConfigException,
+			EncFSCorruptDataException, EncFSUnsupportedException, IOException {
+		this.init(fileProvider, password, pbkdf2Provider);
 	}
 
 	/**
@@ -227,6 +285,37 @@ public class EncFSVolume {
 	 * @param config
 	 *            EncFSConfig if the config file is stored in a separate
 	 *            location than the file provider's root directory
+	 * @param password
+	 *            User supplied password to decrypt volume key
+	 * @param pbkdf2Provider
+	 *            Custom PBKDF2 computation provider
+	 * 
+	 * @throws EncFSInvalidPasswordException
+	 *             Given password is incorrect
+	 * @throws EncFSCorruptDataException
+	 *             Corrupt data detected (checksum error)
+	 * @throws EncFSInvalidConfigException
+	 *             Configuration file format not recognized
+	 * @throws EncFSUnsupportedException
+	 *             Unsupported EncFS version or options
+	 * @throws IOException
+	 *             File provider returned I/O error
+	 */
+	public EncFSVolume(EncFSFileProvider fileProvider, EncFSConfig config,
+			String password, EncFSPBKDF2Provider pbkdf2Provider)
+			throws EncFSInvalidPasswordException, EncFSInvalidConfigException,
+			EncFSCorruptDataException, EncFSUnsupportedException, IOException {
+		this.init(fileProvider, config, password, pbkdf2Provider);
+	}
+
+	/**
+	 * Creates a new object representing an existing EncFS volume
+	 * 
+	 * @param fileProvider
+	 *            File provider for access to files stored in non-local storage
+	 * @param config
+	 *            EncFSConfig if the config file is stored in a separate
+	 *            location than the file provider's root directory
 	 * @param passwordKey
 	 *            Cached password-based key/IV data. Can be obtained using
 	 *            getPasswordKey() on a volume created with a regular password.
@@ -258,9 +347,23 @@ public class EncFSVolume {
 			IOException {
 		EncFSConfig config = EncFSConfigParser.parseConfig(fileProvider,
 				CONFIG_FILE_NAME);
-		byte[] passwordKey = EncFSCrypto.derivePasswordKey(config, password);
+		byte[] passwordKey = EncFSCrypto.derivePasswordKey(config, password,
+				null);
 
 		this.init(fileProvider, config, passwordKey);
+	}
+
+	private void init(EncFSFileProvider fileProvider, String password,
+			EncFSPBKDF2Provider pbkdf2Provider)
+			throws EncFSUnsupportedException, EncFSInvalidConfigException,
+			EncFSCorruptDataException, EncFSInvalidPasswordException,
+			IOException {
+		EncFSConfig config = EncFSConfigParser.parseConfig(fileProvider,
+				CONFIG_FILE_NAME);
+		byte[] passwordKey = EncFSCrypto.derivePasswordKey(config, password,
+				pbkdf2Provider);
+
+		this.init(fileProvider, config, passwordKey, pbkdf2Provider);
 	}
 
 	// Derive password key and initialize volume
@@ -268,9 +371,21 @@ public class EncFSVolume {
 			String password) throws EncFSUnsupportedException,
 			EncFSInvalidConfigException, EncFSCorruptDataException,
 			EncFSInvalidPasswordException, IOException {
-		byte[] passwordKey = EncFSCrypto.derivePasswordKey(config, password);
+		byte[] passwordKey = EncFSCrypto.derivePasswordKey(config, password,
+				null);
 
 		this.init(fileProvider, config, passwordKey);
+	}
+
+	private void init(EncFSFileProvider fileProvider, EncFSConfig config,
+			String password, EncFSPBKDF2Provider pbkdf2Provider)
+			throws EncFSUnsupportedException, EncFSInvalidConfigException,
+			EncFSCorruptDataException, EncFSInvalidPasswordException,
+			IOException {
+		byte[] passwordKey = EncFSCrypto.derivePasswordKey(config, password,
+				pbkdf2Provider);
+
+		this.init(fileProvider, config, passwordKey, pbkdf2Provider);
 	}
 
 	// Read configuration and initialize volume
@@ -284,11 +399,20 @@ public class EncFSVolume {
 		this.init(fileProvider, config, passwordKey);
 	}
 
-	// Main method to perform volume variable initialization
+	// Main entry point for init functions without an EncFSPBKDF2Provider
 	private void init(EncFSFileProvider fileProvider, EncFSConfig config,
 			byte[] passwordKey) throws EncFSUnsupportedException,
 			EncFSInvalidConfigException, EncFSCorruptDataException,
 			EncFSInvalidPasswordException, IOException {
+		this.init(fileProvider, config, passwordKey, null);
+	}
+
+	// Main method to perform volume variable initialization
+	private void init(EncFSFileProvider fileProvider, EncFSConfig config,
+			byte[] passwordKey, EncFSPBKDF2Provider pbkdf2Provider)
+			throws EncFSUnsupportedException, EncFSInvalidConfigException,
+			EncFSCorruptDataException, EncFSInvalidPasswordException,
+			IOException {
 		this.fileProvider = fileProvider;
 
 		this.config = config;
@@ -749,7 +873,49 @@ public class EncFSVolume {
 				+ EncFSVolume.IV_LENGTH];
 		random.nextBytes(randVolKey);
 
-		EncFSCrypto.encodeVolumeKey(config, password, randVolKey);
+		EncFSCrypto.encodeVolumeKey(config, password, randVolKey, null);
+		EncFSConfigWriter.writeConfig(fileProvider, config, password);
+	}
+
+	/**
+	 * Creates a new EncFS volume on the supplied file provider using the
+	 * requested EncFSConfig parameters and the given password
+	 * 
+	 * @param fileProvider
+	 *            File provider to use for accessing storage
+	 * @param config
+	 *            Volume configuration to use, should have all fields except for
+	 *            salt/key fields initialized
+	 * @param password
+	 *            Volume password to use
+	 * @param pbkdf2Provider
+	 *            Custom PBKDF2 provider implementation
+	 * 
+	 * @throws EncFSInvalidPasswordException
+	 *             Given password is incorrect
+	 * @throws EncFSCorruptDataException
+	 *             Corrupt data detected (checksum error)
+	 * @throws EncFSInvalidConfigException
+	 *             Configuration file format not recognized
+	 * @throws EncFSUnsupportedException
+	 *             Unsupported EncFS version or options
+	 * @throws IOException
+	 *             File provider returned I/O error
+	 */
+	public static void createVolume(EncFSFileProvider fileProvider,
+			EncFSConfig config, String password,
+			EncFSPBKDF2Provider pbkdf2Provider)
+			throws EncFSInvalidPasswordException, EncFSInvalidConfigException,
+			EncFSCorruptDataException, EncFSUnsupportedException, IOException {
+		SecureRandom random = new SecureRandom();
+
+		// Create a random volume key + IV pair
+		byte[] randVolKey = new byte[config.getVolumeKeySize() / 8
+				+ EncFSVolume.IV_LENGTH];
+		random.nextBytes(randVolKey);
+
+		EncFSCrypto.encodeVolumeKey(config, password, randVolKey,
+				pbkdf2Provider);
 		EncFSConfigWriter.writeConfig(fileProvider, config, password);
 	}
 

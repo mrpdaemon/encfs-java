@@ -188,6 +188,8 @@ public class EncFSCrypto {
 	 *            Volume configuration
 	 * @param password
 	 *            Volume password
+	 * @param pbkdf2Provider
+	 *            Custom PBKDF2 provider implementation
 	 * 
 	 * @return Derived PBKDF2 key + IV bits
 	 * 
@@ -196,7 +198,8 @@ public class EncFSCrypto {
 	 * @throws EncFSUnsupportedException
 	 *             PBKDF2WithHmacSHA1 not supported by current runtime
 	 */
-	public static byte[] derivePasswordKey(EncFSConfig config, String password)
+	public static byte[] derivePasswordKey(EncFSConfig config, String password,
+			EncFSPBKDF2Provider pbkdf2Provider)
 			throws EncFSInvalidConfigException, EncFSUnsupportedException {
 		// Decode base 64 salt data
 		byte[] cipherSaltData;
@@ -206,27 +209,31 @@ public class EncFSCrypto {
 			throw new EncFSInvalidConfigException("Corrupt salt data in config");
 		}
 
-		// Execute PBKDF2 to derive key data from the password
-		SecretKeyFactory f;
-		try {
-			f = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1");
-		} catch (NoSuchAlgorithmException e) {
-			throw new EncFSUnsupportedException(e);
-		}
-		KeySpec ks = new PBEKeySpec(password.toCharArray(), cipherSaltData,
-				config.getIterationCount(), config.getVolumeKeySize() + // TODO:
-																		// (*)
-																		// Verify
-																		// this
-						EncFSVolume.IV_LENGTH * 8);
-		SecretKey pbkdf2Key = null;
-		try {
-			pbkdf2Key = f.generateSecret(ks);
-		} catch (InvalidKeySpecException e) {
-			throw new EncFSInvalidConfigException(e);
-		}
+		if (pbkdf2Provider == null) {
+			// Execute PBKDF2 to derive key data from the password
+			SecretKeyFactory f;
+			try {
+				f = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1");
+			} catch (NoSuchAlgorithmException e) {
+				throw new EncFSUnsupportedException(e);
+			}
+			KeySpec ks = new PBEKeySpec(password.toCharArray(), cipherSaltData,
+					config.getIterationCount(), config.getVolumeKeySize()
+							+ EncFSVolume.IV_LENGTH * 8);
+			SecretKey pbkdf2Key = null;
+			try {
+				pbkdf2Key = f.generateSecret(ks);
+			} catch (InvalidKeySpecException e) {
+				throw new EncFSInvalidConfigException(e);
+			}
 
-		return pbkdf2Key.getEncoded();
+			return pbkdf2Key.getEncoded();
+		} else {
+			return pbkdf2Provider.doPBKDF2(password.length(), password,
+					cipherSaltData.length, cipherSaltData,
+					config.getIterationCount(), (config.getVolumeKeySize() / 8)
+							+ EncFSVolume.IV_LENGTH);
+		}
 	}
 
 	/**
@@ -378,6 +385,8 @@ public class EncFSCrypto {
 	 *            Password to use for encoding the key
 	 * @param volKey
 	 *            Volume key to encode
+	 * @param pbkdf2Provider
+	 *            Custom PBKDF2 provider implementation
 	 * 
 	 * @throws EncFSInvalidConfigException
 	 *             Corrupt data in config file
@@ -387,8 +396,9 @@ public class EncFSCrypto {
 	 *             Stream cipher mode unsupported in current runtime
 	 */
 	public static void encodeVolumeKey(EncFSConfig config, String password,
-			byte[] volKey) throws EncFSInvalidConfigException,
-			EncFSUnsupportedException, EncFSCorruptDataException {
+			byte[] volKey, EncFSPBKDF2Provider pbkdf2Provider)
+			throws EncFSInvalidConfigException, EncFSUnsupportedException,
+			EncFSCorruptDataException {
 		SecureRandom random = new SecureRandom();
 		config.setSaltLength(20);
 
@@ -398,7 +408,7 @@ public class EncFSCrypto {
 		config.setSaltStr(EncFSBase64.encodeBytes(salt));
 
 		// Get password key data
-		byte[] pbkdf2Data = derivePasswordKey(config, password);
+		byte[] pbkdf2Data = derivePasswordKey(config, password, pbkdf2Provider);
 
 		// Encode volume key
 		byte[] encodedVolKey = encryptVolumeKey(config, pbkdf2Data, volKey);
@@ -665,7 +675,7 @@ public class EncFSCrypto {
 
 	/**
 	 * Compute chain IV for the given volume path
-	 *
+	 * 
 	 * @param volume
 	 *            Volume to compute chain IV for
 	 * @param volumePath
