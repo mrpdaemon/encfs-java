@@ -146,8 +146,12 @@ public class EncFSLocalFileProvider implements EncFSFileProvider {
 	 * @throws IOException
 	 *             Path not a directory or misc. I/O error
 	 */
-	public List<EncFSFileInfo> listFiles(String dirPath) {
+	public List<EncFSFileInfo> listFiles(String dirPath) throws IOException {
 		File srcDir = new File(rootPath.getAbsoluteFile(), dirPath);
+		if (!srcDir.isDirectory()) {
+			throw new IOException("Path: " + dirPath + " not a directory!");
+		}
+
 		File[] files = srcDir.listFiles();
 		List<EncFSFileInfo> results = new ArrayList<EncFSFileInfo>(files.length);
 		for (File file : files) {
