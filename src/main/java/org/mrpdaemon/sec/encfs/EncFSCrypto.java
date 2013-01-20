@@ -532,7 +532,7 @@ public class EncFSCrypto {
 
 		shuffleBytes(flipBytesResult);
 
-		// Second round of decryption with IV seed itself used for IV generation
+		// Second round of encryption with IV seed itself used for IV generation
 		cipherInit(key, mac, Cipher.ENCRYPT_MODE, cipher, iv, ivSeedPlusOne);
 		byte[] result = cipher.doFinal(flipBytesResult);
 
