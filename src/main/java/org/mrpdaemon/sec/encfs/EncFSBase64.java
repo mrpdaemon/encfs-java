@@ -1449,7 +1449,12 @@ public class EncFSBase64 {
 
 		byte[] decodedInput = new byte[source.length];
 		for (int i = 0; i < source.length; i++) {
-			decodedInput[i] = _ENCFS_DECODABET[source[i]];
+			int arrayIndex = source[i];
+			if (arrayIndex >= 0) {
+				decodedInput[i] = _ENCFS_DECODABET[source[i]];
+			} else {
+				decodedInput[i] = -9;
+			}
 		}
 
 		int outputLen = (source.length * 6) / 8;
