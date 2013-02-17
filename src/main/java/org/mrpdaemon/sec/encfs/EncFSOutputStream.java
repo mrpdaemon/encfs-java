@@ -1,12 +1,12 @@
 /*
  * EncFS Java Library
- * Copyright (C) 2011 
+ * Copyright (C) 2011
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published
  * by the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- *  
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
@@ -77,7 +77,7 @@ public class EncFSOutputStream extends FilterOutputStream {
 	/**
 	 * Create a new EncFSOutputStream for writing encrypted data to a file on an
 	 * EncFS volume
-	 * 
+	 *
 	 * @param volume
 	 *            Volume hosting the file to write
 	 * @param out
@@ -85,7 +85,7 @@ public class EncFSOutputStream extends FilterOutputStream {
 	 * @param volumePath
 	 *            Volume path of the file being encrypted (needed for
 	 *            externalIVChaining)
-	 * 
+	 *
 	 * @throws EncFSCorruptDataException
 	 *             File data is corrupt
 	 * @throws EncFSUnsupportedException
@@ -234,8 +234,8 @@ public class EncFSOutputStream extends FilterOutputStream {
 
 	// Return the block IV for the current block
 	private byte[] getBlockIV() {
-		long fileIvLong = EncFSUtil.byteArrayToLong(fileIv);
-		return EncFSUtil.longToByteArray(curBlockIndex ^ fileIvLong);
+		long fileIvLong = EncFSUtil.convertByteArrayToLong(fileIv);
+		return EncFSUtil.convertLongToByteArrayBigEndian(curBlockIndex ^ fileIvLong);
 	}
 
 	// Flush the internal buffer
@@ -245,7 +245,7 @@ public class EncFSOutputStream extends FilterOutputStream {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see java.io.FilterOutputStream#write(int)
 	 */
 	@Override
@@ -259,7 +259,7 @@ public class EncFSOutputStream extends FilterOutputStream {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see java.io.FilterOutputStream#write(int)
 	 */
 	@Override
@@ -288,7 +288,7 @@ public class EncFSOutputStream extends FilterOutputStream {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see java.io.FilterOutputStream#write(int)
 	 */
 	@Override

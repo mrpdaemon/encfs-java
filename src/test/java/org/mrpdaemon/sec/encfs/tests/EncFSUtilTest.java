@@ -28,8 +28,8 @@ public class EncFSUtilTest {
 		int testInt = 99;
     ByteBuffer b = ByteBuffer.allocate(Integer.SIZE / 8).putInt(testInt);
 
-		Assert.assertArrayEquals(b.array(), EncFSUtil.intToByteArray(testInt));
-		Assert.assertEquals(testInt, EncFSUtil.byteArrayToInt(b.array()));
+		Assert.assertArrayEquals(b.array(), EncFSUtil.convertIntToByteArrayBigEndian(testInt));
+		Assert.assertEquals(testInt, EncFSUtil.convertBigEndianByteArrayToInt(b.array()));
 	}
 
 	@Test
@@ -37,8 +37,8 @@ public class EncFSUtilTest {
 		long testLong = 1198;
     ByteBuffer b = ByteBuffer.allocate(Long.SIZE / 8).putLong(testLong);
 
-		Assert.assertArrayEquals(b.array(), EncFSUtil.longToByteArray(testLong));
-		Assert.assertEquals(testLong, EncFSUtil.byteArrayToLong(b.array()));
+		Assert.assertArrayEquals(b.array(), EncFSUtil.convertLongToByteArrayBigEndian(testLong));
+		Assert.assertEquals(testLong, EncFSUtil.convertByteArrayToLong(b.array()));
 	}
 
 	@Test
@@ -70,13 +70,13 @@ public class EncFSUtilTest {
 	}
 
 	private long toBytesAndBack(long lIn) {
-		byte[] b = EncFSUtil.longToByteArray(lIn);
-    return EncFSUtil.byteArrayToLong(b);
+		byte[] b = EncFSUtil.convertLongToByteArrayBigEndian(lIn);
+    return EncFSUtil.convertByteArrayToLong(b);
 	}
 
 	private int toBytesAndBack(int iIn) {
-		byte[] b = EncFSUtil.intToByteArray(iIn);
-    return EncFSUtil.byteArrayToInt(b);
+		byte[] b = EncFSUtil.convertIntToByteArrayBigEndian(iIn);
+    return EncFSUtil.convertBigEndianByteArrayToInt(b);
 	}
 
 }

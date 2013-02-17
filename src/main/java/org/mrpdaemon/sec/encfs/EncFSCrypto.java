@@ -6,7 +6,7 @@
  * it under the terms of the GNU Lesser General Public License as published
  * by the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- *  
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
@@ -45,12 +45,12 @@ public class EncFSCrypto {
 
 	/**
 	 * Create a new Mac object for the given key.
-	 * 
+	 *
 	 * @param key
 	 *            Key to create a new Mac for.
-	 * 
+	 *
 	 * @return New Mac object.
-	 * 
+	 *
 	 * @throws InvalidKeyException
 	 *             Passed key is not valid
 	 * @throws EncFSUnsupportedException
@@ -71,7 +71,7 @@ public class EncFSCrypto {
 
 	/**
 	 * Creates a new AES key with the given key bytes.
-	 * 
+	 *
 	 * @param keyBytes
 	 *            Key data.
 	 * @return New AES key.
@@ -82,9 +82,9 @@ public class EncFSCrypto {
 
 	/**
 	 * Returns a new stream cipher with AES/CFB/NoPadding.
-	 * 
+	 *
 	 * @return A new Cipher object.
-	 * 
+	 *
 	 * @throws EncFSUnsupportedException
 	 *             AES/CFB/NoPadding not supported by this runtime
 	 */
@@ -102,9 +102,9 @@ public class EncFSCrypto {
 
 	/**
 	 * Returns a new block cipher with AES/CBC/NoPadding.
-	 * 
+	 *
 	 * @return A new Cipher object.
-	 * 
+	 *
 	 * @throws EncFSUnsupportedException
 	 *             AES/CBC/NoPadding not supported by this runtime
 	 */
@@ -161,7 +161,7 @@ public class EncFSCrypto {
 
 	/**
 	 * Initialize the given cipher for a volume with the given parameters
-	 * 
+	 *
 	 * @param volume
 	 *            Volume to initialize the cipher for
 	 * @param opMode
@@ -170,7 +170,7 @@ public class EncFSCrypto {
 	 *            Cipher object
 	 * @param ivSeed
 	 *            IV seed for initialization
-	 * 
+	 *
 	 * @throws InvalidAlgorithmParameterException
 	 *             Inappropriate algorithm parameters
 	 */
@@ -183,16 +183,16 @@ public class EncFSCrypto {
 
 	/**
 	 * Derive password-based key from input/config parameters using PBKDF2
-	 * 
+	 *
 	 * @param config
 	 *            Volume configuration
 	 * @param password
 	 *            Volume password
 	 * @param pbkdf2Provider
 	 *            Custom PBKDF2 provider implementation
-	 * 
+	 *
 	 * @return Derived PBKDF2 key + IV bits
-	 * 
+	 *
 	 * @throws EncFSInvalidConfigException
 	 *             Unable to decode salt bytes
 	 * @throws EncFSUnsupportedException
@@ -238,14 +238,14 @@ public class EncFSCrypto {
 
 	/**
 	 * Derive volume key for the given config and password-based key/IV data
-	 * 
+	 *
 	 * @param config
 	 *            Volume configuration
 	 * @param pbkdf2Data
 	 *            PBKDF2 key material + IV (from derivePasswordKey())
-	 * 
+	 *
 	 * @return Volume key + IV bits
-	 * 
+	 *
 	 * @throws EncFSChecksumException
 	 *             Volume key checksum mismatch
 	 * @throws EncFSInvalidConfigException
@@ -310,14 +310,14 @@ public class EncFSCrypto {
 
 	/**
 	 * Derive volume key for the given config and password-based key/IV data
-	 * 
+	 *
 	 * @param config
 	 *            Volume configuration
 	 * @param pbkdf2Data
 	 *            PBKDF2 key material + IV (from derivePasswordKey())
-	 * 
+	 *
 	 * @return Volume key + IV bits
-	 * 
+	 *
 	 * @throws EncFSInvalidConfigException
 	 *             Corrupt data in config file
 	 * @throws EncFSCorruptDataException
@@ -378,7 +378,7 @@ public class EncFSCrypto {
 	/**
 	 * Encodes the given volume key using the supplied password parameters,
 	 * placing it into the EncFSConfig
-	 * 
+	 *
 	 * @param config
 	 *            Partially initialized volume configuration
 	 * @param password
@@ -387,7 +387,7 @@ public class EncFSCrypto {
 	 *            Volume key to encode
 	 * @param pbkdf2Provider
 	 *            Custom PBKDF2 provider implementation
-	 * 
+	 *
 	 * @throws EncFSInvalidConfigException
 	 *             Corrupt data in config file
 	 * @throws EncFSCorruptDataException
@@ -453,16 +453,16 @@ public class EncFSCrypto {
 
 	/**
 	 * Decode the given data using stream mode
-	 * 
+	 *
 	 * @param volume
 	 *            Volume for the data
 	 * @param ivSeed
 	 *            IV seed for the decryption
 	 * @param data
 	 *            Encrypted data contents
-	 * 
+	 *
 	 * @return Decrypted (plaintext) data
-	 * 
+	 *
 	 * @throws EncFSUnsupportedException
 	 *             Unsupported IV seed length
 	 * @throws InvalidAlgorithmParameterException
@@ -482,7 +482,7 @@ public class EncFSCrypto {
 
 	/**
 	 * Decode the given data using stream mode
-	 * 
+	 *
 	 * @param volume
 	 *            Volume for the data
 	 * @param ivSeed
@@ -493,9 +493,9 @@ public class EncFSCrypto {
 	 *            Offset into the data buffer to decode from
 	 * @param len
 	 *            Number of bytes in the data buffer to decode
-	 * 
+	 *
 	 * @return Decrypted (plaintext) data
-	 * 
+	 *
 	 * @throws EncFSUnsupportedException
 	 *             Unsupported IV seed length
 	 * @throws InvalidAlgorithmParameterException
@@ -549,16 +549,16 @@ public class EncFSCrypto {
 
 	/**
 	 * Encode the given data using stream mode
-	 * 
+	 *
 	 * @param volume
 	 *            Volume for the data
 	 * @param ivSeed
 	 *            IV seed for the encryption
 	 * @param data
 	 *            Plaintext data contents
-	 * 
+	 *
 	 * @return Encrypted (ciphertext) data
-	 * 
+	 *
 	 * @throws EncFSUnsupportedException
 	 *             Unsupported IV seed length
 	 * @throws InvalidAlgorithmParameterException
@@ -578,7 +578,7 @@ public class EncFSCrypto {
 
 	/**
 	 * Encode the given data using stream mode
-	 * 
+	 *
 	 * @param volume
 	 *            Volume for the data
 	 * @param ivSeed
@@ -589,9 +589,9 @@ public class EncFSCrypto {
 	 *            Offset into the data buffer to start encoding from
 	 * @param len
 	 *            Length of the data in the data buffer to encode
-	 * 
+	 *
 	 * @return Encrypted (ciphertext) data
-	 * 
+	 *
 	 * @throws EncFSUnsupportedException
 	 *             Unsupported IV seed length
 	 * @throws InvalidAlgorithmParameterException
@@ -625,16 +625,16 @@ public class EncFSCrypto {
 
 	/**
 	 * Decode the given data using block mode
-	 * 
+	 *
 	 * @param volume
 	 *            Volume for the data
 	 * @param ivSeed
 	 *            IV seed for the decryption
 	 * @param data
 	 *            Encrypted data contents
-	 * 
+	 *
 	 * @return Decrypted (plaintext) data
-	 * 
+	 *
 	 * @throws InvalidAlgorithmParameterException
 	 *             Invalid algorithm parameters
 	 * @throws IllegalBlockSizeException
@@ -650,16 +650,16 @@ public class EncFSCrypto {
 
 	/**
 	 * Encode the given data using block mode
-	 * 
+	 *
 	 * @param volume
 	 *            Volume for the data
 	 * @param ivSeed
 	 *            IV seed for the encryption
 	 * @param data
 	 *            Plaintext data contents
-	 * 
+	 *
 	 * @return Encrypted (ciphertext) data
-	 * 
+	 *
 	 * @throws InvalidAlgorithmParameterException
 	 *             Invalid algorithm parameters
 	 * @throws IllegalBlockSizeException
@@ -675,7 +675,7 @@ public class EncFSCrypto {
 
 	/**
 	 * Compute chain IV for the given volume path
-	 * 
+	 *
 	 * @param volume
 	 *            Volume to compute chain IV for
 	 * @param volumePath
@@ -723,16 +723,16 @@ public class EncFSCrypto {
 
 	/**
 	 * Decode the given fileName under the given volume and volume path
-	 * 
+	 *
 	 * @param volume
 	 *            Volume hosting the file
 	 * @param fileName
 	 *            Encrypted file name
 	 * @param volumePath
 	 *            Cleartext path of the file in the volume
-	 * 
+	 *
 	 * @return Decrypted file name
-	 * 
+	 *
 	 * @throws EncFSCorruptDataException
 	 *             Corrupt data in input name
 	 * @throws EncFSChecksumException
@@ -824,16 +824,16 @@ public class EncFSCrypto {
 
 	/**
 	 * Encode the given fileName under the given volume and volume path
-	 * 
+	 *
 	 * @param volume
 	 *            Volume hosting the file
 	 * @param fileName
 	 *            Cleartext file name
 	 * @param volumePath
 	 *            Cleartext path of the file in the volume
-	 * 
+	 *
 	 * @return Encrypted file name
-	 * 
+	 *
 	 * @throws EncFSCorruptDataException
 	 *             Corrupt data in config file
 	 */
@@ -926,16 +926,16 @@ public class EncFSCrypto {
 
 	/**
 	 * Encode a given path under the given volume and volume path
-	 * 
+	 *
 	 * @param volume
 	 *            Volume hosting the path
 	 * @param pathName
 	 *            Cleartext name of the path to encode (relative to volumePath)
 	 * @param volumePath
 	 *            Cleartext volume path containing the path to encode
-	 * 
+	 *
 	 * @return Encrypted path
-	 * 
+	 *
 	 * @throws EncFSCorruptDataException
 	 *             Corrupt data in config file
 	 */
@@ -976,14 +976,14 @@ public class EncFSCrypto {
 
 	/**
 	 * Compute 64-bit MAC over the given input bytes
-	 * 
+	 *
 	 * @param mac
 	 *            MAC object to use
 	 * @param input
 	 *            Input bytes
 	 * @param inputOffset
 	 *            Offset into 'input' to start computing MAC from
-	 * 
+	 *
 	 * @return Computed 64-bit MAC result
 	 */
 	protected static byte[] mac64(Mac mac, byte[] input, int inputOffset) {
@@ -992,7 +992,7 @@ public class EncFSCrypto {
 
 	/**
 	 * Compute 64-bit MAC over the given input bytes
-	 * 
+	 *
 	 * @param mac
 	 *            MAC object to use
 	 * @param input
@@ -1001,7 +1001,7 @@ public class EncFSCrypto {
 	 *            Offset into 'input' to start computing MAC from
 	 * @param inputLen
 	 *            Number of bytes to compute MAC for
-	 * 
+	 *
 	 * @return Computed 64-bit MAC result
 	 */
 	protected static byte[] mac64(Mac mac, byte[] input, int inputOffset,
@@ -1140,10 +1140,10 @@ public class EncFSCrypto {
 			throws EncFSUnsupportedException {
 		if (ivSeed.length == 4) {
 			return EncFSUtil
-					.intToByteArray(EncFSUtil.byteArrayToInt(ivSeed) + 1);
+					.convertIntToByteArrayBigEndian(EncFSUtil.convertBigEndianByteArrayToInt(ivSeed) + 1);
 		} else if (ivSeed.length == 8) {
 			return EncFSUtil
-					.longToByteArray(EncFSUtil.byteArrayToLong(ivSeed) + 1);
+					.convertLongToByteArrayBigEndian(EncFSUtil.convertByteArrayToLong(ivSeed) + 1);
 		} else {
 			throw new EncFSUnsupportedException("Unsupported IV length");
 		}

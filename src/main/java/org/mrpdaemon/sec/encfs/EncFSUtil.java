@@ -6,7 +6,7 @@
  * it under the terms of the GNU Lesser General Public License as published
  * by the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- *  
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
@@ -18,111 +18,56 @@ package org.mrpdaemon.sec.encfs;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.ByteBuffer;
 
-/**
- * Utility class with static methods to help with various functionality
- */
 public class EncFSUtil {
 
-	/**
-	 * Convert the given byte array to 'int'
-	 * 
-	 * @param b
-	 *            A 4-byte array
-	 * 
-	 * @return int value of the array contents
-	 */
-	public static int byteArrayToInt(byte[] b) {
-		if (b.length > 4)
-			return -1;
-		return (int) ((0xff & b[0]) << 24 | (0xff & b[1]) << 16
-				| (0xff & b[2]) << 8 | (0xff & b[3]) << 0);
-	}
+  public static int convertBigEndianByteArrayToInt(byte[] b) {
+    int capacity = Integer.SIZE / 8;
+    if (b.length > capacity) {
+      return -1;
+    }
+    return ByteBuffer.allocate(capacity).wrap(b).getInt();
+  }
 
-	/**
-	 * Convert the given int to a 4-byte array
-	 * 
-	 * @param i
-	 *            An 'int'
-	 * 
-	 * @return A 4-byte array in big endian (MSB) ordering
-	 */
-	public static byte[] intToByteArray(int i) {
-		return new byte[] { (byte) ((i >> 24) & 0xff),
-				(byte) ((i >> 16) & 0xff), (byte) ((i >> 8) & 0xff),
-				(byte) ((i >> 0) & 0xff), };
-	}
+  public static byte[] convertIntToByteArrayBigEndian(int i) {
+    return ByteBuffer.allocate(Integer.SIZE / 8).putInt(i).array();
+  }
 
-	/**
-	 * Convert the given byte array to 'long'
-	 * 
-	 * @param b
-	 *            An 8-byte array
-	 * @return long value of the array contents
-	 */
-	public static long byteArrayToLong(byte[] b) {
-		if (b.length > 8)
-			return -1;
-		return ((long) (0xff & b[0]) << 56 | (long) (0xff & b[1]) << 48
-				| (long) (0xff & b[2]) << 40 | (long) (0xff & b[3]) << 32
-				| (long) (0xff & b[4]) << 24 | (long) (0xff & b[5]) << 16
-				| (long) (0xff & b[6]) << 8 | (long) (0xff & b[7]) << 0);
-	}
+  public static long convertByteArrayToLong(byte[] b) {
+    int capacity = Long.SIZE / 8;
+    if (b.length > capacity) {
+      return -1;
+    }
+    return ByteBuffer.allocate(capacity).wrap(b).getLong();
+  }
 
-	/**
-	 * Convert the given long to an 8-byte array
-	 * 
-	 * @param l
-	 *            A 'long'
-	 * 
-	 * @return An 8-byte array in big endian (MSB) ordering
-	 */
-	public static byte[] longToByteArray(long l) {
-		return new byte[] { (byte) ((l >> 56) & 0xff),
-				(byte) ((l >> 48) & 0xff), (byte) ((l >> 40) & 0xff),
-				(byte) ((l >> 32) & 0xff), (byte) ((l >> 24) & 0xff),
-				(byte) ((l >> 16) & 0xff), (byte) ((l >> 8) & 0xff),
-				(byte) ((l >> 0) & 0xff), };
-	}
+  public static byte[] convertLongToByteArrayBigEndian(long l) {
+    return ByteBuffer.allocate(Long.SIZE / 8).putLong(l).array();
+  }
 
-	/**
-	 * Copy the entire content of an InputStream into an OutputStream
-	 * 
-	 * 
-	 * @param in
-	 *            The InputStream to read data from
-	 * @param out
-	 *            The OutputStream to write data to
-	 * @param closeInput
-	 *            Whether to close the InputStream after the operation
-	 * @param closeOutput
-	 *            Whether to close the OutputStream after the operation
-	 * 
-	 * @throws IOException
-	 *             I/O exception from read or write
-	 */
-	public static void copyWholeStream(InputStream in, OutputStream out,
-			boolean closeInput, boolean closeOutput) throws IOException {
-		byte[] buf = new byte[8192];
-		int bytesRead = 0;
+  public static void copyWholeStream(InputStream in, OutputStream out, boolean closeInput, boolean closeOutput) throws IOException {
+    try {
+      try {
+        readFromAndWriteTo(in, out);
+      } finally {
+        if (closeInput) {
+          in.close();
+        }
+      }
+    } finally {
+      if (closeOutput) {
+        out.close();
+      }
+    }
+  }
 
-		try {
-			try {
-				bytesRead = in.read(buf);
-				while (bytesRead >= 0) {
-					out.write(buf, 0, bytesRead);
-					bytesRead = in.read(buf);
-				}
-			} finally {
-				if (closeInput) {
-					in.close();
-				}
-			}
-		} finally {
-			if (closeOutput) {
-				out.close();
-			}
-		}
-	}
-
+  private static void readFromAndWriteTo(InputStream in, OutputStream out) throws IOException {
+    byte[] buf = new byte[8192];
+    int bytesRead = in.read(buf);
+    while (bytesRead >= 0) {
+      out.write(buf, 0, bytesRead);
+      bytesRead = in.read(buf);
+    }
+  }
 }

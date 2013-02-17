@@ -6,7 +6,7 @@
  * it under the terms of the GNU Lesser General Public License as published
  * by the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- *  
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
@@ -62,7 +62,7 @@ public class EncFSInputStream extends FilterInputStream {
 	/**
 	 * Create a new EncFSInputStream for reading decrypted data off a file on an
 	 * EncFS volume
-	 * 
+	 *
 	 * @param volume
 	 *            Volume hosting the file to read
 	 * @param in
@@ -70,7 +70,7 @@ public class EncFSInputStream extends FilterInputStream {
 	 * @param volumePath
 	 *            Volume path of the file being decrypted (needed for
 	 *            externalIVChaining)
-	 * 
+	 *
 	 * @throws EncFSCorruptDataException
 	 *             File data is corrupt
 	 * @throws EncFSUnsupportedException
@@ -131,7 +131,7 @@ public class EncFSInputStream extends FilterInputStream {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see java.io.FileInputStream#read()
 	 */
 	@Override
@@ -146,7 +146,7 @@ public class EncFSInputStream extends FilterInputStream {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see java.io.FileInputStream#read(byte[])
 	 */
 	@Override
@@ -156,7 +156,7 @@ public class EncFSInputStream extends FilterInputStream {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see java.io.InputStream#read(byte[], int, int)
 	 */
 	@Override
@@ -203,7 +203,7 @@ public class EncFSInputStream extends FilterInputStream {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see java.io.FileInputStream#skip(long)
 	 */
 	@Override
@@ -234,7 +234,7 @@ public class EncFSInputStream extends FilterInputStream {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see java.io.InputStream#markSupported()
 	 */
 	@Override
@@ -245,8 +245,8 @@ public class EncFSInputStream extends FilterInputStream {
 
 	// Return the block IV for the current block
 	private byte[] getBlockIV() {
-		long fileIvLong = EncFSUtil.byteArrayToLong(fileIv);
-		return EncFSUtil.longToByteArray(blockNum ^ fileIvLong);
+		long fileIvLong = EncFSUtil.convertByteArrayToLong(fileIv);
+		return EncFSUtil.convertLongToByteArrayBigEndian(blockNum ^ fileIvLong);
 	}
 
 	/*
