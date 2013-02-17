@@ -66,7 +66,12 @@ public class EncFSVolume {
 
   protected void readConfigAndInitializeVolume() throws EncFSUnsupportedException, EncFSInvalidConfigException, EncFSCorruptDataException, EncFSInvalidPasswordException, IOException {
 
-    byte[] keyData = deriveVolumeCryptKeyFromPassword(volumeConfiguration, passwordBasedVolumeKey);
+    byte[] keyData;
+    try {
+      keyData = VolumeKey.decryptVolumeKey(volumeConfiguration, passwordBasedVolumeKey);
+    } catch (EncFSChecksumException e) {
+      throw new EncFSInvalidPasswordException(e);
+    }
 
     int keyLength = volumeConfiguration.getVolumeKeySizeInBits() / 8;
     if (keyData.length < keyLength) {
@@ -95,14 +100,6 @@ public class EncFSVolume {
       return EncFSCrypto.newMac(VolumeCryptKey);
     } catch (InvalidKeyException e) {
       throw new EncFSInvalidConfigException(e);
-    }
-  }
-
-  private byte[] deriveVolumeCryptKeyFromPassword(EncFSConfig config, byte[] passwordKey) throws EncFSInvalidConfigException, EncFSCorruptDataException, EncFSUnsupportedException, EncFSInvalidPasswordException {
-    try {
-      return EncFSCrypto.decryptVolumeKey(config, passwordKey);
-    } catch (EncFSChecksumException e) {
-      throw new EncFSInvalidPasswordException(e);
     }
   }
 
@@ -681,4 +678,5 @@ public class EncFSVolume {
   public void setVolumeConfiguration(EncFSConfig volumeConfiguration) {
     this.volumeConfiguration = volumeConfiguration;
   }
+
 }

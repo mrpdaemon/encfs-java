@@ -106,7 +106,7 @@ public final class EncFSVolumeBuilder {
     public EncFSVolume access() throws EncFSUnsupportedException, IOException, EncFSInvalidConfigException, EncFSInvalidPasswordException, EncFSCorruptDataException {
       EncFSConfig config = volume.getVolumeConfiguration();
       if (password != null) {
-        byte[] derivedPassword = EncFSCrypto.derivePasswordKey(config, password, provider);
+        byte[] derivedPassword = VolumeKey.derivePasswordKey(config, password, provider);
         volume.setPasswordBasedVolumeKey(derivedPassword);
       }
       volume.readConfigAndInitializeVolume();
@@ -121,7 +121,7 @@ public final class EncFSVolumeBuilder {
       byte[] randVolKey = new byte[config.getVolumeKeySizeInBits() / 8 + EncFSVolume.IV_LENGTH_IN_BYTES];
       new SecureRandom().nextBytes(randVolKey);
 
-      EncFSCrypto.encodeVolumeKey(config, password, randVolKey, provider);
+      VolumeKey.encodeVolumeKey(config, password, randVolKey, provider);
       EncFSConfigWriter.writeConfig(fileProvider, config, password);
     }
   }
