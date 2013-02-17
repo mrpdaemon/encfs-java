@@ -29,21 +29,17 @@ public class EncFSVolumeTestCommon {
     return temp;
   }
 
-  public static EncFSVolume createVolume(EncFSConfig config,
-                                         EncFSFileProvider fileProvider) {
-    EncFSVolume volume = null;
+  public static EncFSVolume createVolume(EncFSConfig config, EncFSFileProvider fileProvider) throws Exception {
     try {
-      EncFSVolume.createVolume(fileProvider, config, password);
-      volume = new EncFSVolumeBuilder().withFileProvider(fileProvider).withConfig(config).withPassword( password);
+      new EncFSVolumeBuilder().withFileProvider(fileProvider).withConfig(config).withPassword(password);
+      return new EncFSVolumeBuilder().withFileProvider(fileProvider).withConfig(config).withPassword(password).access();
     } catch (Exception e) {
       Assert.fail(e.getMessage());
+      throw e;
     }
-
-    return volume;
   }
 
-  public static class EncFSFileInfoComparator implements
-      Comparator<EncFSFileInfo> {
+  public static class EncFSFileInfoComparator implements Comparator<EncFSFileInfo> {
     @Override
     public int compare(EncFSFileInfo info1, EncFSFileInfo info2) {
       return info1.getName().compareTo(info2.getName());

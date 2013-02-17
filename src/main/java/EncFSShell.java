@@ -127,8 +127,10 @@ public class EncFSShell {
 
       // Create the volume
       try {
-        EncFSVolume.createVolume(new EncFSLocalFileProvider(inputDir),
-            EncFSConfigFactory.createDefault(), password);
+        EncFSFileProvider fileProvider = new EncFSLocalFileProvider(inputDir);
+        EncFSConfig config = EncFSConfigFactory.createDefault();
+//        new EncFSVolumeBuilder().withFileProvider(fileProvider).withConfig(config).withPassword(password).create();
+        EncFSVolume.createVolume(fileProvider, config, password);
       } catch (Exception e) {
         e.printStackTrace();
         return false;
@@ -139,7 +141,7 @@ public class EncFSShell {
 
       // Open the volume
       try {
-        volume = new EncFSVolumeBuilder().withRootPath(path).withPassword(password);
+        volume = new EncFSVolumeBuilder().withRootPath(path).withPassword(password).access();
       } catch (Exception e) {
         System.out.println(e.getMessage());
         return false;
@@ -176,7 +178,7 @@ public class EncFSShell {
 
       // Try to open the EncFSVolume at args[0] using the given password
       try {
-        volume = new EncFSVolumeBuilder().withRootPath(args[0]).withPassword(password);
+        volume = new EncFSVolumeBuilder().withRootPath(args[0]).withPassword(password).access();
       } catch (EncFSInvalidPasswordException e) {
         System.out.println("Invalid password!");
         System.exit(1);
@@ -238,7 +240,6 @@ public class EncFSShell {
             public boolean sortByTime = false;
             public boolean longListingFormat = false;
           }
-
 
           final ListOptions options = new ListOptions();
           String pathStr = null;
@@ -391,8 +392,8 @@ public class EncFSShell {
                 curDir, dirPath));
           }
 
-          if (!result ) {
-            System.out.println("Failed to create directory '"                    + dirPath + "'");
+          if (!result) {
+            System.out.println("Failed to create directory '" + dirPath + "'");
           }
         } else if (command.equals("rm")) { // remove
           String filePath = null;
@@ -466,8 +467,8 @@ public class EncFSShell {
             ArrayList<EncFSFile> dstPathList = getPath(pathArray[1]);
             EncFSFile lastPathElement = dstPathList.get(dstPathList
                 .size() - 1);
-						/*
-						 * It is ok for the last path element to exist if it is
+            /*
+             * It is ok for the last path element to exist if it is
 						 * a directory - in that case we'll just move the source
 						 * path into that directory
 						 */
@@ -502,9 +503,8 @@ public class EncFSShell {
             continue;
           }
 
-          if (result == false) {
-            System.out.println("Failed to move '" + srcPath
-                + "' to '" + dstPath + "'");
+          if (!result) {
+            System.out.println("Failed to move '" + srcPath + "' to '" + dstPath + "'");
           }
         } else if (command.equals("cp")) { // copy a file or directory
           int pathCount = 0;
@@ -524,8 +524,7 @@ public class EncFSShell {
           }
 
           if (pathCount < 2) {
-            System.out
-                .println("Usage: cp [-r] <srcPath> <dstPath>");
+            System.out.println("Usage: cp [-r] <srcPath> <dstPath>");
             continue;
           }
 
@@ -533,14 +532,14 @@ public class EncFSShell {
           ArrayList<EncFSFile> srcPathList;
           try {
             srcPathList = getPath(pathArray[0]);
-						/*
+            /*
 						 * If source path is a directory require recursive flag
 						 * to proceed
 						 */
             lastPathElement = srcPathList
                 .get(srcPathList.size() - 1);
             if (lastPathElement.isDirectory()) {
-              if (recursive == false) {
+              if (!recursive) {
                 System.out.println("Source path '"
                     + pathArray[0]
                     + "' is a directory. Use -r to copy.");
@@ -574,7 +573,7 @@ public class EncFSShell {
             continue;
           }
 
-          if (result == false) {
+          if (!result) {
             System.out.println("Failed to copy '" + srcPath
                 + "' to '" + dstPath + "'");
           }

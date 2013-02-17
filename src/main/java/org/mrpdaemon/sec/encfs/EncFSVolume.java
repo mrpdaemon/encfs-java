@@ -106,9 +106,6 @@ public class EncFSVolume {
     }
   }
 
-  /**
-   * Combine the given directory and file name into a path string
-   */
   public static String combinePath(EncFSFile dir, String fileName) {
     EncFSVolume volume = dir.getVolume();
     String result;
@@ -122,24 +119,6 @@ public class EncFSVolume {
     return result;
   }
 
-  /**
-   * Combine the given directory and file name into a path string
-   *
-   * @param dir  Directory forming the first path component
-   * @param file File forming the second path component
-   * @return String representing the combined path
-   */
-  public static String combinePath(EncFSFile dir, EncFSFile file) {
-    return combinePath(dir, file.getName());
-  }
-
-  /**
-   * Combine the given directory and file name into a path string
-   *
-   * @param dirPath  Directory path forming the first path component
-   * @param fileName File name forming the second path component
-   * @return String representing the combined path
-   */
   public static String combinePath(String dirPath, String fileName) {
     if (dirPath.equals(ROOT_PATH)) {
       return ROOT_PATH + fileName;
@@ -148,13 +127,10 @@ public class EncFSVolume {
     }
   }
 
-  /**
-   * Combine the given directory and file name into a path string
-   *
-   * @param dirPath Directory path forming the first path component
-   * @param file    File forming the second path component
-   * @return String representing the combined path
-   */
+  public static String combinePath(EncFSFile dir, EncFSFile file) {
+    return combinePath(dir, file.getName());
+  }
+
   public static String combinePath(String dirPath, EncFSFile file) {
     return combinePath(dirPath, file.getName());
   }
@@ -355,10 +331,10 @@ public class EncFSVolume {
   public static void createVolume(EncFSFileProvider fileProvider, EncFSConfig config, String password, EncFSPBKDF2Provider pbkdf2Provider) throws EncFSInvalidConfigException, EncFSCorruptDataException, EncFSUnsupportedException, IOException {
 
     // Create a random volume VolumeCryptKey + IV pair
-    byte[] randVolKey = new byte[config.getVolumeKeySizeInBits() / 8           + EncFSVolume.IV_LENGTH_IN_BYTES];
+    byte[] randVolKey = new byte[config.getVolumeKeySizeInBits() / 8 + EncFSVolume.IV_LENGTH_IN_BYTES];
     random.nextBytes(randVolKey);
 
-    EncFSCrypto.encodeVolumeKey(config, password, randVolKey,        pbkdf2Provider);
+    EncFSCrypto.encodeVolumeKey(config, password, randVolKey, pbkdf2Provider);
     EncFSConfigWriter.writeConfig(fileProvider, config, password);
   }
 
@@ -411,7 +387,7 @@ public class EncFSVolume {
     return decodedFileInfo;
   }
 
-  public boolean makeDir(String dirPath) throws EncFSCorruptDataException,       IOException {
+  public boolean makeDir(String dirPath) throws EncFSCorruptDataException, IOException {
     validateAbsoluteFileName(dirPath, "dirPath");
 
     String encryptedPath = EncFSCrypto.encodePath(this, dirPath, ROOT_PATH);
@@ -419,7 +395,7 @@ public class EncFSVolume {
     try {
       return fileProvider.mkdir(encryptedPath);
     } catch (FileNotFoundException e) {
-      throw new FileNotFoundException("One or more path element in '"          + dirPath + "' doesn't exist!");
+      throw new FileNotFoundException("One or more path element in '" + dirPath + "' doesn't exist!");
     }
   }
 

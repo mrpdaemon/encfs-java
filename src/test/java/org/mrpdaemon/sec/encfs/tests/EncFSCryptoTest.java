@@ -54,7 +54,7 @@ public class EncFSCryptoTest {
 
   private static EncFSVolume getEncFSVolume(String pathname, String password) throws Exception {
     File encFSDir = assertExistingPath(pathname);
-    return new EncFSVolumeBuilder().withRootPath(encFSDir.getAbsolutePath()).withPassword(password);
+    return new EncFSVolumeBuilder().withRootPath(encFSDir.getAbsolutePath()).withPassword(password).access();
   }
 
   private static File assertExistingPath(String pathname) {

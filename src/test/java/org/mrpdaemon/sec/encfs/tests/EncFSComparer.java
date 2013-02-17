@@ -63,7 +63,7 @@ public class EncFSComparer {
         "Performing compare between encfs raw volume at {} and output files at {}",
         rawEncFSVolume, decodedEncFSOutput);
 
-    EncFSVolume volume = new EncFSVolumeBuilder().withRootPath(rawEncFSVolume.getAbsolutePath()).withPassword(        password);
+    EncFSVolume volume = new EncFSVolumeBuilder().withRootPath(rawEncFSVolume.getAbsolutePath()).withPassword(password).access();
     EncFSFile rootDir = volume.getRootDir();
     int result = compare(rootDir, decodedEncFSOutput);
 

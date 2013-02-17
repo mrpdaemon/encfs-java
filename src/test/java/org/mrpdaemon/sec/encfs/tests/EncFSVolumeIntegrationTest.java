@@ -38,7 +38,7 @@ public class EncFSVolumeIntegrationTest {
     File encFSDir = assertFileExists("test/encfs_samples/boxcryptor_1");
 
     try {
-      new EncFSVolumeBuilder().withRootPath(encFSDir.getAbsolutePath()).withPassword( "badPassword");
+      new EncFSVolumeBuilder().withRootPath(encFSDir.getAbsolutePath()).withPassword("badPassword").access();
       fail();
     } catch (EncFSInvalidPasswordException e) {
     /* this is correct that we should have got this exception */
@@ -57,7 +57,7 @@ public class EncFSVolumeIntegrationTest {
     File encFSDir = new File("test/encfs_samples/testvol-default");
     assertTrue(encFSDir.exists());
     String password = "test";
-    EncFSVolume volume = new EncFSVolumeBuilder().withRootPath(encFSDir.getAbsolutePath()).withPassword( password);
+    EncFSVolume volume = new EncFSVolumeBuilder().withRootPath(encFSDir.getAbsolutePath()).withPassword(password).access();
     EncFSFile rootDir = volume.getRootDir();
     EncFSFile[] files = rootDir.listFiles();
     assertEquals(3, files.length);
@@ -98,7 +98,7 @@ public class EncFSVolumeIntegrationTest {
     File encFSDir = new File("test/encfs_samples/testvol-nouniqueiv");
     assertTrue(encFSDir.exists());
     String password = "test";
-    EncFSVolume volume = new EncFSVolumeBuilder().withRootPath(encFSDir.getAbsolutePath()).withPassword( password);
+    EncFSVolume volume = new EncFSVolumeBuilder().withRootPath(encFSDir.getAbsolutePath()).withPassword(password).access();
     EncFSFile rootDir = volume.getRootDir();
     EncFSFile[] files = rootDir.listFiles();
     assertEquals(2, files.length);
@@ -132,7 +132,7 @@ public class EncFSVolumeIntegrationTest {
     File encFSDir = new File("test/encfs_samples/testvol-streamname");
     assertTrue(encFSDir.exists());
     String password = "test";
-    EncFSVolume volume = new EncFSVolumeBuilder().withRootPath(encFSDir.getAbsolutePath()).withPassword( password);
+    EncFSVolume volume = new EncFSVolumeBuilder().withRootPath(encFSDir.getAbsolutePath()).withPassword(password).access();
     EncFSFile rootDir = volume.getRootDir();
     EncFSFile[] files = rootDir.listFiles();
     assertEquals(1, files.length);
@@ -156,7 +156,7 @@ public class EncFSVolumeIntegrationTest {
     File encFSDir = new File("test/encfs_samples/testvol-blockmac");
     assertTrue(encFSDir.exists());
     String password = "test";
-    EncFSVolume volume = new EncFSVolumeBuilder().withRootPath(encFSDir.getAbsolutePath()).withPassword( password);
+    EncFSVolume volume = new EncFSVolumeBuilder().withRootPath(encFSDir.getAbsolutePath()).withPassword(password).access();
     EncFSFile rootDir = volume.getRootDir();
     EncFSFile[] files = rootDir.listFiles();
     assertEquals(1, files.length);
@@ -178,7 +178,7 @@ public class EncFSVolumeIntegrationTest {
     File encFSDir = new File("test/encfs_samples/testvol-extivchn");
     assertTrue(encFSDir.exists());
     String password = "test";
-    EncFSVolume volume = new EncFSVolumeBuilder().withRootPath(encFSDir.getAbsolutePath()).withPassword( password);
+    EncFSVolume volume = new EncFSVolumeBuilder().withRootPath(encFSDir.getAbsolutePath()).withPassword(password).access();
     EncFSFile rootDir = volume.getRootDir();
     EncFSFile[] files = rootDir.listFiles();
     assertEquals(2, files.length);
@@ -213,7 +213,7 @@ public class EncFSVolumeIntegrationTest {
     File encFSDir = new File("test/encfs_samples/boxcryptor_1");
     assertTrue(encFSDir.exists());
     String password = "test";
-    EncFSVolume volume = new EncFSVolumeBuilder().withRootPath(encFSDir.getAbsolutePath()).withPassword( password);
+    EncFSVolume volume = new EncFSVolumeBuilder().withRootPath(encFSDir.getAbsolutePath()).withPassword(password).access();
     EncFSFile rootDir = volume.getRootDir();
     EncFSFile[] files = rootDir.listFiles();
     assertEquals(1, files.length);
@@ -232,7 +232,7 @@ public class EncFSVolumeIntegrationTest {
     File encFSDir = new File("test/encfs_samples/boxcryptor_2");
     assertTrue(encFSDir.exists());
     String password = "test2";
-    EncFSVolume volume = new EncFSVolumeBuilder().withRootPath(encFSDir.getAbsolutePath()).withPassword( password);
+    EncFSVolume volume = new EncFSVolumeBuilder().withRootPath(encFSDir.getAbsolutePath()).withPassword(password).access();
     EncFSFile rootDir = volume.getRootDir();
     EncFSFile[] files = rootDir.listFiles();
     assertEquals(2, files.length);
@@ -263,7 +263,7 @@ public class EncFSVolumeIntegrationTest {
     File encFSDir = new File("test/encfs_samples/boxcryptor_3");
     assertTrue(encFSDir.exists());
     String password = "test";
-    EncFSVolume volume =new EncFSVolumeBuilder().withRootPath(encFSDir.getAbsolutePath()).withPassword( password);
+    EncFSVolume volume = new EncFSVolumeBuilder().withRootPath(encFSDir.getAbsolutePath()).withPassword(password).access();
     EncFSFile rootDir = volume.getRootDir();
     EncFSFile[] files = rootDir.listFiles();
     assertEquals(1, files.length);
@@ -278,7 +278,7 @@ public class EncFSVolumeIntegrationTest {
   public void testBoxCryptor_null() throws Exception {
     File encFSDir = new File("test/encfs_samples/boxcryptor_null");
     assertTrue(encFSDir.exists());
-    EncFSVolume volume = new EncFSVolumeBuilder().withRootPath(encFSDir.getAbsolutePath()).withPassword("test");
+    EncFSVolume volume = new EncFSVolumeBuilder().withRootPath(encFSDir.getAbsolutePath()).withPassword("test").access();
     EncFSFile rootDir = volume.getRootDir();
     EncFSFile[] files = rootDir.listFiles();
     assertEquals(1, files.length);
@@ -305,8 +305,8 @@ public class EncFSVolumeIntegrationTest {
     String password = "test";
     EncFSLocalFileProvider fileProvider = new EncFSLocalFileProvider(rootDir);
     try {
-      EncFSVolume.createVolume(fileProvider, config, password);
-      @SuppressWarnings("unused") EncFSVolume volume = new EncFSVolumeBuilder().withFileProvider(fileProvider).withConfig( config).withPassword(password);
+      new EncFSVolumeBuilder().withFileProvider(fileProvider).withConfig(config).withPassword(password);
+      @SuppressWarnings("unused") EncFSVolume volume = new EncFSVolumeBuilder().withFileProvider(fileProvider).withConfig(config).withPassword(password).access();
     } catch (Exception e) {
       fail(e.getMessage());
     }    /* Clean up after ourselves */

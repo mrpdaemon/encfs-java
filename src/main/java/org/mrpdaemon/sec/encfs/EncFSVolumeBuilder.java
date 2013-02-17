@@ -29,11 +29,11 @@ public final class EncFSVolumeBuilder {
       return new ConfigBuilder(volume).withPbkdf2Provider(pbkdf2Provider);
     }
 
-    public EncFSVolume withPassword(String password) throws EncFSUnsupportedException, IOException, EncFSInvalidConfigException, EncFSCorruptDataException, EncFSInvalidPasswordException {
+    public PasswordBuilder withPassword(String password) throws EncFSUnsupportedException, IOException, EncFSInvalidConfigException, EncFSCorruptDataException, EncFSInvalidPasswordException {
       return withPbkdf2Provider(null).withPassword(password);
     }
 
-    public EncFSVolume withDerivedPassword(byte[] derivedPassword) throws EncFSUnsupportedException, IOException, EncFSInvalidConfigException, EncFSCorruptDataException, EncFSInvalidPasswordException {
+    public PasswordBuilder withDerivedPassword(byte[] derivedPassword) throws EncFSUnsupportedException, IOException, EncFSInvalidConfigException, EncFSCorruptDataException, EncFSInvalidPasswordException {
       return withPbkdf2Provider(null).withDerivedPassword(derivedPassword);
     }
   }
@@ -58,7 +58,7 @@ public final class EncFSVolumeBuilder {
       return new Pbkdf2ProviderBuilder(volume, provider);
     }
 
-    public EncFSVolume withPassword(String password) throws EncFSCorruptDataException, EncFSInvalidPasswordException, EncFSInvalidConfigException, EncFSUnsupportedException, IOException {
+    public PasswordBuilder withPassword(String password) throws EncFSCorruptDataException, EncFSInvalidPasswordException, EncFSInvalidConfigException, EncFSUnsupportedException, IOException {
       return withPbkdf2Provider(null).withPassword(password);
     }
   }
@@ -73,14 +73,14 @@ public final class EncFSVolumeBuilder {
       this.provider = provider;
     }
 
-    public EncFSVolume withPassword(String password) throws EncFSInvalidConfigException, EncFSUnsupportedException, EncFSCorruptDataException, IOException, EncFSInvalidPasswordException {
+    public PasswordBuilder withPassword(String password) throws EncFSInvalidConfigException, EncFSUnsupportedException, EncFSCorruptDataException, IOException, EncFSInvalidPasswordException {
       EncFSConfig config = volume.getVolumeConfiguration();
       byte[] derivedPassword = EncFSCrypto.derivePasswordKey(config, password, provider);
       return withDerivedPassword(derivedPassword);
     }
 
-    public EncFSVolume withDerivedPassword(byte[] derivedPassword) throws EncFSCorruptDataException, EncFSInvalidPasswordException, EncFSInvalidConfigException, EncFSUnsupportedException, IOException {
-      return new PasswordBuilder(volume, derivedPassword).build();
+    public PasswordBuilder withDerivedPassword(byte[] derivedPassword) throws EncFSCorruptDataException, EncFSInvalidPasswordException, EncFSInvalidConfigException, EncFSUnsupportedException, IOException {
+      return new PasswordBuilder(volume, derivedPassword);
     }
   }
 
@@ -93,10 +93,22 @@ public final class EncFSVolumeBuilder {
       volume.setPasswordBasedVolumeKey(derivedPassword);
     }
 
-    public EncFSVolume build() throws EncFSUnsupportedException, IOException, EncFSInvalidConfigException, EncFSInvalidPasswordException, EncFSCorruptDataException {
+    public EncFSVolume access() throws EncFSUnsupportedException, IOException, EncFSInvalidConfigException, EncFSInvalidPasswordException, EncFSCorruptDataException {
       volume.readConfigAndInitializeVolume();
       return volume;
     }
+
+//    public EncFSVolume create() throws EncFSUnsupportedException, IOException, EncFSInvalidConfigException, EncFSInvalidPasswordException, EncFSCorruptDataException {
+//      SecureRandom random = new SecureRandom();
+//      EncFSConfig config = volume.getVolumeConfiguration();
+//
+//      byte[] randVolKey = new byte[config.getVolumeKeySizeInBits() / 8 + EncFSVolume.IV_LENGTH_IN_BYTES];
+//      random.nextBytes(randVolKey);
+//
+//      EncFSCrypto.encodeVolumeKey(config, password, randVolKey, volume.g);
+//      EncFSConfigWriter.writeConfig(fileProvider, config, password);
+//      return volume;
+//    }
   }
 
   public FileProviderBuilder withRootPath(String rootPath) {
