@@ -6,7 +6,7 @@ import org.mrpdaemon.sec.encfs.EncFSLocalFileProvider;
 
 import java.io.File;
 
-public class EncFSVolumeFileTest extends EncFSVolumeTest{
+public class EncFSVolumeFileTest extends EncFSVolumeTest {
 
   private File tempDir;
 

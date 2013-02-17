@@ -245,7 +245,6 @@ public class EncFSFile {
    * Delete this file
    *
    * @return true if deletion succeeds, false otherwise
-
    */
   public boolean delete() throws IOException {
     return volume.getFileProvider().delete(getEncryptedPath());
@@ -270,9 +269,6 @@ public class EncFSFile {
    *                    EncFSLocalFileProvider, but some network based storage API's
    *                    require knowing the file length in advance.
    * @return EncFSOutputStream that encrypts file contents
-
-
-
    */
   public EncFSOutputStream openOutputStream(long inputLength)
       throws EncFSUnsupportedException, EncFSCorruptDataException,
@@ -287,7 +283,6 @@ public class EncFSFile {
    *
    * @param dstPath EncFSFile representing the target file or directory
    * @return true if copy succeeds, false otherwise
-
    */
   public boolean copy(EncFSFile dstPath) throws IOException {
     if (isDirectory()) {

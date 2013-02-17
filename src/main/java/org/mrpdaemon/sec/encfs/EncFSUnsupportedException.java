@@ -17,14 +17,14 @@ package org.mrpdaemon.sec.encfs;
 
 public class EncFSUnsupportedException extends EncFSException {
 
-	private static final long serialVersionUID = 1L;
+  private static final long serialVersionUID = 1L;
 
-	public EncFSUnsupportedException(String message) {
-		super(message);
-	}
+  public EncFSUnsupportedException(String message) {
+    super(message);
+  }
 
-	public EncFSUnsupportedException(Throwable cause) {
-		super(cause);
-	}
+  public EncFSUnsupportedException(Throwable cause) {
+    super(cause);
+  }
 
 }

@@ -11,8 +11,8 @@ public abstract class EncFSVolumeTest {
     this.fileProvider = encFSFileProvider;
   }
 
-  protected  EncFSFileProvider getFileProvider(){
-    return  fileProvider;
+  protected EncFSFileProvider getFileProvider() {
+    return fileProvider;
   }
 
   @Test

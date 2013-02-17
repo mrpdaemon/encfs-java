@@ -24,23 +24,22 @@ import java.io.IOException;
  */
 public class EncFSFileInputStream extends FilterInputStream {
 
-	/**
-	 * Creates an EncFSFileInputStream to read decrypted data from a file under
-	 * and EncFS volume
-	 *
-	 * @param encfsFile
-	 *            EncFSFile to open an input stream for
-	 *
-
-	 *             Filename encoding failed
-
-	 *             File header uses an unsupported IV length
-
-	 *             File provider returned I/O error
-	 */
-	public EncFSFileInputStream(EncFSFile encfsFile)
-			throws EncFSCorruptDataException, EncFSUnsupportedException,
-			IOException {
-		super(encfsFile.openInputStream());
-	}
+  /**
+   * Creates an EncFSFileInputStream to read decrypted data from a file under
+   * and EncFS volume
+   *
+   * @param encfsFile EncFSFile to open an input stream for
+   *                  <p/>
+   *                  <p/>
+   *                  Filename encoding failed
+   *                  <p/>
+   *                  File header uses an unsupported IV length
+   *                  <p/>
+   *                  File provider returned I/O error
+   */
+  public EncFSFileInputStream(EncFSFile encfsFile)
+      throws EncFSCorruptDataException, EncFSUnsupportedException,
+      IOException {
+    super(encfsFile.openInputStream());
+  }
 }

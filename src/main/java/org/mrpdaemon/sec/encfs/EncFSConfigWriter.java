@@ -68,7 +68,7 @@ public class EncFSConfigWriter {
     result += "<boost_serialization signature=\"serialization::archive\" version=\"9\">\n";
     result += " <cfg class_id=\"0\" tracking_level=\"0\" version=\"20\">\n";
     result += "\t<version>20100713</version>\n";
-    result += "\t<creator>encfs-java " + getLibraryVersion()           + "</creator>\n";
+    result += "\t<creator>encfs-java " + getLibraryVersion() + "</creator>\n";
     result += "\t<cipherAlg class_id=\"1\" tracking_level=\"0\" version=\"0\">\n";
     result += "\t\t<name>ssl/aes</name>\n";
     result += "\t\t<major>3</major>\n";
@@ -84,11 +84,11 @@ public class EncFSConfigWriter {
 
     result += "\t</nameAlg>\n";
 
-    result += "\t<keySize>" + Integer.toString(config.getVolumeKeySizeInBits())         + "</keySize>\n";
+    result += "\t<keySize>" + Integer.toString(config.getVolumeKeySizeInBits()) + "</keySize>\n";
 
-    result += "\t<blockSize>" + Integer.toString(config.getEncryptedFileBlockSizeInBytes())        + "</blockSize>\n";
+    result += "\t<blockSize>" + Integer.toString(config.getEncryptedFileBlockSizeInBytes()) + "</blockSize>\n";
 
-    result += "\t<uniqueIV>" + (config.isUseUniqueIV() == true ? "1" : "0")            + "</uniqueIV>\n";
+    result += "\t<uniqueIV>" + (config.isUseUniqueIV() == true ? "1" : "0") + "</uniqueIV>\n";
 
     result += "\t<chainedNameIV>"
         + (config.isChainedNameIV() == true ? "1" : "0")

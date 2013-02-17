@@ -15,6 +15,6 @@ public class EncFSVolumeVFSTest extends EncFSVolumeTest {
 
   @After
   public void tearDown() throws Exception {
-    ((CommonsVFSRamFileProvider)getFileProvider()).close();
+    ((CommonsVFSRamFileProvider) getFileProvider()).close();
   }
 }

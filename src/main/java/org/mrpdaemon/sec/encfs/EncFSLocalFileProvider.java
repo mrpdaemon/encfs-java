@@ -15,407 +15,369 @@
 
 package org.mrpdaemon.sec.encfs;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.nio.channels.FileChannel;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
  * Class implementing an EncFSFileProvider for accessing the local filesystem
- *
+ * <p/>
  * Note that all path parameters are relative to the rootPath provided to the
  * constructor. Thus, if one instantiates an EncFSFileProvider("/home/jdoe"),
  * the proper way to refer to /home/jdoe/dir/file.ext is by "dir/file.ext".
  */
 public class EncFSLocalFileProvider implements EncFSFileProvider {
 
-	/**
-	 * Path separator for the local filesystem
-	 */
-	public final String separator;
+  /**
+   * Path separator for the local filesystem
+   */
+  public final String separator;
 
-	// Root path of this file provider
-	private final File rootPath;
+  // Root path of this file provider
+  private final File rootPath;
 
-	/**
-	 * Creates a new EncFSLocalFileProvider
-	 *
-	 * @param rootPath
-	 *            Root path of the file provider (all other paths will be
-	 *            relative to this)
-	 */
-	public EncFSLocalFileProvider(File rootPath) {
-		this.rootPath = rootPath;
-		this.separator = File.separator;
-	}
+  /**
+   * Creates a new EncFSLocalFileProvider
+   *
+   * @param rootPath Root path of the file provider (all other paths will be
+   *                 relative to this)
+   */
+  public EncFSLocalFileProvider(File rootPath) {
+    this.rootPath = rootPath;
+    this.separator = File.separator;
+  }
 
-	/**
-	 * Returns whether the given source path represents a directory in the
-	 * underlying filesystem
-	 *
-	 * @param srcPath
-	 *            Path of the source file or directory
-	 *
-	 * @return true if path represents a directory, false otherwise
-	 *
+  /**
+   * Returns whether the given source path represents a directory in the
+   * underlying filesystem
+   *
+   * @param srcPath Path of the source file or directory
+   * @return true if path represents a directory, false otherwise
+   *         <p/>
+   *         <p/>
+   *         Source file/dir doesn't exist or misc. I/O error
+   */
+  public boolean isDirectory(String srcPath) {
+    File file = new File(rootPath.getAbsoluteFile(), srcPath);
+    return file.isDirectory();
+  }
 
-	 *             Source file/dir doesn't exist or misc. I/O error
-	 */
-	public boolean isDirectory(String srcPath) {
-		File file = new File(rootPath.getAbsoluteFile(), srcPath);
-		return file.isDirectory();
-	}
+  /**
+   * Get a File object representing the given path
+   *
+   * @param path Path of the file or directory
+   * @return File object representing the given path
+   */
+  public File getFile(String path) {
+    File file = new File(rootPath.getAbsoluteFile(), path);
+    return file;
+  }
 
-	/**
-	 * Get a File object representing the given path
-	 *
-	 * @param path
-	 *            Path of the file or directory
-	 *
-	 * @return File object representing the given path
-	 */
-	public File getFile(String path) {
-		File file = new File(rootPath.getAbsoluteFile(), path);
-		return file;
-	}
+  /**
+   * Returns the path separator for the underlying filesystem
+   *
+   * @return String representing the path separator
+   */
+  public final String getSeparator() {
+    return separator;
+  }
 
-	/**
-	 * Returns the path separator for the underlying filesystem
-	 *
-	 * @return String representing the path separator
-	 */
-	public final String getSeparator() {
-		return separator;
-	}
+  /**
+   * Returns the root path for the underlying filesystem
+   *
+   * @return String representing the root path
+   */
+  public final String getFilesystemRootPath() {
+    return "/";
+  }
 
-	/**
-	 * Returns the root path for the underlying filesystem
-	 *
-	 * @return String representing the root path
-	 */
-	public final String getFilesystemRootPath() {
-		return "/";
-	}
+  /**
+   * Returns whether the file or directory exists
+   *
+   * @param srcPath Path of the file or directory
+   * @return true if file or directory exists, false otherwise
+   *         <p/>
+   *         <p/>
+   *         Misc. I/O error
+   */
+  public boolean exists(String srcPath) {
+    File file = new File(rootPath.getAbsoluteFile(), srcPath);
+    return file.exists();
+  }
 
-	/**
-	 * Returns whether the file or directory exists
-	 *
-	 * @param srcPath
-	 *            Path of the file or directory
-	 *
-	 * @return true if file or directory exists, false otherwise
-	 *
+  /**
+   * Return EncFSFileInfo for the given file or directory
+   *
+   * @param srcPath Path of the file or directory
+   * @return EncFSFileInfo for the given file or directory
+   *         <p/>
+   *         <p/>
+   *         Path doesn't exist or misc. I/O error
+   */
+  public EncFSFileInfo getFileInfo(String srcPath) {
+    File sourceFile = new File(rootPath.getAbsoluteFile(), srcPath);
+    return convertToFileInfo(sourceFile);
+  }
 
-	 *             Misc. I/O error
-	 */
-	public boolean exists(String srcPath) {
-		File file = new File(rootPath.getAbsoluteFile(), srcPath);
-		return file.exists();
-	}
+  /**
+   * Returns the list of files under the given directory path
+   *
+   * @param dirPath Path of the directory to list files from
+   * @return a List of EncFSFileInfo representing files under the dir
+   *         <p/>
+   *         <p/>
+   *         Path not a directory or misc. I/O error
+   */
+  public List<EncFSFileInfo> listFiles(String dirPath) throws IOException {
+    File srcDir = new File(rootPath.getAbsoluteFile(), dirPath);
+    if (!srcDir.isDirectory()) {
+      throw new IOException("Path: " + dirPath + " not a directory!");
+    }
 
-	/**
-	 * Return EncFSFileInfo for the given file or directory
-	 *
-	 * @param srcPath
-	 *            Path of the file or directory
-	 *
-	 * @return EncFSFileInfo for the given file or directory
-	 *
+    File[] files = srcDir.listFiles();
+    List<EncFSFileInfo> results = new ArrayList<EncFSFileInfo>(files.length);
+    for (File file : files) {
+      results.add(convertToFileInfo(file));
+    }
+    return results;
+  }
 
-	 *             Path doesn't exist or misc. I/O error
-	 */
-	public EncFSFileInfo getFileInfo(String srcPath) {
-		File sourceFile = new File(rootPath.getAbsoluteFile(), srcPath);
-		return convertToFileInfo(sourceFile);
-	}
+  /**
+   * Move a file/directory to a different location
+   *
+   * @param srcPath Path to the source file or directory
+   * @param dstPath Path for the destination file or directory
+   * @return true if the move is successful, false otherwise
+   *         <p/>
+   *         <p/>
+   *         Source file/dir doesn't exist or misc. I/O error
+   */
+  public boolean move(String srcPath, String dstPath) throws IOException {
+    File sourceFile = new File(rootPath.getAbsoluteFile(), srcPath);
+    File destFile = new File(rootPath.getAbsoluteFile(), dstPath);
 
-	/**
-	 * Returns the list of files under the given directory path
-	 *
-	 * @param dirPath
-	 *            Path of the directory to list files from
-	 *
-	 * @return a List of EncFSFileInfo representing files under the dir
-	 *
+    if (!sourceFile.exists()) {
+      throw new FileNotFoundException("Path '" + srcPath
+          + "' doesn't exist!");
+    }
 
-	 *             Path not a directory or misc. I/O error
-	 */
-	public List<EncFSFileInfo> listFiles(String dirPath) throws IOException {
-		File srcDir = new File(rootPath.getAbsoluteFile(), dirPath);
-		if (!srcDir.isDirectory()) {
-			throw new IOException("Path: " + dirPath + " not a directory!");
-		}
+    return sourceFile.renameTo(destFile);
+  }
 
-		File[] files = srcDir.listFiles();
-		List<EncFSFileInfo> results = new ArrayList<EncFSFileInfo>(files.length);
-		for (File file : files) {
-			results.add(convertToFileInfo(file));
-		}
-		return results;
-	}
+  /*
+   * Recursive delete function
+   */
+  private void recursiveDelete(File file) throws IOException {
+    if (file.isDirectory()) {
+      for (File childFile : file.listFiles()) {
+        recursiveDelete(childFile);
+      }
+    }
+    if (!file.delete()) {
+      throw new IOException("Failed to delete file " + file);
+    }
+  }
 
-	/**
-	 * Move a file/directory to a different location
-	 *
-	 * @param srcPath
-	 *            Path to the source file or directory
-	 * @param dstPath
-	 *            Path for the destination file or directory
-	 *
-	 * @return true if the move is successful, false otherwise
-	 *
+  /**
+   * Delete the file or directory with the given path
+   *
+   * @param srcPath Path of the source file or directory
+   * @return true if deletion is successful, false otherwise
+   *         <p/>
+   *         <p/>
+   *         Source file/dir doesn't exist or misc. I/O error
+   */
+  public boolean delete(String srcPath) {
+    File toEncFile = new File(rootPath.getAbsoluteFile(), srcPath);
 
-	 *             Source file/dir doesn't exist or misc. I/O error
-	 */
-	public boolean move(String srcPath, String dstPath) throws IOException {
-		File sourceFile = new File(rootPath.getAbsoluteFile(), srcPath);
-		File destFile = new File(rootPath.getAbsoluteFile(), dstPath);
+    try {
+      recursiveDelete(toEncFile);
+    } catch (IOException e) {
+      return false;
+    }
 
-		if (!sourceFile.exists()) {
-			throw new FileNotFoundException("Path '" + srcPath
-					+ "' doesn't exist!");
-		}
+    return true;
+  }
 
-		return sourceFile.renameTo(destFile);
-	}
+  /**
+   * Create a directory with the given path
+   * <p/>
+   * Note that all path elements except the last one must exist for this
+   * method. If that is not true mkdirs should be used instead
+   *
+   * @param dirPath Path to create a directory under
+   * @return true if creation succeeds, false otherwise
+   *         <p/>
+   *         <p/>
+   *         Path doesn't exist or misc. I/O error
+   */
+  public boolean mkdir(String dirPath) throws IOException {
+    File file = new File(rootPath.getAbsoluteFile(), dirPath);
+    File parentFile = file.getParentFile();
+    if (!parentFile.exists()) {
+      throw new FileNotFoundException("Path '"
+          + parentFile.getAbsolutePath() + "' doesn't exist!");
+    }
+    boolean result = file.mkdir();
+    return result;
+  }
 
-	/*
-	 * Recursive delete function
-	 */
-	private void recursiveDelete(File file) throws IOException {
-		if (file.isDirectory()) {
-			for (File childFile : file.listFiles()) {
-				recursiveDelete(childFile);
-			}
-		}
-		if (!file.delete()) {
-			throw new IOException("Failed to delete file " + file);
-		}
-	}
+  /**
+   * Create a directory with the given path
+   * <p/>
+   * Intermediate directories are also created by this method
+   *
+   * @param dirPath Path to create a directory under
+   * @return true if creation succeeds, false otherwise
+   *         <p/>
+   *         <p/>
+   *         Path doesn't exist or misc. I/O error
+   */
+  public boolean mkdirs(String dirPath) {
+    File toEncFile = new File(rootPath.getAbsoluteFile(), dirPath);
+    boolean result = toEncFile.mkdirs();
+    return result;
+  }
 
-	/**
-	 * Delete the file or directory with the given path
-	 *
-	 * @param srcPath
-	 *            Path of the source file or directory
-	 *
-	 * @return true if deletion is successful, false otherwise
-	 *
+  /**
+   * Create a file with the given path
+   *
+   * @param dstFilePath Path for the file to create
+   * @return EncFSFileInfo for the created file
+   *         <p/>
+   *         <p/>
+   *         File already exists or misc. I/O error
+   */
+  public EncFSFileInfo createFile(String dstFilePath) throws IOException {
+    if (exists(dstFilePath)) {
+      throw new IOException("File already exists");
+    }
 
-	 *             Source file/dir doesn't exist or misc. I/O error
-	 */
-	public boolean delete(String srcPath) {
-		File toEncFile = new File(rootPath.getAbsoluteFile(), srcPath);
+    File targetFile = getFile(dstFilePath);
+    if (targetFile.createNewFile() == false) {
+      throw new IOException("failed to create new file");
+    }
 
-		try {
-			recursiveDelete(toEncFile);
-		} catch (IOException e) {
-			return false;
-		}
+    return convertToFileInfo(targetFile);
+  }
 
-		return true;
-	}
+  /**
+   * Copy the file with the given path to another destination
+   *
+   * @param srcFilePath Path to the file to copy
+   * @param dstFilePath Path to the destination file
+   * @return true if copy was successful, false otherwise
+   *         <p/>
+   *         <p/>
+   *         Destination file already exists, source file doesn't exist or
+   *         misc. I/O error
+   */
+  public boolean copy(String srcFilePath, String dstFilePath)
+      throws IOException {
 
-	/**
-	 * Create a directory with the given path
-	 *
-	 * Note that all path elements except the last one must exist for this
-	 * method. If that is not true mkdirs should be used instead
-	 *
-	 * @param dirPath
-	 *            Path to create a directory under
-	 *
-	 * @return true if creation succeeds, false otherwise
-	 *
+    File sourceFile = new File(rootPath.getAbsoluteFile(), srcFilePath);
+    File destFile = new File(rootPath.getAbsoluteFile(), dstFilePath);
 
-	 *             Path doesn't exist or misc. I/O error
-	 */
-	public boolean mkdir(String dirPath) throws IOException {
-		File file = new File(rootPath.getAbsoluteFile(), dirPath);
-		File parentFile = file.getParentFile();
-		if (!parentFile.exists()) {
-			throw new FileNotFoundException("Path '"
-					+ parentFile.getAbsolutePath() + "' doesn't exist!");
-		}
-		boolean result = file.mkdir();
-		return result;
-	}
+    if (!sourceFile.exists()) {
+      throw new FileNotFoundException("Source file '" + srcFilePath
+          + "' doesn't exist!");
+    }
 
-	/**
-	 * Create a directory with the given path
-	 *
-	 * Intermediate directories are also created by this method
-	 *
-	 * @param dirPath
-	 *            Path to create a directory under
-	 *
-	 * @return true if creation succeeds, false otherwise
-	 *
+    if (!destFile.exists()) {
+      destFile.createNewFile();
+    }
 
-	 *             Path doesn't exist or misc. I/O error
-	 */
-	public boolean mkdirs(String dirPath) {
-		File toEncFile = new File(rootPath.getAbsoluteFile(), dirPath);
-		boolean result = toEncFile.mkdirs();
-		return result;
-	}
+    FileChannel source = null;
+    FileChannel destination = null;
 
-	/**
-	 * Create a file with the given path
-	 *
-	 * @param dstFilePath
-	 *            Path for the file to create
-	 *
-	 * @return EncFSFileInfo for the created file
-	 *
+    try {
+      source = new FileInputStream(sourceFile).getChannel();
+      destination = new FileOutputStream(destFile).getChannel();
+      destination.transferFrom(source, 0, source.size());
+    } finally {
+      if (source != null) {
+        source.close();
+      }
+      if (destination != null) {
+        destination.close();
+      }
+    }
 
-	 *             File already exists or misc. I/O error
-	 */
-	public EncFSFileInfo createFile(String dstFilePath) throws IOException {
-		if (exists(dstFilePath)) {
-			throw new IOException("File already exists");
-		}
+    return true;
+  }
 
-		File targetFile = getFile(dstFilePath);
-		if (targetFile.createNewFile() == false) {
-			throw new IOException("failed to create new file");
-		}
+  /**
+   * Open an InputStream to the given file
+   *
+   * @param srcFilePath Path to the source file
+   * @return InputStream to read from the file
+   *         <p/>
+   *         <p/>
+   *         Source file doesn't exist or misc. I/O error
+   */
+  public InputStream openInputStream(String srcFilePath)
+      throws FileNotFoundException {
+    File srcF = new File(rootPath.getAbsoluteFile(), srcFilePath);
+    return new FileInputStream(srcF);
+  }
 
-		return convertToFileInfo(targetFile);
-	}
+  /**
+   * Open an OutputStream to the given file
+   *
+   * @param dstFilePath Path to the destination file
+   * @return OutputStream to write to the file
+   *         <p/>
+   *         <p/>
+   *         Misc. I/O error
+   */
+  public OutputStream openOutputStream(String dstFilePath) throws IOException {
+    return openOutputStream(dstFilePath, 0);
+  }
 
-	/**
-	 * Copy the file with the given path to another destination
-	 *
-	 * @param srcFilePath
-	 *            Path to the file to copy
-	 * @param dstFilePath
-	 *            Path to the destination file
-	 *
-	 * @return true if copy was successful, false otherwise
-	 *
+  /**
+   * Open an OutputStream to the given file
+   *
+   * @param dstFilePath  Path to the destination file
+   * @param outputLength Length in bytes of the stream that will be written to this
+   *                     stream. It is ignored by this class.
+   * @return OutputStream to write to the file
+   *         <p/>
+   *         <p/>
+   *         Misc. I/O error
+   */
+  public OutputStream openOutputStream(String dstFilePath, long outputLength)
+      throws IOException {
+    File srcF = new File(rootPath.getAbsoluteFile(), dstFilePath);
+    if (srcF.exists() == false) {
+      try {
+        srcF.createNewFile();
+      } catch (Exception e) {
+        throw new IOException(e);
+      }
+    }
+    return new FileOutputStream(srcF);
+  }
 
-	 *             Destination file already exists, source file doesn't exist or
-	 *             misc. I/O error
-	 */
-	public boolean copy(String srcFilePath, String dstFilePath)
-			throws IOException {
+  // Convert the given File to an EncFSFileInfo
+  private EncFSFileInfo convertToFileInfo(File file) {
+    String relativePath;
+    if (file.equals(rootPath.getAbsoluteFile())) {
+      // we're dealing with the root dir
+      relativePath = separator;
+    } else if (file.getParentFile().equals(rootPath.getAbsoluteFile())) {
+      // File is child of the root path
+      relativePath = separator;
+    } else {
+      relativePath = file.getParentFile().getAbsolutePath()
+          .substring(rootPath.getAbsoluteFile().toString().length());
+    }
 
-		File sourceFile = new File(rootPath.getAbsoluteFile(), srcFilePath);
-		File destFile = new File(rootPath.getAbsoluteFile(), dstFilePath);
-
-		if (!sourceFile.exists()) {
-			throw new FileNotFoundException("Source file '" + srcFilePath
-					+ "' doesn't exist!");
-		}
-
-		if (!destFile.exists()) {
-			destFile.createNewFile();
-		}
-
-		FileChannel source = null;
-		FileChannel destination = null;
-
-		try {
-			source = new FileInputStream(sourceFile).getChannel();
-			destination = new FileOutputStream(destFile).getChannel();
-			destination.transferFrom(source, 0, source.size());
-		} finally {
-			if (source != null) {
-				source.close();
-			}
-			if (destination != null) {
-				destination.close();
-			}
-		}
-
-		return true;
-	}
-
-	/**
-	 * Open an InputStream to the given file
-	 *
-	 * @param srcFilePath
-	 *            Path to the source file
-	 *
-	 * @return InputStream to read from the file
-	 *
-
-	 *             Source file doesn't exist or misc. I/O error
-	 */
-	public InputStream openInputStream(String srcFilePath)
-			throws FileNotFoundException {
-		File srcF = new File(rootPath.getAbsoluteFile(), srcFilePath);
-		return new FileInputStream(srcF);
-	}
-
-	/**
-	 * Open an OutputStream to the given file
-	 *
-	 * @param dstFilePath
-	 *            Path to the destination file
-	 *
-	 * @return OutputStream to write to the file
-	 *
-
-	 *             Misc. I/O error
-	 */
-	public OutputStream openOutputStream(String dstFilePath) throws IOException {
-		return openOutputStream(dstFilePath, 0);
-	}
-
-	/**
-	 * Open an OutputStream to the given file
-	 *
-	 * @param dstFilePath
-	 *            Path to the destination file
-	 * @param outputLength
-	 *            Length in bytes of the stream that will be written to this
-	 *            stream. It is ignored by this class.
-	 *
-	 * @return OutputStream to write to the file
-	 *
-
-	 *             Misc. I/O error
-	 */
-	public OutputStream openOutputStream(String dstFilePath, long outputLength)
-			throws IOException {
-		File srcF = new File(rootPath.getAbsoluteFile(), dstFilePath);
-		if (srcF.exists() == false) {
-			try {
-				srcF.createNewFile();
-			} catch (Exception e) {
-				throw new IOException(e);
-			}
-		}
-		return new FileOutputStream(srcF);
-	}
-
-	// Convert the given File to an EncFSFileInfo
-	private EncFSFileInfo convertToFileInfo(File file) {
-		String relativePath;
-		if (file.equals(rootPath.getAbsoluteFile())) {
-			// we're dealing with the root dir
-			relativePath = separator;
-		} else if (file.getParentFile().equals(rootPath.getAbsoluteFile())) {
-			// File is child of the root path
-			relativePath = separator;
-		} else {
-			relativePath = file.getParentFile().getAbsolutePath()
-					.substring(rootPath.getAbsoluteFile().toString().length());
-		}
-
-		String name = file.getName();
-		EncFSFileInfo result = new EncFSFileInfo(name, relativePath,
-				file.isDirectory(), file.lastModified(), file.length(),
-				file.canRead(), file.canWrite(), file.canExecute());
-		return result;
-	}
+    String name = file.getName();
+    EncFSFileInfo result = new EncFSFileInfo(name, relativePath,
+        file.isDirectory(), file.lastModified(), file.length(),
+        file.canRead(), file.canWrite(), file.canExecute());
+    return result;
+  }
 
 }

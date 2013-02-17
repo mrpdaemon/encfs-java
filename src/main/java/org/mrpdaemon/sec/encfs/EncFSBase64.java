@@ -108,7 +108,7 @@ public final class EncFSBase64 {
    * The 64 valid Base64 values.
    */
   /*
-	 * Host platform me be something funny like EBCDIC, so we hardcode these
+   * Host platform me be something funny like EBCDIC, so we hardcode these
 	 * values.
 	 */
   private final static byte[] _STANDARD_ALPHABET = {(byte) 'A', (byte) 'B',
@@ -533,13 +533,11 @@ public final class EncFSBase64 {
     }
   }
 
-
   /**
    * Encodes a byte array into Base64 notation. Does not GZip-compress data.
    *
    * @param source The data to convert
    * @return The data in Base64-encoded form
-
    * @since 1.4
    */
   public static String encodeBytes(byte[] source) {
@@ -580,14 +578,9 @@ public final class EncFSBase64 {
    * pretty poor way to handle it.
    * </p>
    *
-   *
-   *
-   * @param source  The data to convert
-   * @param len     Length of data to convert
+   * @param source The data to convert
+   * @param len    Length of data to convert
    * @return The Base64-encoded data as a String
-
-
-
    * @see EncFSBase64#GZIP
    * @see EncFSBase64#DO_BREAK_LINES
    * @since 2.0
@@ -598,8 +591,7 @@ public final class EncFSBase64 {
     // Return value according to relevant encoding.
     try {
       return new String(encoded, PREFERRED_ENCODING);
-    }
-    catch (java.io.UnsupportedEncodingException uue) {
+    } catch (java.io.UnsupportedEncodingException uue) {
       return new String(encoded);
     }
 
@@ -615,9 +607,6 @@ public final class EncFSBase64 {
    * @param len     Length of data to convert
    * @param options Specified options
    * @return The Base64-encoded data as a String
-
-
-
    * @see EncFSBase64#GZIP
    * @see EncFSBase64#DO_BREAK_LINES
    * @since 2.3.1
@@ -660,13 +649,11 @@ public final class EncFSBase64 {
 
         gzos.write(source, off, len);
         gzos.close();
-      }
-      catch (IOException e) {
+      } catch (IOException e) {
         // Catch it and then throw it immediately so that
         // the finally{} block is called for cleanup.
         throw e;
-      }
-      finally {
+      } finally {
         try {
           gzos.close();
         } catch (Exception e) {
@@ -761,16 +748,15 @@ public final class EncFSBase64 {
    * parameters.
    * </p>
    *
-   *
    * @param source      the array to convert
    * @param destination the array to hold the conversion
    * @param destOffset  the index where output will be put
    * @param options     alphabet type is pulled from this (standard, url-safe,
    *                    ordered)
    * @return the number of decoded bytes converted
-
-
-   *                                  room in the array.
+   *         <p/>
+   *         <p/>
+   *         room in the array.
    * @since 1.3
    */
   private static int decode4to3(byte[] source,
@@ -872,12 +858,10 @@ public final class EncFSBase64 {
    * returned. Still, if you need more speed and reduced memory footprint (and
    * aren't gzipping), consider this method.
    *
-   *
    * @param source  The Base64 encoded data
    * @param len     The length of characters to decode
    * @param options Can specify options such as alphabet type to use
    * @return decoded data
-
    * @since 1.3
    */
   public static byte[] decode(byte[] source, int len, int options) throws IOException {
@@ -932,8 +916,7 @@ public final class EncFSBase64 {
             }
           }
         }
-      }
-      else {
+      } else {
         // There's a bad input character in the Base64 stream.
         throw new IOException(
             String.format(
@@ -953,7 +936,6 @@ public final class EncFSBase64 {
    *
    * @param s the string to decode
    * @return the decoded data
-
    * @since 1.4
    */
   public static byte[] decode(String s) throws IOException {
@@ -967,8 +949,6 @@ public final class EncFSBase64 {
    * @param s       the string to decode
    * @param options encode options such as URL_SAFE
    * @return the decoded data
-
-
    * @since 1.4
    */
   public static byte[] decode(String s, int options)
@@ -981,8 +961,7 @@ public final class EncFSBase64 {
     byte[] bytes;
     try {
       bytes = s.getBytes(PREFERRED_ENCODING);
-    }
-    catch (java.io.UnsupportedEncodingException uee) {
+    } catch (java.io.UnsupportedEncodingException uee) {
       bytes = s.getBytes();
     }
     // </change>
@@ -1007,20 +986,18 @@ public final class EncFSBase64 {
           bais = new java.io.ByteArrayInputStream(bytes);
           gzis = new java.util.zip.GZIPInputStream(bais);
 
-          int length=0;
-          while (( length = gzis.read(buffer)) >= 0) {
+          int length = 0;
+          while ((length = gzis.read(buffer)) >= 0) {
             baos.write(buffer, 0, length);
           }
 
           // No error? Get new bytes.
           bytes = baos.toByteArray();
 
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
           e.printStackTrace();
           // Just return originally-decoded bytes
-        }
-        finally {
+        } finally {
           try {
             baos.close();
           } catch (Exception e) {
@@ -1262,8 +1239,7 @@ public final class EncFSBase64 {
             encode3to4(b3, 0, numBinaryBytes, buffer, 0, options);
             position = 0;
             numSigBytes = 4;
-          }
-          else {
+          } else {
             return -1; // Must be end of stream
           }
         }
@@ -1290,11 +1266,9 @@ public final class EncFSBase64 {
           if (i == 4) {
             numSigBytes = decode4to3(b4, buffer, 0, options);
             position = 0;
-          }
-          else if (i == 0) {
+          } else if (i == 0) {
             return -1;
-          }
-          else {
+          } else {
             // Must have broken out from above.
             throw new IOException(
                 "Improperly padded Base64 input.");
@@ -1313,8 +1287,7 @@ public final class EncFSBase64 {
         if (encode && breakLines && lineLength >= MAX_LINE_LENGTH) {
           lineLength = 0;
           return '\n';
-        }
-        else {
+        } else {
           lineLength++; // This isn't important when decoding
           // but throwing an extra "if" seems
           // just as wasteful.
@@ -1486,8 +1459,7 @@ public final class EncFSBase64 {
             out.write(b4, 0, len);
             position = 0;
           }
-        }
-        else if (decodabet[theByte & 0x7f] != WHITE_SPACE_ENC) {
+        } else if (decodabet[theByte & 0x7f] != WHITE_SPACE_ENC) {
           throw new IOException(
               "Invalid character in Base64 data.");
         }
@@ -1521,16 +1493,13 @@ public final class EncFSBase64 {
     /**
      * Method added by PHIL. [Thanks, PHIL. -Rob] This pads the buffer
      * without closing the stream.
-     *
-
      */
     public void flushBase64() throws IOException {
       if (position > 0) {
         if (encode) {
           out.write(encode3to4(b4, buffer, position, options));
           position = 0;
-        }
-        else {
+        } else {
           throw new IOException(
               "Base64 input not properly padded.");
         }
@@ -1560,7 +1529,6 @@ public final class EncFSBase64 {
      * Suspends encoding of the stream. May be helpful if you need to embed
      * a piece of base64-encoded data in a stream.
      *
-
      * @since 1.5.1
      */
     public void suspendEncoding() throws IOException {

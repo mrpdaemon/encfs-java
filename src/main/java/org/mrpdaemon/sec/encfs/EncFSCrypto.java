@@ -65,7 +65,6 @@ public class EncFSCrypto {
    * Returns a new stream cipher with AES/CFB/NoPadding.
    *
    * @return A new Cipher object.
-
    */
   public static Cipher newStreamCipher() throws EncFSUnsupportedException {
     Cipher result = null;
@@ -83,7 +82,6 @@ public class EncFSCrypto {
    * Returns a new block cipher with AES/CBC/NoPadding.
    *
    * @return A new Cipher object.
-
    */
   public static Cipher newBlockCipher() throws EncFSUnsupportedException {
     Cipher result = null;
@@ -143,8 +141,8 @@ public class EncFSCrypto {
    * @param opMode Operation mode of the cipher
    * @param cipher Cipher object
    * @param ivSeed IV seed for initialization
-
-   *          Inappropriate algorithm parameters
+   *               <p/>
+   *               Inappropriate algorithm parameters
    */
   public static void cipherInit(EncFSVolume volume, int opMode,
                                 Cipher cipher, byte[] ivSeed)
@@ -160,8 +158,6 @@ public class EncFSCrypto {
    * @param password       Volume password
    * @param pbkdf2Provider Custom PBKDF2 provider implementation
    * @return Derived PBKDF2 key + IV bits
-
-
    */
   public static byte[] derivePasswordKey(EncFSConfig config, String password,
                                          EncFSPBKDF2Provider pbkdf2Provider)
@@ -205,10 +201,6 @@ public class EncFSCrypto {
    * @param config     Volume configuration
    * @param pbkdf2Data PBKDF2 key material + IV (from derivePasswordKey())
    * @return Volume key + IV bits
-
-
-
-
    */
   public static byte[] decryptVolumeKey(EncFSConfig config, byte[] pbkdf2Data)
       throws EncFSChecksumException, EncFSInvalidConfigException,
@@ -269,9 +261,6 @@ public class EncFSCrypto {
    * @param config     Volume configuration
    * @param pbkdf2Data PBKDF2 key material + IV (from derivePasswordKey())
    * @return Volume key + IV bits
-
-
-
    */
   public static byte[] encryptVolumeKey(EncFSConfig config,
                                         byte[] pbkdf2Data, byte[] volKeyData)
@@ -331,9 +320,6 @@ public class EncFSCrypto {
    * @param password       Password to use for encoding the key
    * @param volKey         Volume key to encode
    * @param pbkdf2Provider Custom PBKDF2 provider implementation
-
-
-
    */
   public static void encodeVolumeKey(EncFSConfig config, String password,
                                      byte[] volKey, EncFSPBKDF2Provider pbkdf2Provider)
@@ -398,11 +384,9 @@ public class EncFSCrypto {
    * @param ivSeed IV seed for the decryption
    * @param data   Encrypted data contents
    * @return Decrypted (plaintext) data
-
-
-   *                                   Invalid algorithm parameters
-
-
+   *         <p/>
+   *         <p/>
+   *         Invalid algorithm parameters
    */
   public static byte[] streamDecode(EncFSVolume volume, byte[] ivSeed,
                                     byte[] data) throws EncFSUnsupportedException,
@@ -421,11 +405,9 @@ public class EncFSCrypto {
    * @param offset Offset into the data buffer to decode from
    * @param len    Number of bytes in the data buffer to decode
    * @return Decrypted (plaintext) data
-
-
-   *                                   Invalid algorithm parameters
-
-
+   *         <p/>
+   *         <p/>
+   *         Invalid algorithm parameters
    */
   public static byte[] streamDecode(EncFSVolume volume, byte[] ivSeed,
                                     byte[] data, int offset, int len) throws EncFSUnsupportedException,
@@ -476,11 +458,9 @@ public class EncFSCrypto {
    * @param ivSeed IV seed for the encryption
    * @param data   Plaintext data contents
    * @return Encrypted (ciphertext) data
-
-
-   *                                   Invalid algorithm parameters
-
-
+   *         <p/>
+   *         <p/>
+   *         Invalid algorithm parameters
    */
   public static byte[] streamEncode(EncFSVolume volume, byte[] ivSeed,
                                     byte[] data) throws EncFSUnsupportedException,
@@ -499,11 +479,9 @@ public class EncFSCrypto {
    * @param offset Offset into the data buffer to start encoding from
    * @param len    Length of the data in the data buffer to encode
    * @return Encrypted (ciphertext) data
-
-
-   *                                   Invalid algorithm parameters
-
-
+   *         <p/>
+   *         <p/>
+   *         Invalid algorithm parameters
    */
   public static byte[] streamEncode(EncFSVolume volume, byte[] ivSeed,
                                     byte[] data, int offset, int len) throws EncFSUnsupportedException,
@@ -534,10 +512,8 @@ public class EncFSCrypto {
    * @param ivSeed IV seed for the decryption
    * @param data   Encrypted data contents
    * @return Decrypted (plaintext) data
-
-   *                                   Invalid algorithm parameters
-
-
+   *         <p/>
+   *         Invalid algorithm parameters
    */
   public static byte[] blockDecode(EncFSVolume volume, byte[] ivSeed,
                                    byte[] data) throws InvalidAlgorithmParameterException,
@@ -552,10 +528,8 @@ public class EncFSCrypto {
    * @param ivSeed IV seed for the encryption
    * @param data   Plaintext data contents
    * @return Encrypted (ciphertext) data
-
-   *                                   Invalid algorithm parameters
-
-
+   *         <p/>
+   *         Invalid algorithm parameters
    */
   public static byte[] blockEncode(EncFSVolume volume, byte[] ivSeed,
                                    byte[] data) throws IllegalBlockSizeException,
@@ -621,8 +595,6 @@ public class EncFSCrypto {
    * @param fileName   Encrypted file name
    * @param volumePath Cleartext path of the file in the volume
    * @return Decrypted file name
-
-
    */
   public static String decodeName(EncFSVolume volume, String fileName,
                                   String volumePath) throws EncFSCorruptDataException,
@@ -710,7 +682,6 @@ public class EncFSCrypto {
    * @param fileName   Cleartext file name
    * @param volumePath Cleartext path of the file in the volume
    * @return Encrypted file name
-
    */
   public static String encodeName(EncFSVolume volume, String fileName,
                                   String volumePath) throws EncFSCorruptDataException {
@@ -799,7 +770,6 @@ public class EncFSCrypto {
    * @param pathName   Cleartext name of the path to encode (relative to volumePath)
    * @param volumePath Cleartext volume path containing the path to encode
    * @return Encrypted path
-
    */
   public static String encodePath(EncFSVolume volume, String pathName,
                                   String volumePath) throws EncFSCorruptDataException {

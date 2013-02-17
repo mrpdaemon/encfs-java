@@ -63,9 +63,6 @@ public class EncFSConfigParser {
    * @param fileProvider File provider to access the config file
    * @param path         Path of the config file in the file provider's notation
    * @return An EncFSConfig object representing the parsing result
-
-
-
    */
   public static EncFSConfig parseConfig(EncFSFileProvider fileProvider,
                                         String path) throws EncFSUnsupportedException,
@@ -112,10 +109,6 @@ public class EncFSConfigParser {
    * @param inputStream InputStream for the config file
    * @return An EncFSConfig object containing the configuration data
    *         interpreted from the given file.
-
-
-
-
    */
   public static EncFSConfig parseFile(InputStream inputStream)
       throws ParserConfigurationException, SAXException, IOException,
