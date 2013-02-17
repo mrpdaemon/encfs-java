@@ -182,7 +182,7 @@ public class EncFSFile {
    *
    * @return null if not a directory, array of String names otherwise
    */
-  public String[] list() throws EncFSCorruptDataException, EncFSChecksumException, IOException {
+  public String[] list() throws EncFSCorruptDataException, EncFSChecksumException, IOException, IllegalAccessException {
     EncFSFile[] files = listFiles();
 
     String[] fileNames = null;
