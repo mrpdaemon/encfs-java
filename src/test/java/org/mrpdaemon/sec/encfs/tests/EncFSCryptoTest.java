@@ -1,12 +1,12 @@
 /*
  * EncFS Java Library
- * Copyright (C) 2011 
+ * Copyright (C) 2011
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published
  * by the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- *  
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
@@ -15,70 +15,55 @@
 
 package org.mrpdaemon.sec.encfs.tests;
 
-import org.mrpdaemon.sec.encfs.*;
+import org.junit.Assert;
+import org.junit.BeforeClass;
+import org.junit.Test;
+import org.mrpdaemon.sec.encfs.EncFSCrypto;
+import org.mrpdaemon.sec.encfs.EncFSVolume;
 
 import java.io.File;
-import java.io.IOException;
-import java.security.InvalidAlgorithmParameterException;
 import java.util.Arrays;
 
-import javax.crypto.BadPaddingException;
-import javax.crypto.IllegalBlockSizeException;
-
-import org.junit.Assert;
-import org.junit.Test;
-
 public class EncFSCryptoTest {
+  private final static String password = "test";
+  private final static String pathname = "test/encfs_samples/boxcryptor_1";
+  private static EncFSVolume volume;
 
-	@Test
-	public void testStreamEncodeDecode() throws EncFSInvalidPasswordException,
-			EncFSInvalidConfigException, EncFSCorruptDataException,
-			EncFSUnsupportedException, EncFSChecksumException, IOException,
-			InvalidAlgorithmParameterException, IllegalBlockSizeException,
-			BadPaddingException {
-		File encFSDir = new File("test/encfs_samples/boxcryptor_1");
-		Assert.assertTrue(encFSDir.exists());
+  @BeforeClass
+  public static void init() throws Exception {
+    volume = getEncFSVolume(pathname, password);
+  }
 
-		String password = "test";
-		EncFSVolume volume = new EncFSVolume(encFSDir.getAbsolutePath(),
-				password);
+  @Test
+  public void testStreamEncodeDecode() throws Exception {
+    byte[] orig = new byte[]{116, 101, 115, 116, 102, 105, 108, 101, 46, 116, 120, 116};
+    byte[] ivSeed = new byte[]{0, 0, 0, 0, 0, 0, 98, -63};
 
-		byte[] orig = new byte[] { 116, 101, 115, 116, 102, 105, 108, 101, 46,
-				116, 120, 116 };
-		byte[] ivSeed = new byte[] { 0, 0, 0, 0, 0, 0, 98, -63 };
+    byte[] b1 = EncFSCrypto.streamEncode(volume, ivSeed, Arrays.copyOf(orig, orig.length));
+    byte[] b2 = EncFSCrypto.streamDecode(volume, ivSeed, Arrays.copyOf(b1, b1.length));
 
-		byte[] b1 = EncFSCrypto.streamEncode(volume, ivSeed,
-				Arrays.copyOf(orig, orig.length));
-		byte[] b2 = EncFSCrypto.streamDecode(volume, ivSeed,
-				Arrays.copyOf(b1, b1.length));
+    Assert.assertArrayEquals(orig, b2);
+  }
 
-		Assert.assertArrayEquals(orig, b2);
-	}
+  @Test
+  public void testStreamEncodeDecode2() throws Exception {
+    byte[] orig = "test file\r".getBytes();
+    byte[] ivSeed = new byte[]{0, 0, 0, 0, 0, 0, 0, 0};
 
-	@Test
-	public void testStreamEncodeDecode2() throws EncFSInvalidPasswordException,
-			EncFSInvalidConfigException, EncFSCorruptDataException,
-			EncFSUnsupportedException, EncFSChecksumException, IOException,
-			InvalidAlgorithmParameterException, IllegalBlockSizeException,
-			BadPaddingException {
-		File encFSDir = new File("test/encfs_samples/boxcryptor_1");
-		Assert.assertTrue(encFSDir.exists());
+    byte[] b1 = EncFSCrypto.streamEncode(volume, ivSeed, Arrays.copyOf(orig, orig.length));
+    byte[] b2 = EncFSCrypto.streamDecode(volume, ivSeed, Arrays.copyOf(b1, b1.length));
 
-		String password = "test";
-		EncFSVolume volume = new EncFSVolume(encFSDir.getAbsolutePath(),
-				password);
+    Assert.assertArrayEquals(orig, b2);
+  }
 
-		String str = "test file\r";
+  private static EncFSVolume getEncFSVolume(String pathname, String password) throws Exception {
+    File encFSDir = assertExistingPath(pathname);
+    return new EncFSVolume(encFSDir.getAbsolutePath(), password);
+  }
 
-		byte[] orig = str.getBytes();
-		byte[] ivSeed = new byte[] { 0, 0, 0, 0, 0, 0, 0, 0 };
-
-		byte[] b1 = EncFSCrypto.streamEncode(volume, ivSeed,
-				Arrays.copyOf(orig, orig.length));
-		byte[] b2 = EncFSCrypto.streamDecode(volume, ivSeed,
-				Arrays.copyOf(b1, b1.length));
-
-		Assert.assertArrayEquals(orig, b2);
-	}
-
+  private static File assertExistingPath(String pathname) {
+    File encFSDir = new File(pathname);
+    Assert.assertTrue(encFSDir.exists());
+    return encFSDir;
+  }
 }
