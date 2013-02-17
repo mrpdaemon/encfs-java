@@ -71,14 +71,12 @@ public class EncFSUtilTest {
 
 	private long toBytesAndBack(long lIn) {
 		byte[] b = EncFSUtil.longToByteArray(lIn);
-		long lOut = EncFSUtil.byteArrayToLong(b);
-		return lOut;
+    return EncFSUtil.byteArrayToLong(b);
 	}
 
 	private int toBytesAndBack(int iIn) {
 		byte[] b = EncFSUtil.intToByteArray(iIn);
-		int iOut = EncFSUtil.byteArrayToInt(b);
-		return iOut;
+    return EncFSUtil.byteArrayToInt(b);
 	}
 
 }
