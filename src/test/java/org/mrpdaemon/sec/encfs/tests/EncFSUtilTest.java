@@ -1,12 +1,12 @@
 /*
  * EncFS Java Library
- * Copyright (C) 2011 
+ * Copyright (C) 2011
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published
  * by the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- *  
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
@@ -15,30 +15,30 @@
 
 package org.mrpdaemon.sec.encfs.tests;
 
-import org.mrpdaemon.sec.encfs.*;
-
-import java.util.Random;
-
 import org.junit.Assert;
 import org.junit.Test;
+import org.mrpdaemon.sec.encfs.EncFSUtil;
+
+import java.nio.ByteBuffer;
+import java.util.Random;
 
 public class EncFSUtilTest {
 	@Test
 	public void testInt_99() {
 		int testInt = 99;
-		byte[] testBytes = new byte[] { 0, 0, 0, 99 };
+    ByteBuffer b = ByteBuffer.allocate(Integer.SIZE / 8).putInt(testInt);
 
-		Assert.assertArrayEquals(testBytes, EncFSUtil.intToByteArray(testInt));
-		Assert.assertEquals(testInt, EncFSUtil.byteArrayToInt(testBytes));
+		Assert.assertArrayEquals(b.array(), EncFSUtil.intToByteArray(testInt));
+		Assert.assertEquals(testInt, EncFSUtil.byteArrayToInt(b.array()));
 	}
 
 	@Test
 	public void testLong_1198() {
 		long testLong = 1198;
-		byte[] testBytes = new byte[] { 0, 0, 0, 0, 0, 0, 4, -82 };
+    ByteBuffer b = ByteBuffer.allocate(Long.SIZE / 8).putLong(testLong);
 
-		Assert.assertArrayEquals(testBytes, EncFSUtil.longToByteArray(testLong));
-		Assert.assertEquals(testLong, EncFSUtil.byteArrayToLong(testBytes));
+		Assert.assertArrayEquals(b.array(), EncFSUtil.longToByteArray(testLong));
+		Assert.assertEquals(testLong, EncFSUtil.byteArrayToLong(b.array()));
 	}
 
 	@Test
