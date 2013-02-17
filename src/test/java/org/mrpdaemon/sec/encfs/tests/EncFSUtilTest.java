@@ -23,60 +23,60 @@ import java.nio.ByteBuffer;
 import java.util.Random;
 
 public class EncFSUtilTest {
-  @Test
-  public void testInt_99() {
-    int testInt = 99;
+	@Test
+	public void testInt_99() {
+		int testInt = 99;
     ByteBuffer b = ByteBuffer.allocate(Integer.SIZE / 8).putInt(testInt);
 
-    Assert.assertArrayEquals(b.array(), EncFSUtil.convertIntToByteArrayBigEndian(testInt));
-    Assert.assertEquals(testInt, EncFSUtil.convertBigEndianByteArrayToInt(b.array()));
-  }
+		Assert.assertArrayEquals(b.array(), EncFSUtil.convertIntToByteArrayBigEndian(testInt));
+		Assert.assertEquals(testInt, EncFSUtil.convertBigEndianByteArrayToInt(b.array()));
+	}
 
-  @Test
-  public void testLong_1198() {
-    long testLong = 1198;
+	@Test
+	public void testLong_1198() {
+		long testLong = 1198;
     ByteBuffer b = ByteBuffer.allocate(Long.SIZE / 8).putLong(testLong);
 
-    Assert.assertArrayEquals(b.array(), EncFSUtil.convertLongToByteArrayBigEndian(testLong));
-    Assert.assertEquals(testLong, EncFSUtil.convertByteArrayToLong(b.array()));
-  }
+		Assert.assertArrayEquals(b.array(), EncFSUtil.convertLongToByteArrayBigEndian(testLong));
+		Assert.assertEquals(testLong, EncFSUtil.convertByteArrayToLong(b.array()));
+	}
 
-  @Test
-  public void testRandomIntToBytesAndBack() {
-    Random random = new Random();
-    for (int i = 0; i < 100; i++) {
-      int iIn = random.nextInt();
+	@Test
+	public void testRandomIntToBytesAndBack() {
+		Random random = new Random();
+		for (int i = 0; i < 100; i++) {
+			int iIn = random.nextInt();
 
-      int iOut1 = toBytesAndBack(iIn);
-      int iOut2 = toBytesAndBack(-1 * iIn);
+			int iOut1 = toBytesAndBack(iIn);
+			int iOut2 = toBytesAndBack(-1 * iIn);
 
-      Assert.assertEquals(iIn, iOut1);
-      Assert.assertEquals(-1 * iIn, iOut2);
-    }
-  }
+			Assert.assertEquals(iIn, iOut1);
+			Assert.assertEquals(-1 * iIn, iOut2);
+		}
+	}
 
-  @Test
-  public void testRandomLongToBytesAndBack() {
-    Random random = new Random();
-    for (int i = 0; i < 100; i++) {
-      long lIn = random.nextLong();
+	@Test
+	public void testRandomLongToBytesAndBack() {
+		Random random = new Random();
+		for (int i = 0; i < 100; i++) {
+			long lIn = random.nextLong();
 
-      long lOut1 = toBytesAndBack(lIn);
-      long lOut2 = toBytesAndBack(-1 * lIn);
+			long lOut1 = toBytesAndBack(lIn);
+			long lOut2 = toBytesAndBack(-1 * lIn);
 
-      Assert.assertEquals(lIn, lOut1);
-      Assert.assertEquals(-1 * lIn, lOut2);
-    }
-  }
+			Assert.assertEquals(lIn, lOut1);
+			Assert.assertEquals(-1 * lIn, lOut2);
+		}
+	}
 
-  private long toBytesAndBack(long lIn) {
-    byte[] b = EncFSUtil.convertLongToByteArrayBigEndian(lIn);
+	private long toBytesAndBack(long lIn) {
+		byte[] b = EncFSUtil.convertLongToByteArrayBigEndian(lIn);
     return EncFSUtil.convertByteArrayToLong(b);
-  }
+	}
 
-  private int toBytesAndBack(int iIn) {
-    byte[] b = EncFSUtil.convertIntToByteArrayBigEndian(iIn);
+	private int toBytesAndBack(int iIn) {
+		byte[] b = EncFSUtil.convertIntToByteArrayBigEndian(iIn);
     return EncFSUtil.convertBigEndianByteArrayToInt(b);
-  }
+	}
 
 }

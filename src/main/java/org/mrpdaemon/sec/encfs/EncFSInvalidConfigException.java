@@ -17,18 +17,18 @@ package org.mrpdaemon.sec.encfs;
 
 public class EncFSInvalidConfigException extends EncFSException {
 
-  private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = 1L;
 
-  public EncFSInvalidConfigException(String message) {
-    super(message);
-  }
+	public EncFSInvalidConfigException(String message) {
+		super(message);
+	}
 
-  public EncFSInvalidConfigException(Throwable cause) {
-    super(cause);
-  }
+	public EncFSInvalidConfigException(Throwable cause) {
+		super(cause);
+	}
 
-  public EncFSInvalidConfigException(String message, Throwable cause) {
-    super(message, cause);
-  }
+	public EncFSInvalidConfigException(String message, Throwable cause) {
+		super(message, cause);
+	}
 
 }
