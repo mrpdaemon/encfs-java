@@ -19,6 +19,7 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.mrpdaemon.sec.encfs.EncFSCrypto;
 import org.mrpdaemon.sec.encfs.EncFSVolume;
+import org.mrpdaemon.sec.encfs.EncFSVolumeBuilder;
 
 import java.io.File;
 import java.util.Arrays;
@@ -53,7 +54,7 @@ public class EncFSCryptoTest {
 
   private static EncFSVolume getEncFSVolume(String pathname, String password) throws Exception {
     File encFSDir = assertExistingPath(pathname);
-    return new EncFSVolume(encFSDir.getAbsolutePath(), password);
+    return new EncFSVolumeBuilder().withRootPath(encFSDir.getAbsolutePath()).withPassword(password);
   }
 
   private static File assertExistingPath(String pathname) {

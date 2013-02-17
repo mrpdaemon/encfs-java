@@ -302,14 +302,11 @@ public class EncFSFile {
         realDstPath = volume.createFile(dstPath.getPath(), getName());
       } catch (EncFSCorruptDataException e) {
         throw new IOException(e);
-      } catch (EncFSChecksumException e) {
-        throw new IOException(e);
       }
-
       return copy(realDstPath);
     } else {
       // Trying to copy a file into a file
-      if (volume.getConfig().isSupportedExternalIVChaining()) {
+      if (volume.getVolumeConfiguration().isSupportedExternalIVChaining()) {
         /*
          * Need to re-encrypt the file since external IV chaining is
 				 * used.

@@ -139,7 +139,7 @@ public class EncFSShell {
 
       // Open the volume
       try {
-        volume = new EncFSVolume(path, password);
+        volume = new EncFSVolumeBuilder().withRootPath(path).withPassword(password);
       } catch (Exception e) {
         System.out.println(e.getMessage());
         return false;
@@ -176,7 +176,7 @@ public class EncFSShell {
 
       // Try to open the EncFSVolume at args[0] using the given password
       try {
-        volume = new EncFSVolume(args[0], password);
+        volume = new EncFSVolumeBuilder().withRootPath(args[0]).withPassword(password);
       } catch (EncFSInvalidPasswordException e) {
         System.out.println("Invalid password!");
         System.exit(1);
@@ -238,7 +238,7 @@ public class EncFSShell {
             public boolean sortByTime = false;
             public boolean longListingFormat = false;
           }
-          ;
+
 
           final ListOptions options = new ListOptions();
           String pathStr = null;
@@ -391,9 +391,8 @@ public class EncFSShell {
                 curDir, dirPath));
           }
 
-          if (result == false) {
-            System.out.println("Failed to create directory '"
-                + dirPath + "'");
+          if (!result ) {
+            System.out.println("Failed to create directory '"                    + dirPath + "'");
           }
         } else if (command.equals("rm")) { // remove
           String filePath = null;
