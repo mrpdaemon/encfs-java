@@ -441,14 +441,6 @@ public class EncFSCrypto {
     return encodeBytes;
   }
 
-  /**
-   * Decode the given fileName under the given volume and volume path
-   *
-   * @param volume     Volume hosting the file
-   * @param fileName   Encrypted file name
-   * @param volumePath Cleartext path of the file in the volume
-   * @return Decrypted file name
-   */
   public static String decodeName(EncFSVolume volume, String fileName, String volumePath) throws EncFSCorruptDataException, EncFSChecksumException {
 
     EncFSAlgorithm algorithm = volume.getVolumeConfiguration().getAlgorithm();
@@ -464,91 +456,19 @@ public class EncFSCrypto {
     }
   }
 
-  /**
-   * Encode the given fileName under the given volume and volume path
-   *
-   * @param volume     Volume hosting the file
-   * @param fileName   Cleartext file name
-   * @param volumePath Cleartext path of the file in the volume
-   * @return Encrypted file name
-   */
   public static String encodeName(EncFSVolume volume, String fileName, String volumePath) throws EncFSCorruptDataException {
 
-    // No encryption for nameio/null algorithm
-    if (volume.getVolumeConfiguration().getAlgorithm() == EncFSAlgorithm.NULL) {
-      return fileName;
+    EncFSAlgorithm algorithm = volume.getVolumeConfiguration().getAlgorithm();
+    switch (algorithm) {
+      case NULL:
+        return new NullFilenameEncryptionStrategy(volume, volumePath).encrypt(fileName);
+      case BLOCK:
+        return new BlockFilenameEncryptionStrategy(volume, volumePath).encrypt(fileName);
+      case STREAM:
+        return new StreamFilenameEncryptionStrategy(volume, volumePath).encrypt(fileName);
+      default:
+        throw new IllegalStateException("not implemented:" + algorithm);
     }
-
-    byte[] decFileName = fileName.getBytes();
-
-    byte[] paddedDecFileName;
-    if (volume.getVolumeConfiguration().getAlgorithm() == EncFSAlgorithm.BLOCK) {
-      // Pad to the nearest 16 bytes, add a full block if needed
-      int padBytesSize = 16;
-      int padLen = padBytesSize - (decFileName.length % padBytesSize);
-      if (padLen == 0) {
-        padLen = padBytesSize;
-      }
-      paddedDecFileName = Arrays.copyOf(decFileName, decFileName.length + padLen);
-      Arrays.fill(paddedDecFileName, decFileName.length, paddedDecFileName.length, (byte) padLen);
-    } else {
-      // Stream encryption
-      paddedDecFileName = decFileName;
-    }
-
-    byte[] chainIv = new byte[8];
-
-    // Chained IV computation
-    if (volume.getVolumeConfiguration().isChainedNameIV()) {
-      chainIv = computeChainIv(volume, volumePath);
-    }
-
-    byte[] mac16;
-    if (volume.getVolumeConfiguration().isChainedNameIV()) {
-      mac16 = EncFSCrypto.mac16(volume.getVolumeMAC(), paddedDecFileName,
-          Arrays.copyOf(chainIv, chainIv.length));
-    } else {
-      mac16 = EncFSCrypto.mac16(volume.getVolumeMAC(), paddedDecFileName);
-    }
-
-    // TODO: make sure its multiple of 16
-    byte[] macBytes = new byte[8];
-    macBytes[6] = mac16[0];
-    macBytes[7] = mac16[1];
-
-    byte[] fileIv = new byte[8];
-    for (int i = 0; i < 8; i++) {
-      fileIv[i] = (byte) (macBytes[i] ^ chainIv[i]);
-    }
-
-    byte[] encFileName;
-    try {
-      if (volume.getVolumeConfiguration().getAlgorithm() == EncFSAlgorithm.BLOCK) {
-        encFileName = BlockCryptography.blockEncode(volume, fileIv, paddedDecFileName);
-      } else {
-        encFileName = EncFSCrypto.streamEncode(volume, fileIv, paddedDecFileName);
-      }
-    } catch (InvalidAlgorithmParameterException e) {
-      throw new EncFSCorruptDataException(e);
-    } catch (IllegalBlockSizeException e) {
-      throw new EncFSCorruptDataException(e);
-    } catch (BadPaddingException e) {
-      throw new EncFSCorruptDataException(e);
-    } catch (EncFSUnsupportedException e) {
-      throw new EncFSCorruptDataException(e);
-    }
-
-    // current versions store the checksum at the beginning (encfs 0.x
-    // stored checksums at the end)
-
-    byte[] base256FileName = new byte[encFileName.length + 2];
-    base256FileName[0] = mac16[0];
-    base256FileName[1] = mac16[1];
-    System.arraycopy(encFileName, 0, base256FileName, 2, encFileName.length);
-
-    byte[] fileNameOutput = EncFSBase64.encodeEncfs(base256FileName);
-
-    return new String(fileNameOutput);
   }
 
   /**
@@ -741,5 +661,30 @@ public class EncFSCrypto {
     } else {
       throw new EncFSUnsupportedException("Unsupported IV length");
     }
+  }
+
+  static byte[] computeFileIV(byte[] chainIv, byte[] macBytes) {
+    byte[] fileIv = new byte[8];
+    for (int i = 0; i < 8; i++) {
+      fileIv[i] = (byte) (macBytes[i] ^ chainIv[i]);
+    }
+    return fileIv;
+  }
+
+  static byte[] getMacBytes(byte[] bytes) {
+    // TODO: make sure its multiple of 16
+    byte[] macBytes = new byte[8];
+    macBytes[6] = bytes[0];
+    macBytes[7] = bytes[1];
+    return macBytes;
+  }
+
+  protected static byte[] computeChainedIVInCase(EncFSVolume volume, String volumePath, EncFSConfig config) {
+    // Chained IV computation
+    byte[] chainIv = new byte[8];
+    if (config.isChainedNameIV()) {
+      chainIv = computeChainIv(volume, volumePath);
+    }
+    return chainIv;
   }
 }

@@ -2,9 +2,6 @@ package org.mrpdaemon.sec.encfs;
 
 import java.util.Arrays;
 
-/**
- * User: lars
- */
 public abstract class NotNullFilenameDecryptionStrategy extends FilenameDecryptionStrategy {
 
   public NotNullFilenameDecryptionStrategy(EncFSVolume volume, String volumePath, EncFSAlgorithm algorithm) {
@@ -18,11 +15,11 @@ public abstract class NotNullFilenameDecryptionStrategy extends FilenameDecrypti
     String volumePath = getVolumePath();
     EncFSConfig config = volume.getVolumeConfiguration();
 
-    byte[] chainIv = computeChainedIVInCase(volume, volumePath, config);
+    byte[] chainIv = EncFSCrypto.computeChainedIVInCase(volume, volumePath, config);
     byte[] base256FileName = EncFSBase64.decodeEncfs(fileName.getBytes());
-    byte[] macBytes = getMacBytes(base256FileName);
+    byte[] macBytes = EncFSCrypto.getMacBytes(base256FileName);
     byte[] encFileName = Arrays.copyOfRange(base256FileName, 2, base256FileName.length);
-    byte[] fileIv = computeFileIV(chainIv, macBytes);
+    byte[] fileIv = EncFSCrypto.computeFileIV(chainIv, macBytes);
 
     byte[] decFileName = decryptConcrete(volume, chainIv, macBytes, encFileName, fileIv);
 
@@ -48,30 +45,5 @@ public abstract class NotNullFilenameDecryptionStrategy extends FilenameDecrypti
     if (!Arrays.equals(mac16, expectedMac)) {
       throw new EncFSChecksumException("Mismatch in file name checksum");
     }
-  }
-
-  protected byte[] computeFileIV(byte[] chainIv, byte[] macBytes) {
-    byte[] fileIv = new byte[8];
-    for (int i = 0; i < 8; i++) {
-      fileIv[i] = (byte) (macBytes[i] ^ chainIv[i]);
-    }
-    return fileIv;
-  }
-
-  private byte[] getMacBytes(byte[] base256FileName) {
-    // TODO: make sure its multiple of 16
-    byte[] macBytes = new byte[8];
-    macBytes[6] = base256FileName[0];
-    macBytes[7] = base256FileName[1];
-    return macBytes;
-  }
-
-  protected byte[] computeChainedIVInCase(EncFSVolume volume, String volumePath, EncFSConfig config) {
-    // Chained IV computation
-    byte[] chainIv = new byte[8];
-    if (config.isChainedNameIV()) {
-      chainIv = EncFSCrypto.computeChainIv(volume, volumePath);
-    }
-    return chainIv;
   }
 }
