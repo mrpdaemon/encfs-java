@@ -31,7 +31,7 @@ public class CommonsVFSFileProvider implements EncFSFileProvider {
 		return separator;
 	}
 
-	public final String getRootPath() {
+	public final String getFilesystemRootPath() {
 		return FileName.ROOT_PATH;
 	}
 

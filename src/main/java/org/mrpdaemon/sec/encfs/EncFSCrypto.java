@@ -151,7 +151,7 @@ public class EncFSCrypto {
   public static void cipherInit(EncFSVolume volume, int opMode,
                                 Cipher cipher, byte[] ivSeed)
       throws InvalidAlgorithmParameterException {
-    cipherInit(volume.getKey(), volume.getMac(), opMode, cipher,
+    cipherInit(volume.getVolumeCryptKey(), volume.getMac(), opMode, cipher,
         volume.getIV(), ivSeed);
   }
 
@@ -411,7 +411,7 @@ public class EncFSCrypto {
       InvalidAlgorithmParameterException, IllegalBlockSizeException,
       BadPaddingException {
     return streamDecode(volume.getStreamCipher(), volume.getMac(),
-        volume.getKey(), volume.getIV(), ivSeed, data);
+        volume.getVolumeCryptKey(), volume.getIV(), ivSeed, data);
   }
 
   /**
@@ -434,7 +434,7 @@ public class EncFSCrypto {
       InvalidAlgorithmParameterException, IllegalBlockSizeException,
       BadPaddingException {
     return streamDecode(volume.getStreamCipher(), volume.getMac(),
-        volume.getKey(), volume.getIV(), ivSeed, data, offset, len);
+        volume.getVolumeCryptKey(), volume.getIV(), ivSeed, data, offset, len);
   }
 
   // Encode the given data in stream mode
@@ -489,7 +489,7 @@ public class EncFSCrypto {
       InvalidAlgorithmParameterException, IllegalBlockSizeException,
       BadPaddingException {
     return streamEncode(volume.getStreamCipher(), volume.getMac(),
-        volume.getKey(), volume.getIV(), ivSeed, data);
+        volume.getVolumeCryptKey(), volume.getIV(), ivSeed, data);
   }
 
   /**
@@ -512,7 +512,7 @@ public class EncFSCrypto {
       InvalidAlgorithmParameterException, IllegalBlockSizeException,
       BadPaddingException {
     return streamEncode(volume.getStreamCipher(), volume.getMac(),
-        volume.getKey(), volume.getIV(), ivSeed, data, offset, len);
+        volume.getVolumeCryptKey(), volume.getIV(), ivSeed, data, offset, len);
   }
 
   private static byte[] blockOperation(EncFSVolume volume, byte[] ivSeed,

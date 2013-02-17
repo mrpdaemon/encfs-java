@@ -145,7 +145,7 @@ public class EncFSConfigWriter {
   public static void writeConfig(EncFSFileProvider fileProvider,
                                  EncFSConfig config, String password)
       throws EncFSUnsupportedException, IOException {
-    String configFileName = fileProvider.getRootPath()
+    String configFileName = fileProvider.getFilesystemRootPath()
         + EncFSVolume.CONFIG_FILE_NAME;
 
     if (fileProvider.exists(configFileName)) {

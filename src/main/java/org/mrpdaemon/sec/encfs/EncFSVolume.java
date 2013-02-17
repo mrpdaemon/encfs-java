@@ -33,12 +33,8 @@ import java.util.Arrays;
  * compliant EncFS implementation.
  */
 public class EncFSVolume {
-	/** Standard name of the EncFS volume configuration file */
 	public final static String CONFIG_FILE_NAME = ".encfs6.xml";
-
-	/** Old EncFS config file names */
-	public final static String[] OLD_CONFIG_FILE_NAMES = { ".encfs5",
-			".encfs4", ".encfs3", ".encfs2", ".encfs" };
+	public final static String[] OLD_CONFIG_FILE_NAMES = { ".encfs5",	".encfs4", ".encfs3", ".encfs2", ".encfs" };
 
 	/** String denoting the root path of an EncFS volume */
 	public final static String ROOT_PATH = "/";
@@ -57,13 +53,13 @@ public class EncFSVolume {
 	// Volume configuration
 	private EncFSConfig config;
 
-	// Volume encryption/decryption key
-	private Key key;
+	// Volume encryption/decryption VolumeCryptKey
+	private Key VolumeCryptKey;
 
-	// Volume initialization vector for use with the volume key
+	// Volume initialization vector for use with the volume VolumeCryptKey
 	private byte[] iv;
 
-	// Password-based key/IV
+	// Password-based VolumeCryptKey/IV
 	private byte[] passwordKey;
 
 	// Volume MAC object to use for checksum computations
@@ -88,7 +84,7 @@ public class EncFSVolume {
 	 *            Path of the root directory of the EncFS volume on the local
 	 *            filesystem
 	 * @param password
-	 *            User supplied password to decrypt volume key
+	 *            User supplied password to decrypt volume VolumeCryptKey
 	 *
 	 * @throws EncFSInvalidPasswordException
 	 *             Given password is incorrect
@@ -114,7 +110,7 @@ public class EncFSVolume {
 	 *            Path of the root directory of the EncFS volume on the local
 	 *            filesystem
 	 * @param password
-	 *            User supplied password to decrypt volume key
+	 *            User supplied password to decrypt volume VolumeCryptKey
 	 * @param pbkdf2Provider
 	 *            Custom PBKDF2 computation provider
 	 *
@@ -144,9 +140,9 @@ public class EncFSVolume {
 	 *            Path of the root directory of the EncFS volume on the local
 	 *            filesystem
 	 * @param passwordKey
-	 *            Cached password-based key/IV data. Can be obtained using
+	 *            Cached password-based VolumeCryptKey/IV data. Can be obtained using
 	 *            getPasswordKey() on a volume created with a regular password.
-	 *            Caching the password-based key data can significantly speed up
+	 *            Caching the password-based VolumeCryptKey data can significantly speed up
 	 *            volume creation.
 	 *
 	 * @throws EncFSInvalidPasswordException
@@ -172,7 +168,7 @@ public class EncFSVolume {
 	 * @param fileProvider
 	 *            File provider for access to files stored in non-local storage
 	 * @param password
-	 *            User supplied password to decrypt volume key
+	 *            User supplied password to decrypt volume VolumeCryptKey
 	 *
 	 * @throws EncFSInvalidPasswordException
 	 *             Given password is incorrect
@@ -197,7 +193,7 @@ public class EncFSVolume {
 	 * @param fileProvider
 	 *            File provider for access to files stored in non-local storage
 	 * @param password
-	 *            User supplied password to decrypt volume key
+	 *            User supplied password to decrypt volume VolumeCryptKey
 	 * @param pbkdf2Provider
 	 *            Custom PBKDF2 computation provider
 	 *
@@ -225,9 +221,9 @@ public class EncFSVolume {
 	 * @param fileProvider
 	 *            File provider for access to files stored in non-local storage
 	 * @param passwordKey
-	 *            Cached password-based key/IV data. Can be obtained using
+	 *            Cached password-based VolumeCryptKey/IV data. Can be obtained using
 	 *            getPasswordKey() on a volume created with a regular password.
-	 *            Caching the password-based key data can significantly speed up
+	 *            Caching the password-based VolumeCryptKey data can significantly speed up
 	 *            volume creation.
 	 *
 	 * @throws EncFSInvalidPasswordException
@@ -256,7 +252,7 @@ public class EncFSVolume {
 	 *            EncFSConfig if the config file is stored in a separate
 	 *            location than the file provider's root directory
 	 * @param password
-	 *            User supplied password to decrypt volume key
+	 *            User supplied password to decrypt volume VolumeCryptKey
 	 *
 	 * @throws EncFSInvalidPasswordException
 	 *             Given password is incorrect
@@ -285,7 +281,7 @@ public class EncFSVolume {
 	 *            EncFSConfig if the config file is stored in a separate
 	 *            location than the file provider's root directory
 	 * @param password
-	 *            User supplied password to decrypt volume key
+	 *            User supplied password to decrypt volume VolumeCryptKey
 	 * @param pbkdf2Provider
 	 *            Custom PBKDF2 computation provider
 	 *
@@ -316,9 +312,9 @@ public class EncFSVolume {
 	 *            EncFSConfig if the config file is stored in a separate
 	 *            location than the file provider's root directory
 	 * @param passwordKey
-	 *            Cached password-based key/IV data. Can be obtained using
+	 *            Cached password-based VolumeCryptKey/IV data. Can be obtained using
 	 *            getPasswordKey() on a volume created with a regular password.
-	 *            Caching the password-based key data can significantly speed up
+	 *            Caching the password-based VolumeCryptKey data can significantly speed up
 	 *            volume creation.
 	 *
 	 * @throws EncFSInvalidPasswordException
@@ -339,7 +335,7 @@ public class EncFSVolume {
 		this.init(fileProvider, config, passwordKey);
 	}
 
-	// Read configuration, derive password key and initialize volume
+	// Read configuration, derive password VolumeCryptKey and initialize volume
 	private void init(EncFSFileProvider fileProvider, String password)
 			throws EncFSUnsupportedException, EncFSInvalidConfigException,
 			EncFSCorruptDataException, EncFSInvalidPasswordException,
@@ -365,7 +361,7 @@ public class EncFSVolume {
 		this.init(fileProvider, config, passwordKey, pbkdf2Provider);
 	}
 
-	// Derive password key and initialize volume
+	// Derive password VolumeCryptKey and initialize volume
 	private void init(EncFSFileProvider fileProvider, EncFSConfig config,
 			String password) throws EncFSUnsupportedException,
 			EncFSInvalidConfigException, EncFSCorruptDataException,
@@ -416,7 +412,7 @@ public class EncFSVolume {
 
 		this.config = config;
 		this.passwordKey = passwordKey;
-		// Derive volume key from the supplied password
+		// Derive volume VolumeCryptKey from the supplied password
 		byte[] keyData = null;
 		try {
 			keyData = EncFSCrypto.decryptVolumeKey(this.config,
@@ -425,12 +421,12 @@ public class EncFSVolume {
 			throw new EncFSInvalidPasswordException(e);
 		}
 
-		// Create volume key
+		// Create volume VolumeCryptKey
 		int keyLength = this.config.getVolumeKeySizeInBits() / 8;
 		if (keyData.length < keyLength) {
 			throw new EncFSInvalidConfigException("Key size too large");
 		}
-		this.key = EncFSCrypto
+		this.VolumeCryptKey = EncFSCrypto
 				.newKey(Arrays.copyOfRange(keyData, 0, keyLength));
 
 		// Copy IV data
@@ -442,7 +438,7 @@ public class EncFSVolume {
 
 		// Create volume MAC
 		try {
-			this.mac = EncFSCrypto.newMac(this.key);
+			this.mac = EncFSCrypto.newMac(this.VolumeCryptKey);
 		} catch (InvalidKeyException e) {
 			throw new EncFSInvalidConfigException(e);
 		}
@@ -557,12 +553,12 @@ public class EncFSVolume {
 	}
 
 	/**
-	 * Returns the volume key used for encryption/decryption
+	 * Returns the volume VolumeCryptKey used for encryption/decryption
 	 *
-	 * @return Volume key for encryption/decryption
+	 * @return Volume VolumeCryptKey for encryption/decryption
 	 */
-	public Key getKey() {
-		return key;
+	public Key getVolumeCryptKey() {
+		return VolumeCryptKey;
 	}
 
 	/**
@@ -575,9 +571,9 @@ public class EncFSVolume {
 	}
 
 	/**
-	 * Returns the password based key/IV data for this volume
+	 * Returns the password based VolumeCryptKey/IV data for this volume
 	 *
-	 * @return Password-based key/IV data for this volume
+	 * @return Password-based VolumeCryptKey/IV data for this volume
 	 */
 	public byte[] getPasswordKey() {
 		return passwordKey;
@@ -834,7 +830,7 @@ public class EncFSVolume {
 	 */
 	public static boolean isEncFSVolume(EncFSFileProvider fileProvider)
 			throws IOException {
-		return (fileProvider.exists(fileProvider.getRootPath()
+		return (fileProvider.exists(fileProvider.getFilesystemRootPath()
 				+ EncFSVolume.CONFIG_FILE_NAME));
 	}
 
@@ -846,7 +842,7 @@ public class EncFSVolume {
 	 *            File provider to use for accessing storage
 	 * @param config
 	 *            Volume configuration to use, should have all fields except for
-	 *            salt/key fields initialized
+	 *            salt/VolumeCryptKey fields initialized
 	 * @param password
 	 *            Volume password to use
 	 *
@@ -867,7 +863,7 @@ public class EncFSVolume {
 			EncFSCorruptDataException, EncFSUnsupportedException, IOException {
 		SecureRandom random = new SecureRandom();
 
-		// Create a random volume key + IV pair
+		// Create a random volume VolumeCryptKey + IV pair
 		byte[] randVolKey = new byte[config.getVolumeKeySizeInBits() / 8
 				+ EncFSVolume.IV_LENGTH];
 		random.nextBytes(randVolKey);
@@ -884,7 +880,7 @@ public class EncFSVolume {
 	 *            File provider to use for accessing storage
 	 * @param config
 	 *            Volume configuration to use, should have all fields except for
-	 *            salt/key fields initialized
+	 *            salt/VolumeCryptKey fields initialized
 	 * @param password
 	 *            Volume password to use
 	 * @param pbkdf2Provider
@@ -908,7 +904,7 @@ public class EncFSVolume {
 			EncFSCorruptDataException, EncFSUnsupportedException, IOException {
 		SecureRandom random = new SecureRandom();
 
-		// Create a random volume key + IV pair
+		// Create a random volume VolumeCryptKey + IV pair
 		byte[] randVolKey = new byte[config.getVolumeKeySizeInBits() / 8
 				+ EncFSVolume.IV_LENGTH];
 		random.nextBytes(randVolKey);
