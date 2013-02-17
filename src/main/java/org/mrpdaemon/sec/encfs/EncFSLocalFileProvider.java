@@ -29,7 +29,7 @@ import java.util.List;
  */
 public class EncFSLocalFileProvider implements EncFSFileProvider {
 
-  public final String separator;
+  private final String separator;
 
   private final File rootPath;
 
@@ -54,7 +54,7 @@ public class EncFSLocalFileProvider implements EncFSFileProvider {
    *
    * @param path Path of the file or directory
    */
-  public File getFile(String path) {
+  File getFile(String path) {
     return new File(rootPath.getAbsoluteFile(), path);
   }
 

@@ -427,7 +427,7 @@ public class EncFSShell {
             continue;
           }
 
-          if (result == false) {
+          if (!result) {
             System.out.println("Failed to delete path '" + filePath
                 + "'");
           }
@@ -472,7 +472,7 @@ public class EncFSShell {
 						 * a directory - in that case we'll just move the source
 						 * path into that directory
 						 */
-            if (force == false && !lastPathElement.isDirectory()) {
+            if (!force && !lastPathElement.isDirectory()) {
               System.out.println("Destination path '"
                   + pathArray[1] + "' exists!");
               continue;
@@ -718,7 +718,7 @@ public class EncFSShell {
     }
   }
 
-  static String readFileName(StringTokenizer st) {
+  private static String readFileName(StringTokenizer st) {
     return readFileName(st, null);
   }
 
@@ -727,7 +727,7 @@ public class EncFSShell {
   // if token != null, this is the first token already read from st
   // if the path starts with ", read multiple tokens (separated by "
   // ") until the name ends with " or the last token is read.
-  static String readFileName(StringTokenizer st, String token) {
+  private static String readFileName(StringTokenizer st, String token) {
     String filePath = (token == null) ? st.nextToken() : token;
     if (filePath.startsWith("\"")) {
       filePath = filePath.substring(1);

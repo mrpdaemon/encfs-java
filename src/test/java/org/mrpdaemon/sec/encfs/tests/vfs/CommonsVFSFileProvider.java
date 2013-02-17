@@ -13,11 +13,11 @@ import java.util.List;
 
 public class CommonsVFSFileProvider implements EncFSFileProvider {
 
-  public final String separator;
+  private final String separator;
 
-  protected final FileSystemManager fileSystemManager;
+  final FileSystemManager fileSystemManager;
 
-  public CommonsVFSFileProvider(FileSystemManager fileSystemManager) {
+  CommonsVFSFileProvider(FileSystemManager fileSystemManager) {
     this.fileSystemManager = fileSystemManager;
     this.separator = FileName.SEPARATOR;
   }

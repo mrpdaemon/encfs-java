@@ -9,7 +9,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.*;
 
-public class EncFSVolumeTestCommon {
+class EncFSVolumeTestCommon {
   private final static String password = "testPassword";
 
   public static File createTempDir() throws IOException {
@@ -40,14 +40,14 @@ public class EncFSVolumeTestCommon {
     }
   }
 
-  public static class EncFSFileInfoComparator implements Comparator<EncFSFileInfo> {
+  private static class EncFSFileInfoComparator implements Comparator<EncFSFileInfo> {
     @Override
     public int compare(EncFSFileInfo info1, EncFSFileInfo info2) {
       return info1.getName().compareTo(info2.getName());
     }
   }
 
-  public static class EncFSFileComparator implements Comparator<EncFSFile> {
+  private static class EncFSFileComparator implements Comparator<EncFSFile> {
     @Override
     public int compare(EncFSFile file1, EncFSFile file2) {
       return file1.getName().compareTo(file2.getName());

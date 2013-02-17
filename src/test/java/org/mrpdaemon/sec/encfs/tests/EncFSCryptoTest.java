@@ -30,7 +30,7 @@ public class EncFSCryptoTest {
 
   @Test
   public void testStreamEncodeDecode() throws Exception {
-    EncFSVolume volume = getEncFSVolume(pathname, password);
+    EncFSVolume volume = getEncFSVolume();
     byte[] orig = new byte[]{116, 101, 115, 116, 102, 105, 108, 101, 46, 116, 120, 116};
     byte[] ivSeed = new byte[]{0, 0, 0, 0, 0, 0, 98, -63};
 
@@ -42,7 +42,7 @@ public class EncFSCryptoTest {
 
   @Test
   public void testStreamEncodeDecode2() throws Exception {
-    EncFSVolume volume = getEncFSVolume(pathname, password);
+    EncFSVolume volume = getEncFSVolume();
     byte[] orig = "test file\r".getBytes();
     byte[] ivSeed = new byte[]{0, 0, 0, 0, 0, 0, 0, 0};
 
@@ -52,9 +52,9 @@ public class EncFSCryptoTest {
     Assert.assertArrayEquals(orig, b2);
   }
 
-  private static EncFSVolume getEncFSVolume(String pathname, String password) throws Exception {
-    File encFSDir = assertExistingPath(pathname);
-    return new EncFSVolumeBuilder().withRootPath(encFSDir.getAbsolutePath()).withPassword(password).access();
+  private static EncFSVolume getEncFSVolume() throws Exception {
+    File encFSDir = assertExistingPath(EncFSCryptoTest.pathname);
+    return new EncFSVolumeBuilder().withRootPath(encFSDir.getAbsolutePath()).withPassword(EncFSCryptoTest.password).access();
   }
 
   private static File assertExistingPath(String pathname) {

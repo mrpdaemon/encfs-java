@@ -19,7 +19,7 @@ public abstract class EncFSException extends Exception {
 
   private static final long serialVersionUID = 1L;
 
-  public EncFSException(String message) {
+  EncFSException(String message) {
     super(message);
   }
 

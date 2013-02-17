@@ -23,7 +23,7 @@ import java.util.Properties;
 /**
  * Writer methods that write an EncFSConfig into a file
  */
-public class EncFSConfigWriter {
+class EncFSConfigWriter {
 
   // Version to use if the properties file can't be read
   private static final String ENCFS_JAVA_LIB_VERSION_DEV = "dev";
@@ -87,14 +87,14 @@ public class EncFSConfigWriter {
 
     result += "\t<blockSize>" + Integer.toString(config.getEncryptedFileBlockSizeInBytes()) + "</blockSize>\n";
 
-    result += "\t<uniqueIV>" + (config.isUseUniqueIV() == true ? "1" : "0") + "</uniqueIV>\n";
+    result += "\t<uniqueIV>" + (config.isUseUniqueIV() ? "1" : "0") + "</uniqueIV>\n";
 
     result += "\t<chainedNameIV>"
-        + (config.isChainedNameIV() == true ? "1" : "0")
+        + (config.isChainedNameIV() ? "1" : "0")
         + "</chainedNameIV>\n";
 
     result += "\t<externalIVChaining>"
-        + (config.isSupportedExternalIVChaining() == true ? "1" : "0")
+        + (config.isSupportedExternalIVChaining() ? "1" : "0")
         + "</externalIVChaining>\n";
 
     result += "\t<blockMACBytes>"
@@ -105,7 +105,7 @@ public class EncFSConfigWriter {
         + "</blockMACRandBytes>\n";
 
     result += "\t<allowHoles>"
-        + (config.isHolesAllowedInFiles() == true ? "1" : "0")
+        + (config.isHolesAllowedInFiles() ? "1" : "0")
         + "</allowHoles>\n";
 
     result += "\t<encodedKeySize>"
@@ -134,14 +134,9 @@ public class EncFSConfigWriter {
   /**
    * Create a configuration file from the given EncFSConfig and write it to
    * the root directory of the given EncFSFileProvider
-   *
-   * @param fileProvider File provider to use for writing the config file
-   * @param config       Object encapsulating configuration to write
-   * @param password     Volume password to encode into the config file
    */
-  public static void writeConfig(EncFSFileProvider fileProvider, EncFSConfig config, String password) throws EncFSUnsupportedException, IOException {
-    String configFileName = fileProvider.getFilesystemRootPath()
-        + EncFSVolume.CONFIG_FILE_NAME;
+  public static void writeConfig(EncFSFileProvider fileProvider, EncFSConfig config) throws EncFSUnsupportedException, IOException {
+    String configFileName = fileProvider.getFilesystemRootPath() + EncFSVolume.CONFIG_FILE_NAME;
 
     if (fileProvider.exists(configFileName)) {
       throw new EncFSUnsupportedException("Config file already exists");

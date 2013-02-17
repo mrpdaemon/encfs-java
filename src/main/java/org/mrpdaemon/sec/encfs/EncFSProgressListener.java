@@ -75,18 +75,18 @@ public abstract class EncFSProgressListener {
   }
 
   // Post an event to the progress listener
-  protected void postEvent(int eventType) {
+  void postEvent(int eventType) {
     handleEvent(eventType);
   }
 
   // Set the current file
-  protected void setCurrentFile(String fileName) {
+  void setCurrentFile(String fileName) {
     currentFile = fileName;
     postEvent(NEW_FILE_EVENT);
   }
 
   // Set the total number of files being operated on
-  protected void setNumFiles(int numFiles) {
+  void setNumFiles(int numFiles) {
     this.numFiles = numFiles;
     postEvent(FILES_COUNTED_EVENT);
   }

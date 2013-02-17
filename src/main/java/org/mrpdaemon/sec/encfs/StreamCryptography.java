@@ -38,7 +38,7 @@ public class StreamCryptography {
     return result;
   }
 
-  protected static byte[] streamDecode(Cipher cipher, Mac mac, Key key, byte[] iv, byte[] ivSeed, byte[] data) throws EncFSUnsupportedException, InvalidAlgorithmParameterException, IllegalBlockSizeException, BadPaddingException {
+  static byte[] streamDecode(Cipher cipher, Mac mac, Key key, byte[] iv, byte[] ivSeed, byte[] data) throws EncFSUnsupportedException, InvalidAlgorithmParameterException, IllegalBlockSizeException, BadPaddingException {
     return streamDecode(cipher, mac, key, iv, ivSeed, data, 0, data.length);
   }
 

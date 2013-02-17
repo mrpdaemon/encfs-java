@@ -4,7 +4,7 @@ import java.util.Arrays;
 
 public abstract class NotNullFilenameEncryptionStrategy extends FilenameEncryptionStrategy {
 
-  public NotNullFilenameEncryptionStrategy(EncFSVolume volume, String volumePath, EncFSAlgorithm algorithm) {
+  NotNullFilenameEncryptionStrategy(EncFSVolume volume, String volumePath, EncFSAlgorithm algorithm) {
     super(volume, volumePath, algorithm);
   }
 

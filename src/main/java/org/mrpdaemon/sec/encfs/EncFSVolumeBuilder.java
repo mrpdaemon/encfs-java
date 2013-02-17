@@ -122,7 +122,7 @@ public final class EncFSVolumeBuilder {
       new SecureRandom().nextBytes(randVolKey);
 
       VolumeKey.encodeVolumeKey(config, password, randVolKey, provider);
-      EncFSConfigWriter.writeConfig(fileProvider, config, password);
+      EncFSConfigWriter.writeConfig(fileProvider, config);
     }
   }
 

@@ -3,21 +3,21 @@ package org.mrpdaemon.sec.encfs;
 /**
  * User: lars
  */
-public abstract class FilenameEncryptionStrategy {
+abstract class FilenameEncryptionStrategy {
 
   private final EncFSVolume volume;
   private final String volumePath;
   private final EncFSAlgorithm algorithm;
 
-  public String getVolumePath() {
+  String getVolumePath() {
     return volumePath;
   }
 
-  public EncFSVolume getVolume() {
+  EncFSVolume getVolume() {
     return volume;
   }
 
-  public FilenameEncryptionStrategy(EncFSVolume volume, String volumePath, EncFSAlgorithm algorithm) {
+  FilenameEncryptionStrategy(EncFSVolume volume, String volumePath, EncFSAlgorithm algorithm) {
     this.volume = volume;
     this.volumePath = volumePath;
     this.algorithm = algorithm;

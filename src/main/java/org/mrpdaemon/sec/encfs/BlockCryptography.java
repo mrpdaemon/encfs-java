@@ -5,7 +5,7 @@ import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
 import java.security.InvalidAlgorithmParameterException;
 
-public class BlockCryptography {
+class BlockCryptography {
 
   public static Cipher newBlockCipher() throws EncFSUnsupportedException {
     return EncFSCrypto.getCipher(EncFSCrypto.BLOCK_CIPHER);

@@ -7,11 +7,11 @@ import org.mrpdaemon.sec.encfs.*;
 public abstract class EncFSVolumeTest {
   private EncFSFileProvider fileProvider;
 
-  protected void setFileProvider(EncFSFileProvider encFSFileProvider) {
+  void setFileProvider(EncFSFileProvider encFSFileProvider) {
     this.fileProvider = encFSFileProvider;
   }
 
-  protected EncFSFileProvider getFileProvider() {
+  EncFSFileProvider getFileProvider() {
     return fileProvider;
   }
 

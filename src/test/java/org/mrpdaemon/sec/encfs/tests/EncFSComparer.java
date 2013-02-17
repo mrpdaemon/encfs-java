@@ -49,8 +49,8 @@ public class EncFSComparer {
   private final String password;
   private final File decodedEncFSOutput;
 
-  public EncFSComparer(File rawEncFSVolume, String password,
-                       File decodedEncFSOutput) {
+  private EncFSComparer(File rawEncFSVolume, String password,
+                        File decodedEncFSOutput) {
     this.rawEncFSVolume = rawEncFSVolume;
     this.password = password;
     this.decodedEncFSOutput = decodedEncFSOutput;
@@ -94,7 +94,7 @@ public class EncFSComparer {
         EncFSFile encFsFile = encFsFiles[i];
         File decodedFsFile = decodedFsFiles[i];
 
-        if (encFsFile.getName().equals(decodedFsFile.getName()) == false) {
+        if (!encFsFile.getName().equals(decodedFsFile.getName())) {
           logger.error("File name miss match ({}, {}, {})",
               new Object[]{i, encFsFile.getName(),
                   decodedFsFile.getName()});
@@ -103,7 +103,7 @@ public class EncFSComparer {
 
         String reEncEncfsName = EncFSCrypto.encodeName(encFsFile.getVolume(), encFsFile.getName(), encFsFile.getParentPath());
         String rawFileName = encFsFile.getEncrytedName();
-        if (rawFileName.equals(reEncEncfsName) == false) {
+        if (!rawFileName.equals(reEncEncfsName)) {
           logger.error("Re-encoded name miss match ({}, {}, {}, {})",
               new Object[]{i, encFsFile.getName(), rawFileName,
                   reEncEncfsName});
@@ -210,7 +210,7 @@ public class EncFSComparer {
         return -1;
       }
 
-      if (Arrays.equals(readBuf, readBuf2) == false) {
+      if (!Arrays.equals(readBuf, readBuf2)) {
         logger.error("File bytes missmatch {}", decodedFsFileName);
         return -1;
       }

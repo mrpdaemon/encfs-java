@@ -64,7 +64,7 @@ public class EncFSVolume {
   public EncFSVolume() {
   }
 
-  protected void readConfigAndInitializeVolume() throws EncFSUnsupportedException, EncFSInvalidConfigException, EncFSCorruptDataException, EncFSInvalidPasswordException, IOException {
+  void readConfigAndInitializeVolume() throws EncFSUnsupportedException, EncFSInvalidConfigException, EncFSCorruptDataException, EncFSInvalidPasswordException, IOException {
 
     byte[] keyData;
     try {
@@ -128,7 +128,7 @@ public class EncFSVolume {
     return combinePath(dir, file.getName());
   }
 
-  public static String combinePath(String dirPath, EncFSFile file) {
+  private static String combinePath(String dirPath, EncFSFile file) {
     return combinePath(dirPath, file.getName());
   }
 
@@ -138,7 +138,7 @@ public class EncFSVolume {
    * @param file File to count under
    * @return Number of files/directories under the file
    */
-  public static int countFiles(EncFSFile file) {
+  private static int countFiles(EncFSFile file) {
     if (file.isDirectory()) {
       int dirCount = 1;
       try {
@@ -282,7 +282,7 @@ public class EncFSVolume {
     return isEncFSVolume(new File(path));
   }
 
-  public static boolean isEncFSVolume(File file) throws IOException {
+  private static boolean isEncFSVolume(File file) throws IOException {
     return isEncFSVolume(new EncFSLocalFileProvider(file));
   }
 
@@ -292,7 +292,7 @@ public class EncFSVolume {
    * @param fileProvider File provider for the presumed EncFS volume
    * @return true if the volume is EncFS, false otherwise
    */
-  public static boolean isEncFSVolume(EncFSFileProvider fileProvider) throws IOException {
+  private static boolean isEncFSVolume(EncFSFileProvider fileProvider) throws IOException {
     return (fileProvider.exists(fileProvider.getFilesystemRootPath() + EncFSVolume.CONFIG_FILE_NAME));
   }
 

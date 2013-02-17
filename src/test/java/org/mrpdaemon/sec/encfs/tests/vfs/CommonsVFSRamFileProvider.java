@@ -8,7 +8,7 @@ import java.io.IOException;
 
 public class CommonsVFSRamFileProvider extends CommonsVFSFileProvider {
 
-  protected DefaultFileSystemManager fileSystemManager;
+  private DefaultFileSystemManager fileSystemManager;
 
   public CommonsVFSRamFileProvider() {
     super(createFileSystemManager());

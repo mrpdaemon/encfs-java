@@ -11,7 +11,7 @@ import java.util.Arrays;
 /**
  * User: lars
  */
-public class VolumeKey {
+class VolumeKey {
   /**
    * Derive volume key for the given config and password-based key/IV data
    *

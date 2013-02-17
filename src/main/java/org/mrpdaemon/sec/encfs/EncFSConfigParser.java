@@ -31,7 +31,7 @@ import java.io.InputStream;
 /**
  * Parser methods that read and interpret EncFS configuration files.
  */
-public class EncFSConfigParser {
+class EncFSConfigParser {
 
   private static String getNodeValue(Node n) {
     return n.getChildNodes().item(0).getNodeValue();
@@ -110,7 +110,7 @@ public class EncFSConfigParser {
    * @return An EncFSConfig object containing the configuration data
    *         interpreted from the given file.
    */
-  public static EncFSConfig parseFile(InputStream inputStream) throws ParserConfigurationException, SAXException, IOException, EncFSInvalidConfigException {
+  private static EncFSConfig parseFile(InputStream inputStream) throws ParserConfigurationException, SAXException, IOException, EncFSInvalidConfigException {
     EncFSConfig config = EncFSConfigFactory.createDefault();
 
     DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
