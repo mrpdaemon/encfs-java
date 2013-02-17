@@ -37,8 +37,6 @@ public class EncFSCrypto {
    *
    * @param key Key to create a new Mac for.
    * @return New Mac object.
-   * @throws InvalidKeyException       Passed key is not valid
-   * @throws EncFSUnsupportedException HMAC SHA-1 not supported by this runtime
    */
   public static Mac newMac(Key key) throws InvalidKeyException,
       EncFSUnsupportedException {
@@ -67,7 +65,7 @@ public class EncFSCrypto {
    * Returns a new stream cipher with AES/CFB/NoPadding.
    *
    * @return A new Cipher object.
-   * @throws EncFSUnsupportedException AES/CFB/NoPadding not supported by this runtime
+
    */
   public static Cipher newStreamCipher() throws EncFSUnsupportedException {
     Cipher result = null;
@@ -85,7 +83,7 @@ public class EncFSCrypto {
    * Returns a new block cipher with AES/CBC/NoPadding.
    *
    * @return A new Cipher object.
-   * @throws EncFSUnsupportedException AES/CBC/NoPadding not supported by this runtime
+
    */
   public static Cipher newBlockCipher() throws EncFSUnsupportedException {
     Cipher result = null;
@@ -145,7 +143,7 @@ public class EncFSCrypto {
    * @param opMode Operation mode of the cipher
    * @param cipher Cipher object
    * @param ivSeed IV seed for initialization
-   * @throws InvalidAlgorithmParameterException
+
    *          Inappropriate algorithm parameters
    */
   public static void cipherInit(EncFSVolume volume, int opMode,
@@ -162,8 +160,8 @@ public class EncFSCrypto {
    * @param password       Volume password
    * @param pbkdf2Provider Custom PBKDF2 provider implementation
    * @return Derived PBKDF2 key + IV bits
-   * @throws EncFSInvalidConfigException Unable to decode salt bytes
-   * @throws EncFSUnsupportedException   PBKDF2WithHmacSHA1 not supported by current runtime
+
+
    */
   public static byte[] derivePasswordKey(EncFSConfig config, String password,
                                          EncFSPBKDF2Provider pbkdf2Provider)
@@ -184,7 +182,7 @@ public class EncFSCrypto {
       } catch (NoSuchAlgorithmException e) {
         throw new EncFSUnsupportedException(e);
       }
-      KeySpec ks = new PBEKeySpec(password.toCharArray(), cipherSaltData,           config.getIterationForPasswordKeyDerivationCount(), config.getVolumeKeySizeInBits()           + EncFSVolume.IV_LENGTH * 8);
+      KeySpec ks = new PBEKeySpec(password.toCharArray(), cipherSaltData, config.getIterationForPasswordKeyDerivationCount(), config.getVolumeKeySizeInBits() + EncFSVolume.IV_LENGTH * 8);
       SecretKey pbkdf2Key;
       try {
         pbkdf2Key = f.generateSecret(ks);
@@ -207,10 +205,10 @@ public class EncFSCrypto {
    * @param config     Volume configuration
    * @param pbkdf2Data PBKDF2 key material + IV (from derivePasswordKey())
    * @return Volume key + IV bits
-   * @throws EncFSChecksumException      Volume key checksum mismatch
-   * @throws EncFSInvalidConfigException Can't decode encoded key string
-   * @throws EncFSCorruptDataException   Corrupt data in config file
-   * @throws EncFSUnsupportedException   Stream cipher mode unsupported in current runtime
+
+
+
+
    */
   public static byte[] decryptVolumeKey(EncFSConfig config, byte[] pbkdf2Data)
       throws EncFSChecksumException, EncFSInvalidConfigException,
@@ -271,9 +269,9 @@ public class EncFSCrypto {
    * @param config     Volume configuration
    * @param pbkdf2Data PBKDF2 key material + IV (from derivePasswordKey())
    * @return Volume key + IV bits
-   * @throws EncFSInvalidConfigException Corrupt data in config file
-   * @throws EncFSCorruptDataException   Corrupt data in config file
-   * @throws EncFSUnsupportedException   Stream cipher mode unsupported in current runtime
+
+
+
    */
   public static byte[] encryptVolumeKey(EncFSConfig config,
                                         byte[] pbkdf2Data, byte[] volKeyData)
@@ -333,9 +331,9 @@ public class EncFSCrypto {
    * @param password       Password to use for encoding the key
    * @param volKey         Volume key to encode
    * @param pbkdf2Provider Custom PBKDF2 provider implementation
-   * @throws EncFSInvalidConfigException Corrupt data in config file
-   * @throws EncFSCorruptDataException   Corrupt data in config file
-   * @throws EncFSUnsupportedException   Stream cipher mode unsupported in current runtime
+
+
+
    */
   public static void encodeVolumeKey(EncFSConfig config, String password,
                                      byte[] volKey, EncFSPBKDF2Provider pbkdf2Provider)
@@ -366,7 +364,7 @@ public class EncFSCrypto {
       InvalidAlgorithmParameterException, IllegalBlockSizeException,
       BadPaddingException {
     // First round uses IV seed + 1 for IV generation
-    byte[] ivSeedPlusOne = getIvSeedPlusOne(ivSeed);
+    byte[] ivSeedPlusOne = incrementIvSeedByOne(ivSeed);
 
     cipherInit(key, mac, Cipher.DECRYPT_MODE, cipher, iv, ivSeedPlusOne);
     byte[] firstDecResult = cipher.doFinal(data, offset, len);
@@ -400,11 +398,11 @@ public class EncFSCrypto {
    * @param ivSeed IV seed for the decryption
    * @param data   Encrypted data contents
    * @return Decrypted (plaintext) data
-   * @throws EncFSUnsupportedException Unsupported IV seed length
-   * @throws InvalidAlgorithmParameterException
+
+
    *                                   Invalid algorithm parameters
-   * @throws IllegalBlockSizeException Illegal block size
-   * @throws BadPaddingException       Pad padding in input
+
+
    */
   public static byte[] streamDecode(EncFSVolume volume, byte[] ivSeed,
                                     byte[] data) throws EncFSUnsupportedException,
@@ -423,11 +421,11 @@ public class EncFSCrypto {
    * @param offset Offset into the data buffer to decode from
    * @param len    Number of bytes in the data buffer to decode
    * @return Decrypted (plaintext) data
-   * @throws EncFSUnsupportedException Unsupported IV seed length
-   * @throws InvalidAlgorithmParameterException
+
+
    *                                   Invalid algorithm parameters
-   * @throws IllegalBlockSizeException Illegal block size
-   * @throws BadPaddingException       Pad padding in input
+
+
    */
   public static byte[] streamDecode(EncFSVolume volume, byte[] ivSeed,
                                     byte[] data, int offset, int len) throws EncFSUnsupportedException,
@@ -444,7 +442,7 @@ public class EncFSCrypto {
       InvalidAlgorithmParameterException, IllegalBlockSizeException,
       BadPaddingException {
     // First round uses IV seed + 1 for IV generation
-    byte[] ivSeedPlusOne = getIvSeedPlusOne(ivSeed);
+    byte[] ivSeedPlusOne = incrementIvSeedByOne(ivSeed);
 
     byte[] encBuf = Arrays.copyOfRange(data, offset, offset + len);
     shuffleBytes(encBuf);
@@ -478,11 +476,11 @@ public class EncFSCrypto {
    * @param ivSeed IV seed for the encryption
    * @param data   Plaintext data contents
    * @return Encrypted (ciphertext) data
-   * @throws EncFSUnsupportedException Unsupported IV seed length
-   * @throws InvalidAlgorithmParameterException
+
+
    *                                   Invalid algorithm parameters
-   * @throws IllegalBlockSizeException Illegal block size
-   * @throws BadPaddingException       Pad padding in input
+
+
    */
   public static byte[] streamEncode(EncFSVolume volume, byte[] ivSeed,
                                     byte[] data) throws EncFSUnsupportedException,
@@ -501,11 +499,11 @@ public class EncFSCrypto {
    * @param offset Offset into the data buffer to start encoding from
    * @param len    Length of the data in the data buffer to encode
    * @return Encrypted (ciphertext) data
-   * @throws EncFSUnsupportedException Unsupported IV seed length
-   * @throws InvalidAlgorithmParameterException
+
+
    *                                   Invalid algorithm parameters
-   * @throws IllegalBlockSizeException Illegal block size
-   * @throws BadPaddingException       Pad padding in input
+
+
    */
   public static byte[] streamEncode(EncFSVolume volume, byte[] ivSeed,
                                     byte[] data, int offset, int len) throws EncFSUnsupportedException,
@@ -536,10 +534,10 @@ public class EncFSCrypto {
    * @param ivSeed IV seed for the decryption
    * @param data   Encrypted data contents
    * @return Decrypted (plaintext) data
-   * @throws InvalidAlgorithmParameterException
+
    *                                   Invalid algorithm parameters
-   * @throws IllegalBlockSizeException Illegal block size
-   * @throws BadPaddingException       Pad padding in input
+
+
    */
   public static byte[] blockDecode(EncFSVolume volume, byte[] ivSeed,
                                    byte[] data) throws InvalidAlgorithmParameterException,
@@ -554,10 +552,10 @@ public class EncFSCrypto {
    * @param ivSeed IV seed for the encryption
    * @param data   Plaintext data contents
    * @return Encrypted (ciphertext) data
-   * @throws InvalidAlgorithmParameterException
+
    *                                   Invalid algorithm parameters
-   * @throws IllegalBlockSizeException Illegal block size
-   * @throws BadPaddingException       Pad padding in input
+
+
    */
   public static byte[] blockEncode(EncFSVolume volume, byte[] ivSeed,
                                    byte[] data) throws IllegalBlockSizeException,
@@ -623,8 +621,8 @@ public class EncFSCrypto {
    * @param fileName   Encrypted file name
    * @param volumePath Cleartext path of the file in the volume
    * @return Decrypted file name
-   * @throws EncFSCorruptDataException Corrupt data in input name
-   * @throws EncFSChecksumException    File checksum mismatch
+
+
    */
   public static String decodeName(EncFSVolume volume, String fileName,
                                   String volumePath) throws EncFSCorruptDataException,
@@ -712,7 +710,7 @@ public class EncFSCrypto {
    * @param fileName   Cleartext file name
    * @param volumePath Cleartext path of the file in the volume
    * @return Encrypted file name
-   * @throws EncFSCorruptDataException Corrupt data in config file
+
    */
   public static String encodeName(EncFSVolume volume, String fileName,
                                   String volumePath) throws EncFSCorruptDataException {
@@ -801,7 +799,7 @@ public class EncFSCrypto {
    * @param pathName   Cleartext name of the path to encode (relative to volumePath)
    * @param volumePath Cleartext volume path containing the path to encode
    * @return Encrypted path
-   * @throws EncFSCorruptDataException Corrupt data in config file
+
    */
   public static String encodePath(EncFSVolume volume, String pathName,
                                   String volumePath) throws EncFSCorruptDataException {
@@ -953,23 +951,20 @@ public class EncFSCrypto {
     return mac16;
   }
 
-  // Apply the "unshuffle" transformation to the given input
   private static void unshuffleBytes(byte[] input) {
-    for (int i = (input.length - 1); i > 0; i--)
+    for (int i = (input.length - 1); i > 0; i--) {
       // Note size - 1
       input[i] ^= input[i - 1];
+    }
   }
 
-  // Apply the "shuffle" transformation to the given input
   private static void shuffleBytes(byte[] buf) {
-
     int size = buf.length;
-    for (int i = 0; i < size - 1; ++i)
+    for (int i = 0; i < size - 1; ++i) {
       buf[i + 1] ^= buf[i];
-
+    }
   }
 
-  // Apply the "flip bytes" transformation to the given input
   private static byte[] flipBytes(byte[] input) {
     byte[] result = new byte[input.length];
 
@@ -990,9 +985,7 @@ public class EncFSCrypto {
     return result;
   }
 
-  // Increment the given ivSeed byte array by one and return the result
-  private static byte[] getIvSeedPlusOne(byte[] ivSeed)
-      throws EncFSUnsupportedException {
+  private static byte[] incrementIvSeedByOne(byte[] ivSeed) throws EncFSUnsupportedException {
     if (ivSeed.length == 4) {
       return EncFSUtil.convertIntToByteArrayBigEndian(EncFSUtil.convertBigEndianByteArrayToInt(ivSeed) + 1);
     } else if (ivSeed.length == 8) {

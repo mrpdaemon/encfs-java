@@ -139,8 +139,6 @@ public class EncFSConfigWriter {
    * @param fileProvider File provider to use for writing the config file
    * @param config       Object encapsulating configuration to write
    * @param password     Volume password to encode into the config file
-   * @throws EncFSUnsupportedException Configuration file already exists, can't modify
-   * @throws IOException               File provider returned I/O error
    */
   public static void writeConfig(EncFSFileProvider fileProvider,
                                  EncFSConfig config, String password)

@@ -669,8 +669,7 @@ public class EncFSShell {
 						continue;
 					}
 
-					EncFSUtil.copyWholeStream(new EncFSFileInputStream(
-              lastPathElement), System.out, true, false);
+					EncFSUtil.copyWholeStream(new EncFSFileInputStream(              lastPathElement), System.out, true, false);
 					System.out.println();
 				}
 

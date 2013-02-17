@@ -1,12 +1,12 @@
 /*
  * EncFS Java Library
- * Copyright (C) 2011 
+ * Copyright (C) 2011
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published
  * by the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- *  
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
@@ -16,20 +16,12 @@
 package org.mrpdaemon.sec.encfs.tests;
 
 import org.mrpdaemon.sec.encfs.*;
-
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Arrays;
-import java.util.Comparator;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.*;
+import java.util.Arrays;
+import java.util.Comparator;
 
 /**
  * Simple tool that takes a raw encfs volume (& uses encfs-java to unencrypt it)
@@ -37,17 +29,8 @@ import org.slf4j.LoggerFactory;
  * same.
  */
 public class EncFSComparer {
-	private static final Logger logger = LoggerFactory
-			.getLogger(EncFSComparer.class);
+	private static final Logger logger = LoggerFactory			.getLogger(EncFSComparer.class);
 
-	/**
-	 * @param args
-	 * @throws EncFSUnsupportedException
-	 * @throws EncFSCorruptDataException
-	 * @throws EncFSInvalidConfigException
-	 * @throws EncFSInvalidPasswordException
-	 * @throws FileNotFoundException
-	 */
 	public static void main(String[] args) throws Exception {
 		if (args == null || args.length != 3)
 			throw new IllegalArgumentException("Missing required args");
@@ -182,12 +165,7 @@ public class EncFSComparer {
 					File t = File.createTempFile(this.getClass().getName(),
 							".tmp");
 					try {
-						EncFSUtil.copyWholeStream(new EncFSFileInputStream(
-								encFsFile),
-								new EncFSOutputStream(encFsDir.getVolume(),
-										new BufferedOutputStream(
-												new FileOutputStream(t)),
-										encFsFile.getPath()), true, true);
+						EncFSUtil.copyWholeStream(new EncFSFileInputStream(  								encFsFile),								new EncFSOutputStream(encFsDir.getVolume(),										new BufferedOutputStream(												new FileOutputStream(t)),										encFsFile.getPath()), true, true);
 
 						FileInputStream reEncFSIs = new FileInputStream(t);
 						try {

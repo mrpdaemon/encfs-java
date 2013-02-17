@@ -43,10 +43,6 @@ public class EncFSConfigParser {
    * @param configFile EncFS volume configuration file.
    * @return An EncFSConfig object containing the configuration data
    *         interpreted from the given file.
-   * @throws ParserConfigurationException Parser error
-   * @throws IOException                  I/O error while reading config file
-   * @throws SAXException                 Parser error
-   * @throws EncFSInvalidConfigException  Malformed config file
    */
   public static EncFSConfig parseFile(File configFile)
       throws ParserConfigurationException, SAXException, IOException,
@@ -67,9 +63,9 @@ public class EncFSConfigParser {
    * @param fileProvider File provider to access the config file
    * @param path         Path of the config file in the file provider's notation
    * @return An EncFSConfig object representing the parsing result
-   * @throws EncFSUnsupportedException   Unsupported EncFS version
-   * @throws EncFSInvalidConfigException Config file not found
-   * @throws IOException                 File provider returned I/O error
+
+
+
    */
   public static EncFSConfig parseConfig(EncFSFileProvider fileProvider,
                                         String path) throws EncFSUnsupportedException,
@@ -116,10 +112,10 @@ public class EncFSConfigParser {
    * @param inputStream InputStream for the config file
    * @return An EncFSConfig object containing the configuration data
    *         interpreted from the given file.
-   * @throws ParserConfigurationException Parser error
-   * @throws IOException                  I/O error received from input stream
-   * @throws SAXException                 Parser error
-   * @throws EncFSInvalidConfigException  Malformed config file
+
+
+
+
    */
   public static EncFSConfig parseFile(InputStream inputStream)
       throws ParserConfigurationException, SAXException, IOException,

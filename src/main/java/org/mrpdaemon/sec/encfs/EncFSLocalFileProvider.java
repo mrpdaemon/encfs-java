@@ -64,7 +64,7 @@ public class EncFSLocalFileProvider implements EncFSFileProvider {
 	 *
 	 * @return true if path represents a directory, false otherwise
 	 *
-	 * @throws IOException
+
 	 *             Source file/dir doesn't exist or misc. I/O error
 	 */
 	public boolean isDirectory(String srcPath) {
@@ -111,7 +111,7 @@ public class EncFSLocalFileProvider implements EncFSFileProvider {
 	 *
 	 * @return true if file or directory exists, false otherwise
 	 *
-	 * @throws IOException
+
 	 *             Misc. I/O error
 	 */
 	public boolean exists(String srcPath) {
@@ -127,7 +127,7 @@ public class EncFSLocalFileProvider implements EncFSFileProvider {
 	 *
 	 * @return EncFSFileInfo for the given file or directory
 	 *
-	 * @throws IOException
+
 	 *             Path doesn't exist or misc. I/O error
 	 */
 	public EncFSFileInfo getFileInfo(String srcPath) {
@@ -143,7 +143,7 @@ public class EncFSLocalFileProvider implements EncFSFileProvider {
 	 *
 	 * @return a List of EncFSFileInfo representing files under the dir
 	 *
-	 * @throws IOException
+
 	 *             Path not a directory or misc. I/O error
 	 */
 	public List<EncFSFileInfo> listFiles(String dirPath) throws IOException {
@@ -170,7 +170,7 @@ public class EncFSLocalFileProvider implements EncFSFileProvider {
 	 *
 	 * @return true if the move is successful, false otherwise
 	 *
-	 * @throws IOException
+
 	 *             Source file/dir doesn't exist or misc. I/O error
 	 */
 	public boolean move(String srcPath, String dstPath) throws IOException {
@@ -207,7 +207,7 @@ public class EncFSLocalFileProvider implements EncFSFileProvider {
 	 *
 	 * @return true if deletion is successful, false otherwise
 	 *
-	 * @throws IOException
+
 	 *             Source file/dir doesn't exist or misc. I/O error
 	 */
 	public boolean delete(String srcPath) {
@@ -233,7 +233,7 @@ public class EncFSLocalFileProvider implements EncFSFileProvider {
 	 *
 	 * @return true if creation succeeds, false otherwise
 	 *
-	 * @throws IOException
+
 	 *             Path doesn't exist or misc. I/O error
 	 */
 	public boolean mkdir(String dirPath) throws IOException {
@@ -257,7 +257,7 @@ public class EncFSLocalFileProvider implements EncFSFileProvider {
 	 *
 	 * @return true if creation succeeds, false otherwise
 	 *
-	 * @throws IOException
+
 	 *             Path doesn't exist or misc. I/O error
 	 */
 	public boolean mkdirs(String dirPath) {
@@ -274,7 +274,7 @@ public class EncFSLocalFileProvider implements EncFSFileProvider {
 	 *
 	 * @return EncFSFileInfo for the created file
 	 *
-	 * @throws IOException
+
 	 *             File already exists or misc. I/O error
 	 */
 	public EncFSFileInfo createFile(String dstFilePath) throws IOException {
@@ -300,7 +300,7 @@ public class EncFSLocalFileProvider implements EncFSFileProvider {
 	 *
 	 * @return true if copy was successful, false otherwise
 	 *
-	 * @throws IOException
+
 	 *             Destination file already exists, source file doesn't exist or
 	 *             misc. I/O error
 	 */
@@ -346,7 +346,7 @@ public class EncFSLocalFileProvider implements EncFSFileProvider {
 	 *
 	 * @return InputStream to read from the file
 	 *
-	 * @throws IOException
+
 	 *             Source file doesn't exist or misc. I/O error
 	 */
 	public InputStream openInputStream(String srcFilePath)
@@ -363,7 +363,7 @@ public class EncFSLocalFileProvider implements EncFSFileProvider {
 	 *
 	 * @return OutputStream to write to the file
 	 *
-	 * @throws IOException
+
 	 *             Misc. I/O error
 	 */
 	public OutputStream openOutputStream(String dstFilePath) throws IOException {
@@ -381,7 +381,7 @@ public class EncFSLocalFileProvider implements EncFSFileProvider {
 	 *
 	 * @return OutputStream to write to the file
 	 *
-	 * @throws IOException
+
 	 *             Misc. I/O error
 	 */
 	public OutputStream openOutputStream(String dstFilePath, long outputLength)

@@ -86,15 +86,15 @@ public class EncFSVolume {
 	 * @param password
 	 *            User supplied password to decrypt volume VolumeCryptKey
 	 *
-	 * @throws EncFSInvalidPasswordException
+
 	 *             Given password is incorrect
-	 * @throws EncFSCorruptDataException
+
 	 *             Corrupt data detected (checksum error)
-	 * @throws EncFSInvalidConfigException
+
 	 *             Configuration file format not recognized
-	 * @throws EncFSUnsupportedException
+
 	 *             Unsupported EncFS version or options
-	 * @throws IOException
+
 	 *             File provider returned I/O error
 	 */
 	public EncFSVolume(String rootPath, String password)
@@ -114,15 +114,15 @@ public class EncFSVolume {
 	 * @param pbkdf2Provider
 	 *            Custom PBKDF2 computation provider
 	 *
-	 * @throws EncFSInvalidPasswordException
+
 	 *             Given password is incorrect
-	 * @throws EncFSCorruptDataException
+
 	 *             Corrupt data detected (checksum error)
-	 * @throws EncFSInvalidConfigException
+
 	 *             Configuration file format not recognized
-	 * @throws EncFSUnsupportedException
+
 	 *             Unsupported EncFS version or options
-	 * @throws IOException
+
 	 *             File provider returned I/O error
 	 */
 	public EncFSVolume(String rootPath, String password,
@@ -145,15 +145,15 @@ public class EncFSVolume {
 	 *            Caching the password-based VolumeCryptKey data can significantly speed up
 	 *            volume creation.
 	 *
-	 * @throws EncFSInvalidPasswordException
+
 	 *             Given password is incorrect
-	 * @throws EncFSCorruptDataException
+
 	 *             Corrupt data detected (checksum error)
-	 * @throws EncFSInvalidConfigException
+
 	 *             Configuration file format not recognized
-	 * @throws EncFSUnsupportedException
+
 	 *             Unsupported EncFS version or options
-	 * @throws IOException
+
 	 *             File provider returned I/O error
 	 */
 	public EncFSVolume(String rootPath, byte[] passwordKey)
@@ -170,15 +170,15 @@ public class EncFSVolume {
 	 * @param password
 	 *            User supplied password to decrypt volume VolumeCryptKey
 	 *
-	 * @throws EncFSInvalidPasswordException
+
 	 *             Given password is incorrect
-	 * @throws EncFSCorruptDataException
+
 	 *             Corrupt data detected (checksum error)
-	 * @throws EncFSInvalidConfigException
+
 	 *             Configuration file format not recognized
-	 * @throws EncFSUnsupportedException
+
 	 *             Unsupported EncFS version or options
-	 * @throws IOException
+
 	 *             File provider returned I/O error
 	 */
 	public EncFSVolume(EncFSFileProvider fileProvider, String password)
@@ -197,15 +197,15 @@ public class EncFSVolume {
 	 * @param pbkdf2Provider
 	 *            Custom PBKDF2 computation provider
 	 *
-	 * @throws EncFSInvalidPasswordException
+
 	 *             Given password is incorrect
-	 * @throws EncFSCorruptDataException
+
 	 *             Corrupt data detected (checksum error)
-	 * @throws EncFSInvalidConfigException
+
 	 *             Configuration file format not recognized
-	 * @throws EncFSUnsupportedException
+
 	 *             Unsupported EncFS version or options
-	 * @throws IOException
+
 	 *             File provider returned I/O error
 	 */
 	public EncFSVolume(EncFSFileProvider fileProvider, String password,
@@ -226,15 +226,15 @@ public class EncFSVolume {
 	 *            Caching the password-based VolumeCryptKey data can significantly speed up
 	 *            volume creation.
 	 *
-	 * @throws EncFSInvalidPasswordException
+
 	 *             Given password is incorrect
-	 * @throws EncFSCorruptDataException
+
 	 *             Corrupt data detected (checksum error)
-	 * @throws EncFSInvalidConfigException
+
 	 *             Configuration file format not recognized
-	 * @throws EncFSUnsupportedException
+
 	 *             Unsupported EncFS version or options
-	 * @throws IOException
+
 	 *             File provider returned I/O error
 	 */
 	public EncFSVolume(EncFSFileProvider fileProvider, byte[] passwordKey)
@@ -254,15 +254,15 @@ public class EncFSVolume {
 	 * @param password
 	 *            User supplied password to decrypt volume VolumeCryptKey
 	 *
-	 * @throws EncFSInvalidPasswordException
+
 	 *             Given password is incorrect
-	 * @throws EncFSCorruptDataException
+
 	 *             Corrupt data detected (checksum error)
-	 * @throws EncFSInvalidConfigException
+
 	 *             Configuration file format not recognized
-	 * @throws EncFSUnsupportedException
+
 	 *             Unsupported EncFS version or options
-	 * @throws IOException
+
 	 *             File provider returned I/O error
 	 */
 	public EncFSVolume(EncFSFileProvider fileProvider, EncFSConfig config,
@@ -285,15 +285,15 @@ public class EncFSVolume {
 	 * @param pbkdf2Provider
 	 *            Custom PBKDF2 computation provider
 	 *
-	 * @throws EncFSInvalidPasswordException
+
 	 *             Given password is incorrect
-	 * @throws EncFSCorruptDataException
+
 	 *             Corrupt data detected (checksum error)
-	 * @throws EncFSInvalidConfigException
+
 	 *             Configuration file format not recognized
-	 * @throws EncFSUnsupportedException
+
 	 *             Unsupported EncFS version or options
-	 * @throws IOException
+
 	 *             File provider returned I/O error
 	 */
 	public EncFSVolume(EncFSFileProvider fileProvider, EncFSConfig config,
@@ -317,15 +317,15 @@ public class EncFSVolume {
 	 *            Caching the password-based VolumeCryptKey data can significantly speed up
 	 *            volume creation.
 	 *
-	 * @throws EncFSInvalidPasswordException
+
 	 *             Given password is incorrect
-	 * @throws EncFSCorruptDataException
+
 	 *             Corrupt data detected (checksum error)
-	 * @throws EncFSInvalidConfigException
+
 	 *             Configuration file format not recognized
-	 * @throws EncFSUnsupportedException
+
 	 *             Unsupported EncFS version or options
-	 * @throws IOException
+
 	 *             File provider returned I/O error
 	 */
 	public EncFSVolume(EncFSFileProvider fileProvider, EncFSConfig config,
@@ -635,11 +635,11 @@ public class EncFSVolume {
 	 *
 	 * @return EncFSFile representing the requested file
 	 *
-	 * @throws EncFSCorruptDataException
+
 	 *             Corrupt data detected (checksum error)
-	 * @throws EncFSChecksumException
+
 	 *             Corrupt data detected (checksum error)
-	 * @throws IOException
+
 	 *             File provider returned I/O error
 	 */
 	public EncFSFile getFile(String parentPath, String fileName)
@@ -658,9 +658,9 @@ public class EncFSVolume {
 	 *
 	 * @return EncFSFile representing the requested file
 	 *
-	 * @throws EncFSCorruptDataException
+
 	 *             Corrupt data detected (checksum error)
-	 * @throws IOException
+
 	 *             File provider returned I/O error
 	 */
 	public EncFSFile getFile(String filePath) throws EncFSCorruptDataException,
@@ -781,9 +781,9 @@ public class EncFSVolume {
 	 *
 	 * @return true if path exists in the volume, false otherwise
 	 *
-	 * @throws EncFSCorruptDataException
+
 	 *             Filename encoding failed
-	 * @throws IOException
+
 	 *             File provider returned I/O error
 	 */
 	public boolean pathExists(String path) throws EncFSCorruptDataException,
@@ -799,7 +799,7 @@ public class EncFSVolume {
 	 * @param path
 	 *            Path to the presumed EncFS volume
 	 * @return true if the volume is EncFS, false otherwise
-	 * @throws IOException
+
 	 *             File provider returned I/O error
 	 */
 	public static boolean isEncFSVolume(String path) throws IOException {
@@ -812,7 +812,7 @@ public class EncFSVolume {
 	 * @param file
 	 *            File for the presumed EncFS volume
 	 * @return true if the volume is EncFS, false otherwise
-	 * @throws IOException
+
 	 *             File provider returned I/O error
 	 */
 	public static boolean isEncFSVolume(File file) throws IOException {
@@ -825,7 +825,7 @@ public class EncFSVolume {
 	 * @param fileProvider
 	 *            File provider for the presumed EncFS volume
 	 * @return true if the volume is EncFS, false otherwise
-	 * @throws IOException
+
 	 *             File provider returned I/O error
 	 */
 	public static boolean isEncFSVolume(EncFSFileProvider fileProvider)
@@ -846,15 +846,15 @@ public class EncFSVolume {
 	 * @param password
 	 *            Volume password to use
 	 *
-	 * @throws EncFSInvalidPasswordException
+
 	 *             Given password is incorrect
-	 * @throws EncFSCorruptDataException
+
 	 *             Corrupt data detected (checksum error)
-	 * @throws EncFSInvalidConfigException
+
 	 *             Configuration file format not recognized
-	 * @throws EncFSUnsupportedException
+
 	 *             Unsupported EncFS version or options
-	 * @throws IOException
+
 	 *             File provider returned I/O error
 	 */
 	public static void createVolume(EncFSFileProvider fileProvider,
@@ -886,15 +886,15 @@ public class EncFSVolume {
 	 * @param pbkdf2Provider
 	 *            Custom PBKDF2 provider implementation
 	 *
-	 * @throws EncFSInvalidPasswordException
+
 	 *             Given password is incorrect
-	 * @throws EncFSCorruptDataException
+
 	 *             Corrupt data detected (checksum error)
-	 * @throws EncFSInvalidConfigException
+
 	 *             Configuration file format not recognized
-	 * @throws EncFSUnsupportedException
+
 	 *             Unsupported EncFS version or options
-	 * @throws IOException
+
 	 *             File provider returned I/O error
 	 */
 	public static void createVolume(EncFSFileProvider fileProvider,
@@ -924,11 +924,11 @@ public class EncFSVolume {
 	 *
 	 * @return EncFSFile handle for the newly created file
 	 *
-	 * @throws EncFSCorruptDataException
+
 	 *             Filename encoding failed
-	 * @throws EncFSChecksumException
+
 	 *             Filename encoding failed
-	 * @throws IOException
+
 	 *             File provider returned I/O error
 	 */
 	public EncFSFile createFile(String parentPath, String fileName)
@@ -946,9 +946,9 @@ public class EncFSVolume {
 	 *
 	 * @return EncFSFile handle for the newly created file
 	 *
-	 * @throws EncFSCorruptDataException
+
 	 *             Filename encoding failed
-	 * @throws IOException
+
 	 *             File provider returned I/O error
 	 */
 	public EncFSFile createFile(String filePath)
@@ -991,9 +991,9 @@ public class EncFSVolume {
 	 *
 	 * @return true if creation succeeds, false otherwise
 	 *
-	 * @throws EncFSCorruptDataException
+
 	 *             Filename encoding failed
-	 * @throws IOException
+
 	 *             File provider returned I/O error
 	 */
 	public boolean makeDir(String dirPath) throws EncFSCorruptDataException,
@@ -1022,9 +1022,9 @@ public class EncFSVolume {
 	 *
 	 * @return true if creation succeeds, false otherwise
 	 *
-	 * @throws EncFSCorruptDataException
+
 	 *             Filename encoding failed
-	 * @throws IOException
+
 	 *             File provider returned I/O error
 	 */
 	public boolean makeDirs(String dirPath) throws EncFSCorruptDataException,
@@ -1090,11 +1090,11 @@ public class EncFSVolume {
 	 *
 	 * @return true if deletion succeeds, false otherwise
 	 *
-	 * @throws EncFSCorruptDataException
+
 	 *             Filename encoding failed
-	 * @throws IOException
+
 	 *             File provider returned I/O error
-	 * @throws EncFSChecksumException
+
 	 *             Filename encoding failed
 	 */
 	public boolean deletePath(String filePath, boolean recursive,
@@ -1147,11 +1147,11 @@ public class EncFSVolume {
 	 *
 	 * @return true if deletion succeeds, false otherwise
 	 *
-	 * @throws EncFSCorruptDataException
+
 	 *             Filename encoding failed
-	 * @throws IOException
+
 	 *             File provider returned I/O error
-	 * @throws EncFSChecksumException
+
 	 *             Filename encoding failed
 	 */
 	public boolean deletePath(String filePath, boolean recursive)
@@ -1306,9 +1306,9 @@ public class EncFSVolume {
 	 *
 	 * @return true if copy succeeds, false otherwise
 	 *
-	 * @throws EncFSCorruptDataException
+
 	 *             Filename encoding failed
-	 * @throws IOException
+
 	 *             File provider returned I/O error
 	 */
 	public boolean copyPath(String srcPath, String dstPath,
@@ -1338,9 +1338,9 @@ public class EncFSVolume {
 	 *
 	 * @return true if copy succeeds, false otherwise
 	 *
-	 * @throws EncFSCorruptDataException
+
 	 *             Filename encoding failed
-	 * @throws IOException
+
 	 *             File provider returned I/O error
 	 */
 	public boolean copyPath(String srcPath, String dstPath)
@@ -1360,9 +1360,9 @@ public class EncFSVolume {
 	 *
 	 * @return true if the move succeeds, false otherwise
 	 *
-	 * @throws EncFSCorruptDataException
+
 	 *             Filename encoding failed
-	 * @throws IOException
+
 	 *             File provider returned I/O error
 	 */
 	public boolean movePath(String srcPath, String dstPath,
@@ -1392,9 +1392,9 @@ public class EncFSVolume {
 	 *
 	 * @return true if the move succeeds, false otherwise
 	 *
-	 * @throws EncFSCorruptDataException
+
 	 *             Filename encoding failed
-	 * @throws IOException
+
 	 *             File provider returned I/O error
 	 */
 	public boolean movePath(String srcPath, String dstPath)
@@ -1410,9 +1410,9 @@ public class EncFSVolume {
 	 *
 	 * @return list of EncFSFile under the given directory
 	 *
-	 * @throws EncFSCorruptDataException
+
 	 *             Filename encoding failed
-	 * @throws IOException
+
 	 *             File provider returned I/O error
 	 */
 	public EncFSFile[] listFilesForPath(String dirPath)
@@ -1431,11 +1431,11 @@ public class EncFSVolume {
 	 *
 	 * @return EncFSInputStream that decrypts file contents
 	 *
-	 * @throws EncFSCorruptDataException
+
 	 *             Filename encoding failed
-	 * @throws EncFSUnsupportedException
+
 	 *             File header uses an unsupported IV length
-	 * @throws IOException
+
 	 *             File provider returned I/O error
 	 */
 	public EncFSInputStream openInputStreamForPath(String filePath)
@@ -1459,11 +1459,11 @@ public class EncFSVolume {
 	 *
 	 * @return EncFSOutputStream that encrypts file contents
 	 *
-	 * @throws EncFSCorruptDataException
+
 	 *             Filename encoding failed
-	 * @throws EncFSUnsupportedException
+
 	 *             File header uses an unsupported IV length
-	 * @throws IOException
+
 	 *             File provider returned I/O error
 	 */
 	public EncFSOutputStream openOutputStreamForPath(String filePath,

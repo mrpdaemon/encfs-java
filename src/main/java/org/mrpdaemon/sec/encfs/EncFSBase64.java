@@ -539,7 +539,7 @@ public final class EncFSBase64 {
    *
    * @param source The data to convert
    * @return The data in Base64-encoded form
-   * @throws NullPointerException if source array is null
+
    * @since 1.4
    */
   public static String encodeBytes(byte[] source) {
@@ -585,9 +585,9 @@ public final class EncFSBase64 {
    * @param source  The data to convert
    * @param len     Length of data to convert
    * @return The Base64-encoded data as a String
-   * @throws IOException      if there is an error
-   * @throws NullPointerException     if source array is null
-   * @throws IllegalArgumentException if source array, offset, or length are invalid
+
+
+
    * @see EncFSBase64#GZIP
    * @see EncFSBase64#DO_BREAK_LINES
    * @since 2.0
@@ -615,9 +615,9 @@ public final class EncFSBase64 {
    * @param len     Length of data to convert
    * @param options Specified options
    * @return The Base64-encoded data as a String
-   * @throws IOException      if there is an error
-   * @throws NullPointerException     if source array is null
-   * @throws IllegalArgumentException if source array, offset, or length are invalid
+
+
+
    * @see EncFSBase64#GZIP
    * @see EncFSBase64#DO_BREAK_LINES
    * @since 2.3.1
@@ -768,8 +768,8 @@ public final class EncFSBase64 {
    * @param options     alphabet type is pulled from this (standard, url-safe,
    *                    ordered)
    * @return the number of decoded bytes converted
-   * @throws NullPointerException     if source or destination arrays are null
-   * @throws IllegalArgumentException if srcOffset or destOffset are invalid or there is not enough
+
+
    *                                  room in the array.
    * @since 1.3
    */
@@ -877,7 +877,7 @@ public final class EncFSBase64 {
    * @param len     The length of characters to decode
    * @param options Can specify options such as alphabet type to use
    * @return decoded data
-   * @throws IOException If bogus characters exist in source data
+
    * @since 1.3
    */
   public static byte[] decode(byte[] source, int len, int options) throws IOException {
@@ -953,7 +953,7 @@ public final class EncFSBase64 {
    *
    * @param s the string to decode
    * @return the decoded data
-   * @throws IOException If there is a problem
+
    * @since 1.4
    */
   public static byte[] decode(String s) throws IOException {
@@ -967,8 +967,8 @@ public final class EncFSBase64 {
    * @param s       the string to decode
    * @param options encode options such as URL_SAFE
    * @return the decoded data
-   * @throws IOException  if there is an error
-   * @throws NullPointerException if <tt>s</tt> is null
+
+
    * @since 1.4
    */
   public static byte[] decode(String s, int options)
@@ -1522,7 +1522,7 @@ public final class EncFSBase64 {
      * Method added by PHIL. [Thanks, PHIL. -Rob] This pads the buffer
      * without closing the stream.
      *
-     * @throws IOException if there's an error.
+
      */
     public void flushBase64() throws IOException {
       if (position > 0) {
@@ -1560,7 +1560,7 @@ public final class EncFSBase64 {
      * Suspends encoding of the stream. May be helpful if you need to embed
      * a piece of base64-encoded data in a stream.
      *
-     * @throws IOException if there's an error flushing
+
      * @since 1.5.1
      */
     public void suspendEncoding() throws IOException {

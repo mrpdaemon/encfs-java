@@ -76,9 +76,9 @@ public class EncFSOutputStream extends FilterOutputStream {
 	 *            Volume path of the file being encrypted (needed for
 	 *            externalIVChaining)
 	 *
-	 * @throws EncFSCorruptDataException
+
 	 *             File data is corrupt
-	 * @throws EncFSUnsupportedException
+
 	 *             Unsupported EncFS configuration
 	 */
 	public EncFSOutputStream(EncFSVolume volume, OutputStream out,
