@@ -29,7 +29,4 @@ public class EncFSCorruptDataException extends EncFSException {
 		super(cause);
 	}
 
-	public EncFSCorruptDataException(String message, Throwable cause) {
-		super(message, cause);
-	}
 }

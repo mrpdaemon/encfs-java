@@ -22,12 +22,4 @@ public class EncFSChecksumException extends EncFSException {
   public EncFSChecksumException(String message) {
     super(message);
   }
-
-  public EncFSChecksumException(Throwable cause) {
-    super(cause);
-  }
-
-  public EncFSChecksumException(String message, Throwable cause) {
-    super(message, cause);
-  }
 }

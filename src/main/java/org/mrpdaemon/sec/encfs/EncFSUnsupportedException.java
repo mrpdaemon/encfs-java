@@ -27,7 +27,4 @@ public class EncFSUnsupportedException extends EncFSException {
 		super(cause);
 	}
 
-	public EncFSUnsupportedException(String message, Throwable cause) {
-		super(message, cause);
-	}
 }

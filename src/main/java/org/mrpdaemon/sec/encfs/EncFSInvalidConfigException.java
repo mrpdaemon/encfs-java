@@ -27,8 +27,4 @@ public class EncFSInvalidConfigException extends EncFSException {
 		super(cause);
 	}
 
-	public EncFSInvalidConfigException(String message, Throwable cause) {
-		super(message, cause);
-	}
-
 }
