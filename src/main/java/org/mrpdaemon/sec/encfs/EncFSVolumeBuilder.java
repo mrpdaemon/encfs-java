@@ -106,16 +106,4 @@ public final class EncFSVolumeBuilder {
   public FileProviderBuilder withFileProvider(EncFSFileProvider fileProvider) {
     return new FileProviderBuilder(new EncFSVolume(), fileProvider);
   }
-
-  public EncFSVolume create(String rootPath, String password) throws EncFSInvalidPasswordException, EncFSInvalidConfigException, EncFSCorruptDataException, EncFSUnsupportedException, IOException {
-    return withRootPath(rootPath).withDerivedPassword(password.getBytes());
-  }
-
-  public EncFSVolume create(String rootPath, String password, EncFSPBKDF2Provider pbkdf2Provider) throws EncFSInvalidPasswordException, EncFSInvalidConfigException, EncFSCorruptDataException, EncFSUnsupportedException, IOException {
-    return withRootPath(rootPath).withPbkdf2Provider(pbkdf2Provider).withPassword(password);
-  }
-
-  public EncFSVolume create(EncFSFileProvider fileProvider, String password) throws EncFSInvalidPasswordException, EncFSInvalidConfigException, EncFSCorruptDataException, EncFSUnsupportedException, IOException {
-    return withFileProvider(fileProvider).withDerivedPassword(password.getBytes());
-  }
 }
