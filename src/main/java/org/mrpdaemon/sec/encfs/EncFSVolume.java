@@ -181,29 +181,14 @@ public class EncFSVolume {
     }
   }
 
-  /**
-   * Returns the configuration object for this volume
-   *
-   * @return Configuration for this EncFS volume
-   */
   public EncFSConfig getVolumeConfiguration() {
     return volumeConfiguration;
   }
 
-  /**
-   * Returns the volume VolumeCryptKey used for encryption/decryption
-   *
-   * @return Volume VolumeCryptKey for encryption/decryption
-   */
   public Key getVolumeCryptKey() {
     return VolumeCryptKey;
   }
 
-  /**
-   * Returns the volume IV used for encryption/decryption
-   *
-   * @return Volume initialization vector (IV) for encryption/decryption
-   */
   public byte[] getIV() {
     return volumeIV;
   }
@@ -229,11 +214,6 @@ public class EncFSVolume {
     return blockCipher;
   }
 
-  /**
-   * Returns a file object representing the root directory of the volume
-   *
-   * @return EncFSFile representing the root directory of this volume
-   */
   public EncFSFile getRootDir() {
     return rootDir;
   }
@@ -242,38 +222,6 @@ public class EncFSVolume {
     return fileProvider;
   }
 
-  /**
-   * Get an EncFSFile object representing the provided filename given the
-   * volume path of its parent directory
-   *
-   * @param parentPath Volume path of the file's parent directory
-   * @param fileName   Name of the file
-   * @return EncFSFile representing the requested file
-   *         <p/>
-   *         <p/>
-   *         Corrupt data detected (checksum error)
-   *         <p/>
-   *         Corrupt data detected (checksum error)
-   *         <p/>
-   *         File provider returned I/O error
-   */
-  public EncFSFile getFile(String parentPath, String fileName) throws EncFSCorruptDataException, IOException {
-    validateAbsoluteFileName(parentPath, "parentPath");
-    return getFile(combinePath(parentPath, fileName));
-  }
-
-  /**
-   * Get an EncFSFile object representing the provided absolute path in the
-   * volume
-   *
-   * @param filePath Absolute volume path of the file
-   * @return EncFSFile representing the requested file
-   *         <p/>
-   *         <p/>
-   *         Corrupt data detected (checksum error)
-   *         <p/>
-   *         File provider returned I/O error
-   */
   public EncFSFile getFile(String filePath) throws EncFSCorruptDataException, IOException {
     validateAbsoluteFileName(filePath, "filePath");
 
@@ -351,44 +299,16 @@ public class EncFSVolume {
     return size;
   }
 
-  /**
-   * Checks whether the file or directory with the given path exists in the
-   * volume
-   *
-   * @param path Absolute volume path of the file or directory
-   * @return true if path exists in the volume, false otherwise
-   *         <p/>
-   *         <p/>
-   *         Filename encoding failed
-   *         <p/>
-   *         File provider returned I/O error
-   */
   public boolean pathExists(String path) throws EncFSCorruptDataException, IOException {
     validateAbsoluteFileName(path, "fileName");
     String encryptedPath = EncFSCrypto.encodePath(this, path, ROOT_PATH);
     return fileProvider.exists(encryptedPath);
   }
 
-  /**
-   * Tests if the provided path contains EncFS volume
-   *
-   * @param path Path to the presumed EncFS volume
-   * @return true if the volume is EncFS, false otherwise
-   *         <p/>
-   *         File provider returned I/O error
-   */
   public static boolean isEncFSVolume(String path) throws IOException {
     return isEncFSVolume(new File(path));
   }
 
-  /**
-   * Tests if the provided path contains EncFS volume
-   *
-   * @param file File for the presumed EncFS volume
-   * @return true if the volume is EncFS, false otherwise
-   *         <p/>
-   *         File provider returned I/O error
-   */
   public static boolean isEncFSVolume(File file) throws IOException {
     return isEncFSVolume(new EncFSLocalFileProvider(file));
   }
@@ -398,8 +318,6 @@ public class EncFSVolume {
    *
    * @param fileProvider File provider for the presumed EncFS volume
    * @return true if the volume is EncFS, false otherwise
-   *         <p/>
-   *         File provider returned I/O error
    */
   public static boolean isEncFSVolume(EncFSFileProvider fileProvider) throws IOException {
     return (fileProvider.exists(fileProvider.getFilesystemRootPath() + EncFSVolume.CONFIG_FILE_NAME));
@@ -413,17 +331,6 @@ public class EncFSVolume {
    * @param config       Volume configuration to use, should have all fields except for
    *                     salt/VolumeCryptKey fields initialized
    * @param password     Volume password to use
-   *                     <p/>
-   *                     <p/>
-   *                     Given password is incorrect
-   *                     <p/>
-   *                     Corrupt data detected (checksum error)
-   *                     <p/>
-   *                     Configuration file format not recognized
-   *                     <p/>
-   *                     Unsupported EncFS version or options
-   *                     <p/>
-   *                     File provider returned I/O error
    */
   public static void createVolume(EncFSFileProvider fileProvider, EncFSConfig config, String password) throws EncFSInvalidConfigException, EncFSCorruptDataException, EncFSUnsupportedException, IOException {
 
@@ -444,27 +351,14 @@ public class EncFSVolume {
    *                       salt/VolumeCryptKey fields initialized
    * @param password       Volume password to use
    * @param pbkdf2Provider Custom PBKDF2 provider implementation
-   *                       <p/>
-   *                       <p/>
-   *                       Given password is incorrect
-   *                       <p/>
-   *                       Corrupt data detected (checksum error)
-   *                       <p/>
-   *                       Configuration file format not recognized
-   *                       <p/>
-   *                       Unsupported EncFS version or options
-   *                       <p/>
-   *                       File provider returned I/O error
    */
   public static void createVolume(EncFSFileProvider fileProvider, EncFSConfig config, String password, EncFSPBKDF2Provider pbkdf2Provider) throws EncFSInvalidConfigException, EncFSCorruptDataException, EncFSUnsupportedException, IOException {
 
     // Create a random volume VolumeCryptKey + IV pair
-    byte[] randVolKey = new byte[config.getVolumeKeySizeInBits() / 8
-        + EncFSVolume.IV_LENGTH_IN_BYTES];
+    byte[] randVolKey = new byte[config.getVolumeKeySizeInBits() / 8           + EncFSVolume.IV_LENGTH_IN_BYTES];
     random.nextBytes(randVolKey);
 
-    EncFSCrypto.encodeVolumeKey(config, password, randVolKey,
-        pbkdf2Provider);
+    EncFSCrypto.encodeVolumeKey(config, password, randVolKey,        pbkdf2Provider);
     EncFSConfigWriter.writeConfig(fileProvider, config, password);
   }
 
@@ -517,21 +411,16 @@ public class EncFSVolume {
     return decodedFileInfo;
   }
 
-  public boolean makeDir(String dirPath) throws EncFSCorruptDataException,
-      IOException {
+  public boolean makeDir(String dirPath) throws EncFSCorruptDataException,       IOException {
     validateAbsoluteFileName(dirPath, "dirPath");
 
     String encryptedPath = EncFSCrypto.encodePath(this, dirPath, ROOT_PATH);
 
-    boolean result = false;
     try {
-      result = fileProvider.mkdir(encryptedPath);
+      return fileProvider.mkdir(encryptedPath);
     } catch (FileNotFoundException e) {
-      throw new FileNotFoundException("One or more path element in '"
-          + dirPath + "' doesn't exist!");
+      throw new FileNotFoundException("One or more path element in '"          + dirPath + "' doesn't exist!");
     }
-
-    return result;
   }
 
   /**
