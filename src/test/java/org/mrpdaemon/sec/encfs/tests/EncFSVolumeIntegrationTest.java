@@ -293,28 +293,23 @@ public class EncFSVolumeIntegrationTest {
   }
 
   @Test
-  public void createVolume_1() {
-    File rootDir;
-    try {
-      rootDir = EncFSVolumeTestCommon.createTempDir();
-    } catch (IOException e) {
-      fail("Could not create temporary directory");
-      return;
-    }
+  public void createVolume_1() throws Exception {
+    File rootDir = EncFSVolumeTestCommon.createTempDir();
+
     EncFSConfig config = EncFSConfigFactory.createDefault();
     String password = "test";
     EncFSLocalFileProvider fileProvider = new EncFSLocalFileProvider(rootDir);
     try {
-      new EncFSVolumeBuilder().withFileProvider(fileProvider).withConfig(config).withPassword(password);
-      @SuppressWarnings("unused") EncFSVolume volume = new EncFSVolumeBuilder().withFileProvider(fileProvider).withConfig(config).withPassword(password).access();
+      EncFSVolume.createVolume(fileProvider, config, password);
+      new EncFSVolumeBuilder().withFileProvider(fileProvider).withConfig(config).withPassword(password).access();
     } catch (Exception e) {
       fail(e.getMessage());
-    }    /* Clean up after ourselves */
+    }
+    /* Clean up after ourselves */
     File configFile = new File(rootDir.getAbsolutePath(), EncFSVolume.CONFIG_FILE_NAME);
-    assertTrue(configFile.exists());
-    configFile.delete();
-    assertTrue(rootDir.exists());
-    rootDir.delete();
+
+    assertTrue(configFile.delete());
+    assertTrue(rootDir.delete());
   }
 
   private void assertFileNameEncoding(EncFSFile encfsFileDir) throws Exception {
