@@ -1,213 +1,139 @@
 package org.mrpdaemon.sec.encfs.tests;
 
-import org.mrpdaemon.sec.encfs.*;
-
-import java.io.IOException;
-
 import junit.framework.Assert;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.mrpdaemon.sec.encfs.*;
 import org.mrpdaemon.sec.encfs.tests.vfs.CommonsVFSRamFileProvider;
 
 public class EncFSVolumeVFSTest {
 
-	private CommonsVFSRamFileProvider fileProvider;
+  private CommonsVFSRamFileProvider fileProvider;
 
-	@Before
-	public void setUp() throws Exception {
-		this.fileProvider = new CommonsVFSRamFileProvider();
-		this.fileProvider.init();
-	}
+  @Before
+  public void setUp() throws Exception {
+    fileProvider = new CommonsVFSRamFileProvider();
+    fileProvider.init();
+  }
 
-	@After
-	public void tearDown() throws Exception {
-		this.fileProvider.close();
-	}
+  @After
+  public void tearDown() throws Exception {
+    fileProvider.close();
+  }
 
-	@Test
-	public void testNoExistingConfigFile()
-			throws EncFSInvalidPasswordException, EncFSCorruptDataException,
-			EncFSUnsupportedException, IOException {
-		try {
-			@SuppressWarnings("unused")
-			EncFSVolume v = new EncFSVolume(fileProvider, new byte[] {});
-		} catch (EncFSInvalidConfigException e) {
-			Assert.assertEquals("No EncFS configuration file found",
-					e.getMessage());
-		}
-	}
+  @Test
+  public void testNoExistingConfigFile() throws Exception {
+    try {
+      new EncFSVolume(fileProvider, new byte[]{});
+    } catch (EncFSInvalidConfigException e) {
+      Assert.assertEquals("No EncFS configuration file found", e.getMessage());
+    }
+  }
 
-	@Test
-	public void testVolumeCreation() throws EncFSInvalidPasswordException,
-			EncFSInvalidConfigException, EncFSCorruptDataException,
-			EncFSUnsupportedException, IOException {
-		EncFSConfig config = new EncFSConfig();
+  @Test
+  public void testVolumeCreation() throws Exception {
+    EncFSConfig config = EncFSConfigFactory.createDefault();
 
-		EncFSVolume volume = EncFSVolumeTestCommon.createVolume(config,
-				fileProvider);
+    EncFSVolume volume = EncFSVolumeTestCommon.createVolume(config, fileProvider);
 
-		Assert.assertNotNull(volume);
+    Assert.assertNotNull(volume);
+    Assert.assertEquals(1, fileProvider.listFiles(fileProvider.getRootPath()).size());
+    Assert.assertTrue(fileProvider.exists("/.encfs6.xml"));
+  }
 
-		Assert.assertEquals(1,
-				fileProvider.listFiles(fileProvider.getRootPath()).size());
-		Assert.assertTrue(fileProvider.exists("/.encfs6.xml"));
-	}
+  @Test
+  public void testDefaultVolume() throws Exception {
+    EncFSConfig config = EncFSConfigFactory.createDefault();
 
-	// Default volume
-	@Test
-	public void testDefaultVolume() throws EncFSInvalidPasswordException,
-			EncFSInvalidConfigException, EncFSCorruptDataException,
-			EncFSUnsupportedException, IOException, EncFSChecksumException {
-		EncFSConfig config = new EncFSConfig();
+    testFileOperations(config);
+  }
 
-		EncFSVolume volume = EncFSVolumeTestCommon.createVolume(config,
-				fileProvider);
+  @Test
+  public void testNoUniqueIV() throws Exception {
+    EncFSConfig config = EncFSConfigFactory.createDefault();
+    config.setUseUniqueIV(false);
 
-		EncFSVolumeTestCommon.testFileOperations(volume);
-	}
+    testFileOperations(config);
+  }
 
-	// No Unique IV
-	@Test
-	public void testNoUniqueIV() throws EncFSInvalidPasswordException,
-			EncFSInvalidConfigException, EncFSCorruptDataException,
-			EncFSUnsupportedException, IOException, EncFSChecksumException {
-		EncFSConfig config = new EncFSConfig();
-		config.setUniqueIV(false);
+  private void testFileOperations(EncFSConfig config) throws Exception {
+    EncFSVolume volume = EncFSVolumeTestCommon.createVolume(config, fileProvider);
+    EncFSVolumeTestCommon.testFileOperations(volume);
+  }
 
-		EncFSVolume volume = EncFSVolumeTestCommon.createVolume(config,
-				fileProvider);
+  @Test
+  public void testNoChainedIV() throws Exception {
+    EncFSConfig config = EncFSConfigFactory.createDefault();
+    config.setChainedNameIV(false);
 
-		EncFSVolumeTestCommon.testFileOperations(volume);
-	}
+    testFileOperations(config);
+  }
 
-	// No chained name IV
-	@Test
-	public void testNoChainedIV() throws EncFSInvalidPasswordException,
-			EncFSInvalidConfigException, EncFSCorruptDataException,
-			EncFSUnsupportedException, IOException, EncFSChecksumException {
-		EncFSConfig config = new EncFSConfig();
-		config.setChainedNameIV(false);
+  // No unique IV OR chained name IV
+  @Test
+  public void testNoUniqueOrChainedIV() throws Exception {
+    EncFSConfig config = EncFSConfigFactory.createDefault();
+    config.setChainedNameIV(false);
+    config.setUseUniqueIV(false);
 
-		EncFSVolume volume = EncFSVolumeTestCommon.createVolume(config,
-				fileProvider);
+    testFileOperations(config);
+  }
 
-		EncFSVolumeTestCommon.testFileOperations(volume);
-	}
+  @Test
+  public void testNoHoles() throws Exception {
+    EncFSConfig config = EncFSConfigFactory.createDefault();
+    config.setHolesAllowedInFiles(false);
 
-	// No unique IV OR chained name IV
-	@Test
-	public void testNoUniqueOrChainedIV() throws EncFSInvalidPasswordException,
-			EncFSInvalidConfigException, EncFSCorruptDataException,
-			EncFSUnsupportedException, IOException, EncFSChecksumException {
-		EncFSConfig config = new EncFSConfig();
-		config.setChainedNameIV(false);
-		config.setUniqueIV(false);
+    testFileOperations(config);
+  }
 
-		EncFSVolume volume = EncFSVolumeTestCommon.createVolume(config,
-				fileProvider);
+  @Test
+  public void test256BitKey() throws Exception {
+    EncFSConfig config = EncFSConfigFactory.createDefault();
+    config.setVolumeKeySizeInBits(256);
 
-		EncFSVolumeTestCommon.testFileOperations(volume);
-	}
+    testFileOperations(config);
+  }
 
-	// No zero block passthrough
-	@Test
-	public void testNoHoles() throws EncFSInvalidPasswordException,
-			EncFSInvalidConfigException, EncFSCorruptDataException,
-			EncFSUnsupportedException, IOException, EncFSChecksumException {
-		EncFSConfig config = new EncFSConfig();
-		config.setHolesAllowed(false);
+  @Test
+  public void test128BitKey() throws Exception {
+    EncFSConfig config = EncFSConfigFactory.createDefault();
+    config.setVolumeKeySizeInBits(128);
 
-		EncFSVolume volume = EncFSVolumeTestCommon.createVolume(config,
-				fileProvider);
+    testFileOperations(config);
+  }
 
-		EncFSVolumeTestCommon.testFileOperations(volume);
-	}
+  @Test
+  public void test4096ByteBlocks() throws Exception {
+    EncFSConfig config = EncFSConfigFactory.createDefault();
+    config.setEncryptedFileBlockSizeInBytes(4096);
 
-	// 256 bit volume key
-	@Test
-	public void test256BitKey() throws EncFSInvalidPasswordException,
-			EncFSInvalidConfigException, EncFSCorruptDataException,
-			EncFSUnsupportedException, IOException, EncFSChecksumException {
-		EncFSConfig config = new EncFSConfig();
-		config.setVolumeKeySize(256);
+    testFileOperations(config);
+  }
 
-		EncFSVolume volume = EncFSVolumeTestCommon.createVolume(config,
-				fileProvider);
+  @Test
+  public void testStreamNameAlg() throws Exception {
+    EncFSConfig config = EncFSConfigFactory.createDefault();
+    config.setAlgorithm(EncFSAlgorithm.STREAM);
 
-		EncFSVolumeTestCommon.testFileOperations(volume);
-	}
+    testFileOperations(config);
+  }
 
-	// 128 bit volume key
-	@Test
-	public void test128BitKey() throws EncFSInvalidPasswordException,
-			EncFSInvalidConfigException, EncFSCorruptDataException,
-			EncFSUnsupportedException, IOException, EncFSChecksumException {
-		EncFSConfig config = new EncFSConfig();
-		config.setVolumeKeySize(128);
+  @Test
+  public void testBlockMAC() throws Exception {
+    EncFSConfig config = EncFSConfigFactory.createDefault();
+    config.setNumberOfMACBytesForEachFileBlock(8);
 
-		EncFSVolume volume = EncFSVolumeTestCommon.createVolume(config,
-				fileProvider);
+    testFileOperations(config);
+  }
 
-		EncFSVolumeTestCommon.testFileOperations(volume);
-	}
+  @Test
+  public void testBlockMACWithRandBytes() throws Exception {
+    EncFSConfig config = EncFSConfigFactory.createDefault();
+    config.setNumberOfMACBytesForEachFileBlock(8);
+    config.setNumberOfRandomBytesInEachMACHeader(8);
 
-	// 4096 byte block size
-	@Test
-	public void test4096ByteBlocks() throws EncFSInvalidPasswordException,
-			EncFSInvalidConfigException, EncFSCorruptDataException,
-			EncFSUnsupportedException, IOException, EncFSChecksumException {
-		EncFSConfig config = new EncFSConfig();
-		config.setBlockSize(4096);
-
-		EncFSVolume volume = EncFSVolumeTestCommon.createVolume(config,
-				fileProvider);
-
-		EncFSVolumeTestCommon.testFileOperations(volume);
-	}
-
-	// Stream name algorithm
-	@Test
-	public void testStreamNameAlg() throws EncFSInvalidPasswordException,
-			EncFSInvalidConfigException, EncFSCorruptDataException,
-			EncFSUnsupportedException, IOException, EncFSChecksumException {
-		EncFSConfig config = new EncFSConfig();
-		config.setNameAlgorithm(EncFSConfig.ENCFS_CONFIG_NAME_ALG_STREAM);
-
-		EncFSVolume volume = EncFSVolumeTestCommon.createVolume(config,
-				fileProvider);
-
-		EncFSVolumeTestCommon.testFileOperations(volume);
-	}
-
-	// Block level MAC header with no random bytes
-	@Test
-	public void testBlockMAC() throws EncFSInvalidPasswordException,
-			EncFSInvalidConfigException, EncFSCorruptDataException,
-			EncFSUnsupportedException, IOException, EncFSChecksumException {
-		EncFSConfig config = new EncFSConfig();
-		config.setBlockMACBytes(8);
-
-		EncFSVolume volume = EncFSVolumeTestCommon.createVolume(config,
-				fileProvider);
-
-		EncFSVolumeTestCommon.testFileOperations(volume);
-	}
-
-	// Block level MAC header with random bytes
-	@Test
-	public void testBlockMACWithRandBytes()
-			throws EncFSInvalidPasswordException, EncFSInvalidConfigException,
-			EncFSCorruptDataException, EncFSUnsupportedException, IOException,
-			EncFSChecksumException {
-		EncFSConfig config = new EncFSConfig();
-		config.setBlockMACBytes(8);
-		config.setBlockMACRandBytes(8);
-
-		EncFSVolume volume = EncFSVolumeTestCommon.createVolume(config,
-				fileProvider);
-
-		EncFSVolumeTestCommon.testFileOperations(volume);
-	}
+    testFileOperations(config);
+  }
 }

@@ -6,35 +6,17 @@
  * it under the terms of the GNU Lesser General Public License as published
  * by the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- *  
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU Lesser General Public License for more details.
  */
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.Stack;
-import java.util.StringTokenizer;
+import org.mrpdaemon.sec.encfs.*;
 
-import org.mrpdaemon.sec.encfs.EncFSConfig;
-import org.mrpdaemon.sec.encfs.EncFSException;
-import org.mrpdaemon.sec.encfs.EncFSFile;
-import org.mrpdaemon.sec.encfs.EncFSFileInputStream;
-import org.mrpdaemon.sec.encfs.EncFSInvalidPasswordException;
-import org.mrpdaemon.sec.encfs.EncFSLocalFileProvider;
-import org.mrpdaemon.sec.encfs.EncFSProgressListener;
-import org.mrpdaemon.sec.encfs.EncFSUtil;
-import org.mrpdaemon.sec.encfs.EncFSVolume;
+import java.io.*;
+import java.util.*;
 
 public class EncFSShell {
 	// EncFSFile stack representing the current directory path
@@ -146,7 +128,7 @@ public class EncFSShell {
 			// Create the volume
 			try {
 				EncFSVolume.createVolume(new EncFSLocalFileProvider(inputDir),
-						new EncFSConfig(), password);
+            EncFSConfigFactory.createDefault(), password);
 			} catch (Exception e) {
 				e.printStackTrace();
 				return false;
@@ -688,7 +670,7 @@ public class EncFSShell {
 					}
 
 					EncFSUtil.copyWholeStream(new EncFSFileInputStream(
-							lastPathElement), System.out, true, false);
+              lastPathElement), System.out, true, false);
 					System.out.println();
 				}
 

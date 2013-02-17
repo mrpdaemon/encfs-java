@@ -6,7 +6,7 @@
  * it under the terms of the GNU Lesser General Public License as published
  * by the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- *  
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
@@ -21,7 +21,7 @@ import java.util.List;
 
 /**
  * Object representing a file in an EncFS volume.
- * 
+ *
  * Useful for decryption of file names as well as performing file operations
  * such as copying, moving, deletion etc.
  */
@@ -41,7 +41,7 @@ public class EncFSFile {
 
 	/**
 	 * Create a new object representing a file in an EncFS volume
-	 * 
+	 *
 	 * @param volume
 	 *            The volume that contains the file
 	 * @param plainFileInfo
@@ -58,7 +58,7 @@ public class EncFSFile {
 
 	/**
 	 * Returns the volume path of this file
-	 * 
+	 *
 	 * @return Absolute volume path of the file
 	 */
 	public String getPath() {
@@ -67,7 +67,7 @@ public class EncFSFile {
 
 	/**
 	 * Returns the encrypted volume path of this file
-	 * 
+	 *
 	 * @return Encrypted volume path of the file
 	 */
 	public String getEncryptedPath() {
@@ -76,10 +76,10 @@ public class EncFSFile {
 
 	/**
 	 * Returns the volume path of the parent directory hosting this file
-	 * 
+	 *
 	 * This is the plaintext path starting from the volume's root up until the
 	 * parent directory hosting the current file
-	 * 
+	 *
 	 * @return Volume path of this file's parent directory
 	 */
 	public String getParentPath() {
@@ -89,7 +89,7 @@ public class EncFSFile {
 	/**
 	 * Returns the encrypted volume path of the parent directory hosting this
 	 * file
-	 * 
+	 *
 	 * @return Encrypted volume path of this file's parent directory
 	 */
 	public String getEncryptedParentPath() {
@@ -98,7 +98,7 @@ public class EncFSFile {
 
 	/**
 	 * Returns the plaintext name of this file
-	 * 
+	 *
 	 * @return decrypted name of this EncFS file
 	 */
 	public String getName() {
@@ -107,7 +107,7 @@ public class EncFSFile {
 
 	/**
 	 * Returns the ciphertext name of this file
-	 * 
+	 *
 	 * @return encrypted name of this EncFS file
 	 */
 	public String getEncrytedName() {
@@ -116,7 +116,7 @@ public class EncFSFile {
 
 	/**
 	 * Returns the length of decrypted contents for this file
-	 * 
+	 *
 	 * @return Length of decrypted file contents
 	 */
 	public long getLength() {
@@ -125,7 +125,7 @@ public class EncFSFile {
 
 	/**
 	 * Returns the last modification time for this file
-	 * 
+	 *
 	 * @return last modification time for the file
 	 */
 	public long getLastModified() {
@@ -134,7 +134,7 @@ public class EncFSFile {
 
 	/**
 	 * Returns the volume containing this file
-	 * 
+	 *
 	 * @return Volume containing the EncFS file
 	 */
 	public EncFSVolume getVolume() {
@@ -143,7 +143,7 @@ public class EncFSFile {
 
 	/**
 	 * Checks whether this EncFSFile represents a directory
-	 * 
+	 *
 	 * @return true if directory, false otherwise
 	 */
 	public boolean isDirectory() {
@@ -152,7 +152,7 @@ public class EncFSFile {
 
 	/**
 	 * Checks whether the file is readable
-	 * 
+	 *
 	 * @return true if the file is readable, false otherwise
 	 */
 	public boolean isReadable() {
@@ -161,7 +161,7 @@ public class EncFSFile {
 
 	/**
 	 * Checks whether the file is writable
-	 * 
+	 *
 	 * @return true if the file is writable, false otherwise
 	 */
 	public boolean isWritable() {
@@ -170,7 +170,7 @@ public class EncFSFile {
 
 	/**
 	 * Checks whether the file is executable
-	 * 
+	 *
 	 * @return true if the file is executable, false otherwise
 	 */
 	public boolean isExecutable() {
@@ -180,7 +180,7 @@ public class EncFSFile {
 	/**
 	 * List files/directory names contained by the directory represented by this
 	 * EncFSFile object.
-	 * 
+	 *
 	 * @return null if not a directory, array of String names otherwise
 	 * @throws EncFSCorruptDataException
 	 *             Invalid file name size
@@ -210,9 +210,9 @@ public class EncFSFile {
 
 	/**
 	 * Get list of EncFSFile's under this directory
-	 * 
+	 *
 	 * @return list of EncFSFile under the given directory
-	 * 
+	 *
 	 * @throws EncFSCorruptDataException
 	 *             Filename encoding failed
 	 * @throws IOException
@@ -250,7 +250,7 @@ public class EncFSFile {
 			if (decodedFileName != null) {
 				EncFSFileInfo decEncFileInfo = EncFSFileInfo
 						.getDecodedFileInfo(volume, dirName, decodedFileName,
-								fileInfo);
+                fileInfo);
 
 				result.add(new EncFSFile(volume, decEncFileInfo, fileInfo));
 			}
@@ -261,9 +261,9 @@ public class EncFSFile {
 
 	/**
 	 * Delete this file
-	 * 
+	 *
 	 * @return true if deletion succeeds, false otherwise
-	 * 
+	 *
 	 * @throws IOException
 	 *             File provider returned I/O error
 	 */
@@ -274,9 +274,9 @@ public class EncFSFile {
 	/**
 	 * Opens the file as an EncFSInputStream that decodes the file contents
 	 * automatically
-	 * 
+	 *
 	 * @return EncFSInputStream that decodes file contents
-	 * 
+	 *
 	 * @throws EncFSCorruptDataException
 	 *             Filename encoding failed
 	 * @throws EncFSUnsupportedException
@@ -293,16 +293,16 @@ public class EncFSFile {
 	/**
 	 * Opens the file as an EncFSOutputStream that encrypts the file contents
 	 * automatically
-	 * 
+	 *
 	 * @param inputLength
 	 *            Length of the input file that will be written to this output
 	 *            stream. Note that this parameter is optional if using
 	 *            EncFSLocalFileProvider, but some network based storage API's
 	 *            require knowing the file length in advance.
-	 * 
+	 *
 	 * @return EncFSOutputStream that encrypts file contents
-	 * 
-	 * 
+	 *
+	 *
 	 * @throws EncFSCorruptDataException
 	 *             Filename encoding failed
 	 * @throws EncFSUnsupportedException
@@ -315,17 +315,17 @@ public class EncFSFile {
 			IOException {
 		return new EncFSOutputStream(volume, volume.getFileProvider()
 				.openOutputStream(getEncryptedPath(),
-						volume.getEncryptedFileLength(inputLength)), getPath());
+            volume.getEncryptedFileLength(inputLength)), getPath());
 	}
 
 	/**
 	 * Copies this file/dir to a target file or directory
-	 * 
+	 *
 	 * @param dstPath
 	 *            EncFSFile representing the target file or directory
-	 * 
+	 *
 	 * @return true if copy succeeds, false otherwise
-	 * 
+	 *
 	 * @throws IOException
 	 *             File provider returned I/O error
 	 */
@@ -354,14 +354,14 @@ public class EncFSFile {
 			return this.copy(realDstPath);
 		} else {
 			// Trying to copy a file into a file
-			if (volume.getConfig().isExternalIVChaining()) {
+			if (volume.getConfig().isSupportedExternalIVChaining()) {
 				/*
 				 * Need to re-encrypt the file since external IV chaining is
 				 * used.
 				 */
 				try {
 					EncFSUtil.copyWholeStream(openInputStream(),
-							dstPath.openOutputStream(getLength()), true, true);
+              dstPath.openOutputStream(getLength()), true, true);
 				} catch (EncFSException e) {
 					throw new IOException(e);
 				}

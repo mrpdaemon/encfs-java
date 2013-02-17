@@ -6,7 +6,7 @@
  * it under the terms of the GNU Lesser General Public License as published
  * by the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- *  
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
@@ -15,6 +15,8 @@
 
 package org.mrpdaemon.sec.encfs;
 
+import javax.crypto.Cipher;
+import javax.crypto.Mac;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -23,12 +25,9 @@ import java.security.Key;
 import java.security.SecureRandom;
 import java.util.Arrays;
 
-import javax.crypto.Cipher;
-import javax.crypto.Mac;
-
 /**
  * Class representing an EncFS volume.
- * 
+ *
  * The volume is defined by a root folder, which contains an EncFS configuration
  * file and a hierarchy of encrypted files and subdirectories created by a
  * compliant EncFS implementation.
@@ -84,13 +83,13 @@ public class EncFSVolume {
 
 	/**
 	 * Creates a new object representing an existing EncFS volume
-	 * 
+	 *
 	 * @param rootPath
 	 *            Path of the root directory of the EncFS volume on the local
 	 *            filesystem
 	 * @param password
 	 *            User supplied password to decrypt volume key
-	 * 
+	 *
 	 * @throws EncFSInvalidPasswordException
 	 *             Given password is incorrect
 	 * @throws EncFSCorruptDataException
@@ -110,7 +109,7 @@ public class EncFSVolume {
 
 	/**
 	 * Creates a new object representing an existing EncFS volume
-	 * 
+	 *
 	 * @param rootPath
 	 *            Path of the root directory of the EncFS volume on the local
 	 *            filesystem
@@ -118,7 +117,7 @@ public class EncFSVolume {
 	 *            User supplied password to decrypt volume key
 	 * @param pbkdf2Provider
 	 *            Custom PBKDF2 computation provider
-	 * 
+	 *
 	 * @throws EncFSInvalidPasswordException
 	 *             Given password is incorrect
 	 * @throws EncFSCorruptDataException
@@ -140,7 +139,7 @@ public class EncFSVolume {
 
 	/**
 	 * Creates a new object representing an existing EncFS volume
-	 * 
+	 *
 	 * @param rootPath
 	 *            Path of the root directory of the EncFS volume on the local
 	 *            filesystem
@@ -149,7 +148,7 @@ public class EncFSVolume {
 	 *            getPasswordKey() on a volume created with a regular password.
 	 *            Caching the password-based key data can significantly speed up
 	 *            volume creation.
-	 * 
+	 *
 	 * @throws EncFSInvalidPasswordException
 	 *             Given password is incorrect
 	 * @throws EncFSCorruptDataException
@@ -169,12 +168,12 @@ public class EncFSVolume {
 
 	/**
 	 * Creates a new object representing an existing EncFS volume
-	 * 
+	 *
 	 * @param fileProvider
 	 *            File provider for access to files stored in non-local storage
 	 * @param password
 	 *            User supplied password to decrypt volume key
-	 * 
+	 *
 	 * @throws EncFSInvalidPasswordException
 	 *             Given password is incorrect
 	 * @throws EncFSCorruptDataException
@@ -194,14 +193,14 @@ public class EncFSVolume {
 
 	/**
 	 * Creates a new object representing an existing EncFS volume
-	 * 
+	 *
 	 * @param fileProvider
 	 *            File provider for access to files stored in non-local storage
 	 * @param password
 	 *            User supplied password to decrypt volume key
 	 * @param pbkdf2Provider
 	 *            Custom PBKDF2 computation provider
-	 * 
+	 *
 	 * @throws EncFSInvalidPasswordException
 	 *             Given password is incorrect
 	 * @throws EncFSCorruptDataException
@@ -222,7 +221,7 @@ public class EncFSVolume {
 
 	/**
 	 * Creates a new object representing an existing EncFS volume
-	 * 
+	 *
 	 * @param fileProvider
 	 *            File provider for access to files stored in non-local storage
 	 * @param passwordKey
@@ -230,7 +229,7 @@ public class EncFSVolume {
 	 *            getPasswordKey() on a volume created with a regular password.
 	 *            Caching the password-based key data can significantly speed up
 	 *            volume creation.
-	 * 
+	 *
 	 * @throws EncFSInvalidPasswordException
 	 *             Given password is incorrect
 	 * @throws EncFSCorruptDataException
@@ -250,7 +249,7 @@ public class EncFSVolume {
 
 	/**
 	 * Creates a new object representing an existing EncFS volume
-	 * 
+	 *
 	 * @param fileProvider
 	 *            File provider for access to files stored in non-local storage
 	 * @param config
@@ -258,7 +257,7 @@ public class EncFSVolume {
 	 *            location than the file provider's root directory
 	 * @param password
 	 *            User supplied password to decrypt volume key
-	 * 
+	 *
 	 * @throws EncFSInvalidPasswordException
 	 *             Given password is incorrect
 	 * @throws EncFSCorruptDataException
@@ -279,7 +278,7 @@ public class EncFSVolume {
 
 	/**
 	 * Creates a new object representing an existing EncFS volume
-	 * 
+	 *
 	 * @param fileProvider
 	 *            File provider for access to files stored in non-local storage
 	 * @param config
@@ -289,7 +288,7 @@ public class EncFSVolume {
 	 *            User supplied password to decrypt volume key
 	 * @param pbkdf2Provider
 	 *            Custom PBKDF2 computation provider
-	 * 
+	 *
 	 * @throws EncFSInvalidPasswordException
 	 *             Given password is incorrect
 	 * @throws EncFSCorruptDataException
@@ -310,7 +309,7 @@ public class EncFSVolume {
 
 	/**
 	 * Creates a new object representing an existing EncFS volume
-	 * 
+	 *
 	 * @param fileProvider
 	 *            File provider for access to files stored in non-local storage
 	 * @param config
@@ -321,7 +320,7 @@ public class EncFSVolume {
 	 *            getPasswordKey() on a volume created with a regular password.
 	 *            Caching the password-based key data can significantly speed up
 	 *            volume creation.
-	 * 
+	 *
 	 * @throws EncFSInvalidPasswordException
 	 *             Given password is incorrect
 	 * @throws EncFSCorruptDataException
@@ -427,7 +426,7 @@ public class EncFSVolume {
 		}
 
 		// Create volume key
-		int keyLength = this.config.getVolumeKeySize() / 8;
+		int keyLength = this.config.getVolumeKeySizeInBits() / 8;
 		if (keyData.length < keyLength) {
 			throw new EncFSInvalidConfigException("Key size too large");
 		}
@@ -459,12 +458,12 @@ public class EncFSVolume {
 
 	/**
 	 * Combine the given directory and file name into a path string
-	 * 
+	 *
 	 * @param dir
 	 *            Directory forming the first path component
 	 * @param fileName
 	 *            Filename forming the second path component
-	 * 
+	 *
 	 * @return String representing the combined path
 	 */
 	public static String combinePath(EncFSFile dir, String fileName) {
@@ -482,12 +481,12 @@ public class EncFSVolume {
 
 	/**
 	 * Combine the given directory and file name into a path string
-	 * 
+	 *
 	 * @param dir
 	 *            Directory forming the first path component
 	 * @param file
 	 *            File forming the second path component
-	 * 
+	 *
 	 * @return String representing the combined path
 	 */
 	public static String combinePath(EncFSFile dir, EncFSFile file) {
@@ -496,12 +495,12 @@ public class EncFSVolume {
 
 	/**
 	 * Combine the given directory and file name into a path string
-	 * 
+	 *
 	 * @param dirPath
 	 *            Directory path forming the first path component
 	 * @param fileName
 	 *            File name forming the second path component
-	 * 
+	 *
 	 * @return String representing the combined path
 	 */
 	public static String combinePath(String dirPath, String fileName) {
@@ -514,12 +513,12 @@ public class EncFSVolume {
 
 	/**
 	 * Combine the given directory and file name into a path string
-	 * 
+	 *
 	 * @param dirPath
 	 *            Directory path forming the first path component
 	 * @param file
 	 *            File forming the second path component
-	 * 
+	 *
 	 * @return String representing the combined path
 	 */
 	public static String combinePath(String dirPath, EncFSFile file) {
@@ -528,7 +527,7 @@ public class EncFSVolume {
 
 	/**
 	 * Count files and directories under the given file
-	 * 
+	 *
 	 * @param file
 	 *            File to count under
 	 * @return Number of files/directories under the file
@@ -550,7 +549,7 @@ public class EncFSVolume {
 
 	/**
 	 * Returns the configuration object for this volume
-	 * 
+	 *
 	 * @return Configuration for this EncFS volume
 	 */
 	public EncFSConfig getConfig() {
@@ -559,7 +558,7 @@ public class EncFSVolume {
 
 	/**
 	 * Returns the volume key used for encryption/decryption
-	 * 
+	 *
 	 * @return Volume key for encryption/decryption
 	 */
 	public Key getKey() {
@@ -568,7 +567,7 @@ public class EncFSVolume {
 
 	/**
 	 * Returns the volume IV used for encryption/decryption
-	 * 
+	 *
 	 * @return Volume initialization vector (IV) for encryption/decryption
 	 */
 	public byte[] getIV() {
@@ -577,7 +576,7 @@ public class EncFSVolume {
 
 	/**
 	 * Returns the password based key/IV data for this volume
-	 * 
+	 *
 	 * @return Password-based key/IV data for this volume
 	 */
 	public byte[] getPasswordKey() {
@@ -586,7 +585,7 @@ public class EncFSVolume {
 
 	/**
 	 * Returns the MAC object used for checksum verification
-	 * 
+	 *
 	 * @return Volume MAC for checksum verification
 	 */
 	public Mac getMac() {
@@ -595,7 +594,7 @@ public class EncFSVolume {
 
 	/**
 	 * Returns the stream cipher instance for stream encryption/decryption
-	 * 
+	 *
 	 * @return Stream cipher instance for stream encryption/decryption
 	 */
 	public Cipher getStreamCipher() {
@@ -604,7 +603,7 @@ public class EncFSVolume {
 
 	/**
 	 * Returns the block cipher instance for block encryption/decryption
-	 * 
+	 *
 	 * @return Block cipher instance for block encryption/decryption
 	 */
 	public Cipher getBlockCipher() {
@@ -613,7 +612,7 @@ public class EncFSVolume {
 
 	/**
 	 * Returns a file object representing the root directory of the volume
-	 * 
+	 *
 	 * @return EncFSFile representing the root directory of this volume
 	 */
 	public EncFSFile getRootDir() {
@@ -622,7 +621,7 @@ public class EncFSVolume {
 
 	/**
 	 * Returns the file provider used for this volume
-	 * 
+	 *
 	 * @return EncFSFileProvider for this volume
 	 */
 	public EncFSFileProvider getFileProvider() {
@@ -632,14 +631,14 @@ public class EncFSVolume {
 	/**
 	 * Get an EncFSFile object representing the provided filename given the
 	 * volume path of its parent directory
-	 * 
+	 *
 	 * @param parentPath
 	 *            Volume path of the file's parent directory
 	 * @param fileName
 	 *            Name of the file
-	 * 
+	 *
 	 * @return EncFSFile representing the requested file
-	 * 
+	 *
 	 * @throws EncFSCorruptDataException
 	 *             Corrupt data detected (checksum error)
 	 * @throws EncFSChecksumException
@@ -657,12 +656,12 @@ public class EncFSVolume {
 	/**
 	 * Get an EncFSFile object representing the provided absolute path in the
 	 * volume
-	 * 
+	 *
 	 * @param filePath
 	 *            Absolute volume path of the file
-	 * 
+	 *
 	 * @return EncFSFile representing the requested file
-	 * 
+	 *
 	 * @throws EncFSCorruptDataException
 	 *             Corrupt data detected (checksum error)
 	 * @throws IOException
@@ -706,10 +705,10 @@ public class EncFSVolume {
 	/**
 	 * Returns the decrypted length a file would have in this volume given its
 	 * encrypted length
-	 * 
+	 *
 	 * @param encryptedFileLength
 	 *            Length of the encrypted file
-	 * 
+	 *
 	 * @return Length of the file after decryption
 	 */
 	public long getDecryptedFileLength(long encryptedFileLength) {
@@ -720,15 +719,15 @@ public class EncFSVolume {
 		}
 
 		// Account for file header
-		if (config.isUniqueIV()) {
+		if (config.isUseUniqueIV()) {
 			size -= EncFSFile.HEADER_SIZE;
 		}
 
 		// Account for block headers
-		long headerLength = config.getBlockMACBytes()
-				+ config.getBlockMACRandBytes();
+		long headerLength = config.getNumberOfMACBytesForEachFileBlock()
+				+ config.getNumberOfRandomBytesInEachMACHeader();
 		if (headerLength > 0) {
-			long blockLength = config.getBlockSize() + headerLength;
+			long blockLength = config.getEncryptedFileBlockSizeInBytes() + headerLength;
 
 			// Calculate number of blocks
 			long numBlocks = ((size - 1) / blockLength) + 1;
@@ -743,10 +742,10 @@ public class EncFSVolume {
 	/**
 	 * Returns the encrypted length a file would have in this volume given its
 	 * decrypted length
-	 * 
+	 *
 	 * @param decryptedFileLength
 	 *            Length of the decrypted file
-	 * 
+	 *
 	 * @return Length of the file after encryption
 	 */
 	public long getEncryptedFileLength(long decryptedFileLength) {
@@ -757,10 +756,10 @@ public class EncFSVolume {
 		}
 
 		// Account for block headers
-		long headerLength = config.getBlockMACBytes()
-				+ config.getBlockMACRandBytes();
+		long headerLength = config.getNumberOfMACBytesForEachFileBlock()
+				+ config.getNumberOfRandomBytesInEachMACHeader();
 		if (headerLength > 0) {
-			long blockLength = config.getBlockSize() + headerLength;
+			long blockLength = config.getEncryptedFileBlockSizeInBytes() + headerLength;
 
 			// Calculate number of blocks
 			long numBlocks = ((size - 1) / blockLength) + 1;
@@ -770,7 +769,7 @@ public class EncFSVolume {
 		}
 
 		// Account for file header
-		if (config.isUniqueIV()) {
+		if (config.isUseUniqueIV()) {
 			size += EncFSFile.HEADER_SIZE;
 		}
 
@@ -780,12 +779,12 @@ public class EncFSVolume {
 	/**
 	 * Checks whether the file or directory with the given path exists in the
 	 * volume
-	 * 
+	 *
 	 * @param path
 	 *            Absolute volume path of the file or directory
-	 * 
+	 *
 	 * @return true if path exists in the volume, false otherwise
-	 * 
+	 *
 	 * @throws EncFSCorruptDataException
 	 *             Filename encoding failed
 	 * @throws IOException
@@ -800,7 +799,7 @@ public class EncFSVolume {
 
 	/**
 	 * Tests if the provided path contains EncFS volume
-	 * 
+	 *
 	 * @param path
 	 *            Path to the presumed EncFS volume
 	 * @return true if the volume is EncFS, false otherwise
@@ -813,7 +812,7 @@ public class EncFSVolume {
 
 	/**
 	 * Tests if the provided path contains EncFS volume
-	 * 
+	 *
 	 * @param file
 	 *            File for the presumed EncFS volume
 	 * @return true if the volume is EncFS, false otherwise
@@ -826,7 +825,7 @@ public class EncFSVolume {
 
 	/**
 	 * Tests if the provided path contains EncFS volume
-	 * 
+	 *
 	 * @param fileProvider
 	 *            File provider for the presumed EncFS volume
 	 * @return true if the volume is EncFS, false otherwise
@@ -842,7 +841,7 @@ public class EncFSVolume {
 	/**
 	 * Creates a new EncFS volume on the supplied file provider using the
 	 * requested EncFSConfig parameters and the given password
-	 * 
+	 *
 	 * @param fileProvider
 	 *            File provider to use for accessing storage
 	 * @param config
@@ -850,7 +849,7 @@ public class EncFSVolume {
 	 *            salt/key fields initialized
 	 * @param password
 	 *            Volume password to use
-	 * 
+	 *
 	 * @throws EncFSInvalidPasswordException
 	 *             Given password is incorrect
 	 * @throws EncFSCorruptDataException
@@ -869,7 +868,7 @@ public class EncFSVolume {
 		SecureRandom random = new SecureRandom();
 
 		// Create a random volume key + IV pair
-		byte[] randVolKey = new byte[config.getVolumeKeySize() / 8
+		byte[] randVolKey = new byte[config.getVolumeKeySizeInBits() / 8
 				+ EncFSVolume.IV_LENGTH];
 		random.nextBytes(randVolKey);
 
@@ -880,7 +879,7 @@ public class EncFSVolume {
 	/**
 	 * Creates a new EncFS volume on the supplied file provider using the
 	 * requested EncFSConfig parameters and the given password
-	 * 
+	 *
 	 * @param fileProvider
 	 *            File provider to use for accessing storage
 	 * @param config
@@ -890,7 +889,7 @@ public class EncFSVolume {
 	 *            Volume password to use
 	 * @param pbkdf2Provider
 	 *            Custom PBKDF2 provider implementation
-	 * 
+	 *
 	 * @throws EncFSInvalidPasswordException
 	 *             Given password is incorrect
 	 * @throws EncFSCorruptDataException
@@ -910,7 +909,7 @@ public class EncFSVolume {
 		SecureRandom random = new SecureRandom();
 
 		// Create a random volume key + IV pair
-		byte[] randVolKey = new byte[config.getVolumeKeySize() / 8
+		byte[] randVolKey = new byte[config.getVolumeKeySizeInBits() / 8
 				+ EncFSVolume.IV_LENGTH];
 		random.nextBytes(randVolKey);
 
@@ -921,14 +920,14 @@ public class EncFSVolume {
 
 	/**
 	 * Creates a new file under the EncFS volume
-	 * 
+	 *
 	 * @param parentPath
 	 *            Absolute volume path of the parent directory
 	 * @param fileName
 	 *            Name of the file to create
-	 * 
+	 *
 	 * @return EncFSFile handle for the newly created file
-	 * 
+	 *
 	 * @throws EncFSCorruptDataException
 	 *             Filename encoding failed
 	 * @throws EncFSChecksumException
@@ -945,12 +944,12 @@ public class EncFSVolume {
 
 	/**
 	 * Creates a new file under the EncFS volume
-	 * 
+	 *
 	 * @param filePath
 	 *            Absolute volume path of the file to create
-	 * 
+	 *
 	 * @return EncFSFile handle for the newly created file
-	 * 
+	 *
 	 * @throws EncFSCorruptDataException
 	 *             Filename encoding failed
 	 * @throws IOException
@@ -990,12 +989,12 @@ public class EncFSVolume {
 
 	/**
 	 * Create a new directory under the EncFS volume
-	 * 
+	 *
 	 * @param dirPath
 	 *            Absolute volume path of the directory to create
-	 * 
+	 *
 	 * @return true if creation succeeds, false otherwise
-	 * 
+	 *
 	 * @throws EncFSCorruptDataException
 	 *             Filename encoding failed
 	 * @throws IOException
@@ -1021,12 +1020,12 @@ public class EncFSVolume {
 	/**
 	 * Create a new directory under the EncFS volume, creating any missing
 	 * directories in the path as well.
-	 * 
+	 *
 	 * @param dirPath
 	 *            Absolute volume path of the directory to create
-	 * 
+	 *
 	 * @return true if creation succeeds, false otherwise
-	 * 
+	 *
 	 * @throws EncFSCorruptDataException
 	 *             Filename encoding failed
 	 * @throws IOException
@@ -1084,7 +1083,7 @@ public class EncFSVolume {
 
 	/**
 	 * Deletes the given file or directory in the EncFS volume
-	 * 
+	 *
 	 * @param filePath
 	 *            Absolute volume path of the file/directory to delete
 	 * @param recursive
@@ -1092,9 +1091,9 @@ public class EncFSVolume {
 	 *            deletePath will fail to delete non-empty directories
 	 * @param progressListener
 	 *            Progress listener for getting individual file updates
-	 * 
+	 *
 	 * @return true if deletion succeeds, false otherwise
-	 * 
+	 *
 	 * @throws EncFSCorruptDataException
 	 *             Filename encoding failed
 	 * @throws IOException
@@ -1143,15 +1142,15 @@ public class EncFSVolume {
 
 	/**
 	 * Deletes the given file or directory in the EncFS volume
-	 * 
+	 *
 	 * @param filePath
 	 *            Absolute volume path of the file/directory to delete
 	 * @param recursive
 	 *            Whether to recursively delete directories. Without this option
 	 *            deletePath will fail to delete non-empty directories
-	 * 
+	 *
 	 * @return true if deletion succeeds, false otherwise
-	 * 
+	 *
 	 * @throws EncFSCorruptDataException
 	 *             Filename encoding failed
 	 * @throws IOException
@@ -1187,10 +1186,10 @@ public class EncFSVolume {
 				&& (getConfig().isChainedNameIV() || op == PathOperation.COPY)) {
 			/*
 			 * To make this safe (for if we fail halfway through) we need to:
-			 * 
+			 *
 			 * 1) create the new directory 2) Recursively move the sub
 			 * directories / folders 3) Delete the original directory
-			 * 
+			 *
 			 * We can do it as a rename of the parent / original folder or we
 			 * could be left with files we can't read
 			 */
@@ -1270,7 +1269,7 @@ public class EncFSVolume {
 				}
 
 				if (op == PathOperation.MOVE) {
-					if (getConfig().isExternalIVChaining()) {
+					if (getConfig().isSupportedExternalIVChaining()) {
 						/*
 						 * Need to re-encrypt the file contents while moving
 						 * since external IV chaining is being used. We'll just
@@ -1301,16 +1300,16 @@ public class EncFSVolume {
 
 	/**
 	 * Copies the source file or directory to the target file or directory
-	 * 
+	 *
 	 * @param srcPath
 	 *            Absolute volume path of the source file or directory
 	 * @param dstPath
 	 *            Absolute volume path of the target file or directory
 	 * @param progressListener
 	 *            Progress listener for getting individual file updates
-	 * 
+	 *
 	 * @return true if copy succeeds, false otherwise
-	 * 
+	 *
 	 * @throws EncFSCorruptDataException
 	 *             Filename encoding failed
 	 * @throws IOException
@@ -1335,14 +1334,14 @@ public class EncFSVolume {
 
 	/**
 	 * Copies the source file or directory to the target file or directory
-	 * 
+	 *
 	 * @param srcPath
 	 *            Absolute volume path of the source file or directory
 	 * @param dstPath
 	 *            Absolute volume path of the target file or directory
-	 * 
+	 *
 	 * @return true if copy succeeds, false otherwise
-	 * 
+	 *
 	 * @throws EncFSCorruptDataException
 	 *             Filename encoding failed
 	 * @throws IOException
@@ -1355,16 +1354,16 @@ public class EncFSVolume {
 
 	/**
 	 * Moves a file / directory
-	 * 
+	 *
 	 * @param srcPath
 	 *            Absolute volume path of the file or directory to move
 	 * @param dstPath
 	 *            Absolute volume path of the destination file or directory
 	 * @param progressListener
 	 *            Progress listener for getting individual file updates
-	 * 
+	 *
 	 * @return true if the move succeeds, false otherwise
-	 * 
+	 *
 	 * @throws EncFSCorruptDataException
 	 *             Filename encoding failed
 	 * @throws IOException
@@ -1389,14 +1388,14 @@ public class EncFSVolume {
 
 	/**
 	 * Moves a file / directory
-	 * 
+	 *
 	 * @param srcPath
 	 *            Absolute volume path of the file or directory to move
 	 * @param dstPath
 	 *            Absolute volume path of the destination file or directory
-	 * 
+	 *
 	 * @return true if the move succeeds, false otherwise
-	 * 
+	 *
 	 * @throws EncFSCorruptDataException
 	 *             Filename encoding failed
 	 * @throws IOException
@@ -1409,12 +1408,12 @@ public class EncFSVolume {
 
 	/**
 	 * Get list of EncFSFile's under the given directory
-	 * 
+	 *
 	 * @param dirPath
 	 *            Absolute volume path of the directory to list
-	 * 
+	 *
 	 * @return list of EncFSFile under the given directory
-	 * 
+	 *
 	 * @throws EncFSCorruptDataException
 	 *             Filename encoding failed
 	 * @throws IOException
@@ -1430,12 +1429,12 @@ public class EncFSVolume {
 	/**
 	 * Opens the specified file as an EncFSInputStream that decrypts the file
 	 * contents automatically
-	 * 
+	 *
 	 * @param filePath
 	 *            Absolute volume path of the file
-	 * 
+	 *
 	 * @return EncFSInputStream that decrypts file contents
-	 * 
+	 *
 	 * @throws EncFSCorruptDataException
 	 *             Filename encoding failed
 	 * @throws EncFSUnsupportedException
@@ -1453,7 +1452,7 @@ public class EncFSVolume {
 	/**
 	 * Opens the specified file as an EncFSOutputStream that encrypts the file
 	 * contents automatically
-	 * 
+	 *
 	 * @param filePath
 	 *            Absolute volume path of the file
 	 * @param outputLength
@@ -1461,9 +1460,9 @@ public class EncFSVolume {
 	 *            output stream. Note that this parameter is optional if using
 	 *            EncFSLocalFileProvider, but some network based storage API's
 	 *            require knowing the file length in advance.
-	 * 
+	 *
 	 * @return EncFSOutputStream that encrypts file contents
-	 * 
+	 *
 	 * @throws EncFSCorruptDataException
 	 *             Filename encoding failed
 	 * @throws EncFSUnsupportedException

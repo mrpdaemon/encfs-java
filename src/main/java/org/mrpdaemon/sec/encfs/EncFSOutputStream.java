@@ -97,21 +97,21 @@ public class EncFSOutputStream extends FilterOutputStream {
 		super(out);
 		this.volume = volume;
 		this.config = volume.getConfig();
-		this.blockSize = config.getBlockSize();
-		this.blockHeaderSize = config.getBlockMACBytes()
-				+ config.getBlockMACRandBytes();
+		this.blockSize = config.getEncryptedFileBlockSizeInBytes();
+		this.blockHeaderSize = config.getNumberOfMACBytesForEachFileBlock()
+				+ config.getNumberOfRandomBytesInEachMACHeader();
 		this.dataBytes = this.blockHeaderSize;
-		this.blockMACLen = config.getBlockMACBytes();
-		this.blockMACRandLen = config.getBlockMACRandBytes();
+		this.blockMACLen = config.getNumberOfMACBytesForEachFileBlock();
+		this.blockMACRandLen = config.getNumberOfRandomBytesInEachMACHeader();
 
-		if (config.isUniqueIV()) {
+		if (config.isUseUniqueIV()) {
 			// Compute file IV
 			this.fileHeader = new byte[8];
 
 			secureRandom.nextBytes(fileHeader);
 
 			byte[] initIv;
-			if (config.isExternalIVChaining()) {
+			if (config.isSupportedExternalIVChaining()) {
 				/*
 				 * When using external IV chaining we compute initIv based on
 				 * the file path.
@@ -163,7 +163,7 @@ public class EncFSOutputStream extends FilterOutputStream {
 			throw new IllegalStateException("Buffer not full");
 		}
 
-		if (curBlockIndex == 0 && config.isUniqueIV()) {
+		if (curBlockIndex == 0 && config.isUseUniqueIV()) {
 			out.write(this.fileHeader);
 		}
 
@@ -197,7 +197,7 @@ public class EncFSOutputStream extends FilterOutputStream {
 				 * cause this check to fail.
 				 */
 				boolean zeroBlock = false;
-				if (config.isHolesAllowed()) {
+				if (config.isHolesAllowedInFiles()) {
 					zeroBlock = true;
 					for (int i = 0; i < dataBuf.length; i++) {
 						if (dataBuf[i] != 0) {

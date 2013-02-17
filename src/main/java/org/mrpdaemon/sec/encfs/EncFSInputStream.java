@@ -84,15 +84,15 @@ public class EncFSInputStream extends FilterInputStream {
 		super(in);
 		this.volume = volume;
 		this.config = volume.getConfig();
-		this.blockSize = config.getBlockSize();
-		this.numMACBytes = config.getBlockMACBytes();
-		this.numRandBytes = config.getBlockMACRandBytes();
+		this.blockSize = config.getEncryptedFileBlockSizeInBytes();
+		this.numMACBytes = config.getNumberOfMACBytesForEachFileBlock();
+		this.numRandBytes = config.getNumberOfRandomBytesInEachMACHeader();
 		this.blockHeaderSize = this.numMACBytes + this.numRandBytes;
 		this.blockBuf = null;
 		this.bufCursor = 0;
 		this.blockNum = 0;
 
-		if (config.isUniqueIV()) {
+		if (config.isUseUniqueIV()) {
 			// Compute file IV
 			byte[] fileHeader = new byte[EncFSFile.HEADER_SIZE];
 			try {
@@ -102,7 +102,7 @@ public class EncFSInputStream extends FilterInputStream {
 			}
 
 			byte[] initIv;
-			if (config.isExternalIVChaining()) {
+			if (config.isSupportedExternalIVChaining()) {
 				/*
 				 * When using external IV chaining we compute initIv based on
 				 * the file path.
@@ -212,14 +212,14 @@ public class EncFSInputStream extends FilterInputStream {
 		int toSkip;
 		int bytesRead;
 
-		byte[] skipBuf = new byte[config.getBlockSize()];
+		byte[] skipBuf = new byte[config.getEncryptedFileBlockSizeInBytes()];
 
 		if (n < 0) {
 			throw new IOException("Negative skip count");
 		}
 
 		while (bytesSkipped < n) {
-			toSkip = (int) Math.min(n - bytesSkipped, config.getBlockSize());
+			toSkip = (int) Math.min(n - bytesSkipped, config.getEncryptedFileBlockSizeInBytes());
 			bytesRead = this.read(skipBuf, 0, toSkip);
 			bytesSkipped += bytesRead;
 			if (bytesRead == -1) {
@@ -286,7 +286,7 @@ public class EncFSInputStream extends FilterInputStream {
 			 * block is made up of 0's. If not (which is going to be the case
 			 * for MAC header by default), we will do block decryption.
 			 */
-			if (config.isHolesAllowed()) {
+			if (config.isHolesAllowedInFiles()) {
 				zeroBlock = true;
 				for (int i = 0; i < cipherBuf.length; i++)
 					if (cipherBuf[i] != 0) {
