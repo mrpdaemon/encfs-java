@@ -627,38 +627,16 @@ public class EncFSVolume {
    *         <p/>
    *         File provider returned I/O error
    */
-  public EncFSFile getFile(String filePath) throws EncFSCorruptDataException,
-      IOException {
+  public EncFSFile getFile(String filePath) throws EncFSCorruptDataException, IOException {
     validateAbsoluteFileName(filePath, "filePath");
 
-    String encryptedPath = EncFSCrypto
-        .encodePath(this, filePath, ROOT_PATH);
+    String encryptedPath = EncFSCrypto.encodePath(this, filePath, ROOT_PATH);
 
-    if (fileProvider.exists(encryptedPath) == false) {
+    if (!fileProvider.exists(encryptedPath)) {
       throw new FileNotFoundException();
     }
     EncFSFileInfo fileInfo = fileProvider.getFileInfo(encryptedPath);
-
-    EncFSFileInfo decodedFileInfo;
-    if (filePath.equals(ROOT_PATH)) {
-      decodedFileInfo = EncFSFileInfo.getDecodedFileInfo(this, "",
-          ROOT_PATH, fileInfo);
-    } else {
-      int lastIndexOfSeparator = filePath.lastIndexOf(PATH_SEPARATOR);
-      String decDirName;
-      String decFilename;
-      if (filePath.lastIndexOf(PATH_SEPARATOR) == 0) {
-        decDirName = PATH_SEPARATOR;
-        decFilename = filePath.substring(1);
-
-      } else {
-        decDirName = filePath.substring(0, lastIndexOfSeparator);
-        decFilename = filePath.substring(lastIndexOfSeparator + 1);
-      }
-      decodedFileInfo = EncFSFileInfo.getDecodedFileInfo(this,
-          decDirName, decFilename, fileInfo);
-    }
-
+    EncFSFileInfo decodedFileInfo = getDecodedFileInfo(filePath, fileInfo);
     return new EncFSFile(this, decodedFileInfo, fileInfo);
   }
 
@@ -894,19 +872,20 @@ public class EncFSVolume {
    *         <p/>
    *         File provider returned I/O error
    */
-  public EncFSFile createFile(String filePath)
-      throws EncFSCorruptDataException, IOException {
+  public EncFSFile createFile(String filePath) throws EncFSCorruptDataException, IOException {
     validateAbsoluteFileName(filePath, "fileName");
 
-    String encryptedPath = EncFSCrypto
-        .encodePath(this, filePath, ROOT_PATH);
+    String encryptedPath = EncFSCrypto.encodePath(this, filePath, ROOT_PATH);
 
     EncFSFileInfo fileInfo = fileProvider.createFile(encryptedPath);
+    EncFSFileInfo decodedFileInfo = getDecodedFileInfo(filePath, fileInfo);
+    return new EncFSFile(this, decodedFileInfo, fileInfo);
+  }
 
+  private EncFSFileInfo getDecodedFileInfo(String filePath, EncFSFileInfo fileInfo) {
     EncFSFileInfo decodedFileInfo;
     if (filePath.equals(ROOT_PATH)) {
-      decodedFileInfo = EncFSFileInfo.getDecodedFileInfo(this, "",
-          ROOT_PATH, fileInfo);
+      decodedFileInfo = EncFSFileInfo.getDecodedFileInfo(this, "", ROOT_PATH, fileInfo);
     } else {
       int lastIndexOfSeparator = filePath.lastIndexOf(PATH_SEPARATOR);
       String decDirName;
@@ -914,16 +893,13 @@ public class EncFSVolume {
       if (filePath.lastIndexOf(PATH_SEPARATOR) == 0) {
         decDirName = PATH_SEPARATOR;
         decFilename = filePath.substring(1);
-
       } else {
         decDirName = filePath.substring(0, lastIndexOfSeparator);
         decFilename = filePath.substring(lastIndexOfSeparator + 1);
       }
-      decodedFileInfo = EncFSFileInfo.getDecodedFileInfo(this,
-          decDirName, decFilename, fileInfo);
+      decodedFileInfo = EncFSFileInfo.getDecodedFileInfo(this, decDirName, decFilename, fileInfo);
     }
-
-    return new EncFSFile(this, decodedFileInfo, fileInfo);
+    return decodedFileInfo;
   }
 
   /**
@@ -1113,7 +1089,7 @@ public class EncFSVolume {
     if (fileProvider.isDirectory(encSrcPath)
         && (getConfig().isChainedNameIV() || op == PathOperation.COPY)) {
       /*
-			 * To make this safe (for if we fail halfway through) we need to:
+       * To make this safe (for if we fail halfway through) we need to:
 			 *
 			 * 1) create the new directory 2) Recursively move the sub
 			 * directories / folders 3) Delete the original directory
@@ -1174,8 +1150,8 @@ public class EncFSVolume {
     } else { // Simple file operation
 
       EncFSFile srcFile = getFile(srcPath);
-			/*
-			 * If dstPath is an existing directory we need to copy/move srcPath
+      /*
+       * If dstPath is an existing directory we need to copy/move srcPath
 			 * under it
 			 */
       if (pathExists(dstPath)) {
