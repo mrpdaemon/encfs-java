@@ -20,15 +20,7 @@ package org.mrpdaemon.sec.encfs;
  */
 public class EncFSException extends Exception {
 
-	// Serialization version
 	private static final long serialVersionUID = 1L;
-
-	/**
-	 * Creates a new EncFSException
-	 */
-	public EncFSException() {
-		super();
-	}
 
 	/**
 	 * Creates a new EncFSException
