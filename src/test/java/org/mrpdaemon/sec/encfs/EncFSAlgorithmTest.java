@@ -8,6 +8,6 @@ import org.junit.Test;
 public class EncFSAlgorithmTest {
   @Test(expected = IllegalArgumentException.class)
   public void testParse() throws Exception {
-                                 EncFSAlgorithm.parse("nameio/sstream");
+    EncFSAlgorithm.parse("nameio/sstream");
   }
 }
