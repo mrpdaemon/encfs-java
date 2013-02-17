@@ -31,7 +31,8 @@ public class EncFSVolumeTestCommon {
 
   public static EncFSVolume createVolume(EncFSConfig config, EncFSFileProvider fileProvider) throws Exception {
     try {
-      EncFSVolume.createVolume(fileProvider, config, password);
+      new EncFSVolumeBuilder().withFileProvider(fileProvider).withConfig(config).withPassword(password).create();
+//      EncFSVolume.createVolume(fileProvider, config, password);
       return new EncFSVolumeBuilder().withFileProvider(fileProvider).withConfig(config).withPassword(password).access();
     } catch (Exception e) {
       Assert.fail(e.getMessage());

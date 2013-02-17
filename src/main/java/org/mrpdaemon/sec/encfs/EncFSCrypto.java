@@ -159,9 +159,7 @@ public class EncFSCrypto {
    * @param pbkdf2Provider Custom PBKDF2 provider implementation
    * @return Derived PBKDF2 key + IV bits
    */
-  public static byte[] derivePasswordKey(EncFSConfig config, String password,
-                                         EncFSPBKDF2Provider pbkdf2Provider)
-      throws EncFSInvalidConfigException, EncFSUnsupportedException {
+  public static byte[] derivePasswordKey(EncFSConfig config, String password, EncFSPBKDF2Provider pbkdf2Provider) throws EncFSInvalidConfigException, EncFSUnsupportedException {
     // Decode base 64 salt data
     byte[] cipherSaltData;
     try {
@@ -321,10 +319,7 @@ public class EncFSCrypto {
    * @param volKey         Volume key to encode
    * @param pbkdf2Provider Custom PBKDF2 provider implementation
    */
-  public static void encodeVolumeKey(EncFSConfig config, String password,
-                                     byte[] volKey, EncFSPBKDF2Provider pbkdf2Provider)
-      throws EncFSInvalidConfigException, EncFSUnsupportedException,
-      EncFSCorruptDataException {
+  public static void encodeVolumeKey(EncFSConfig config, String password, byte[] volKey, EncFSPBKDF2Provider pbkdf2Provider) throws EncFSInvalidConfigException, EncFSUnsupportedException, EncFSCorruptDataException {
     SecureRandom random = new SecureRandom();
     config.setSaltLengthBytes(20);
 

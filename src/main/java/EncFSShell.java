@@ -130,7 +130,7 @@ public class EncFSShell {
         EncFSFileProvider fileProvider = new EncFSLocalFileProvider(inputDir);
         EncFSConfig config = EncFSConfigFactory.createDefault();
 //        new EncFSVolumeBuilder().withFileProvider(fileProvider).withConfig(config).withPassword(password).create();
-        EncFSVolume.createVolume(fileProvider, config, password);
+        new EncFSVolumeBuilder().withFileProvider(fileProvider).withConfig(config).withPassword(password).create();
       } catch (Exception e) {
         e.printStackTrace();
         return false;
@@ -533,7 +533,7 @@ public class EncFSShell {
           try {
             srcPathList = getPath(pathArray[0]);
             /*
-						 * If source path is a directory require recursive flag
+             * If source path is a directory require recursive flag
 						 * to proceed
 						 */
             lastPathElement = srcPathList

@@ -300,45 +300,6 @@ public class EncFSVolume {
   }
 
   /**
-   * Creates a new EncFS volume on the supplied file provider using the
-   * requested EncFSConfig parameters and the given password
-   *
-   * @param fileProvider File provider to use for accessing storage
-   * @param config       Volume configuration to use, should have all fields except for
-   *                     salt/VolumeCryptKey fields initialized
-   * @param password     Volume password to use
-   */
-  public static void createVolume(EncFSFileProvider fileProvider, EncFSConfig config, String password) throws EncFSInvalidConfigException, EncFSCorruptDataException, EncFSUnsupportedException, IOException {
-
-    // Create a random volume VolumeCryptKey + IV pair
-    byte[] randVolKey = new byte[config.getVolumeKeySizeInBits() / 8 + EncFSVolume.IV_LENGTH_IN_BYTES];
-    random.nextBytes(randVolKey);
-
-    EncFSCrypto.encodeVolumeKey(config, password, randVolKey, null);
-    EncFSConfigWriter.writeConfig(fileProvider, config, password);
-  }
-
-  /**
-   * Creates a new EncFS volume on the supplied file provider using the
-   * requested EncFSConfig parameters and the given password
-   *
-   * @param fileProvider   File provider to use for accessing storage
-   * @param config         Volume configuration to use, should have all fields except for
-   *                       salt/VolumeCryptKey fields initialized
-   * @param password       Volume password to use
-   * @param pbkdf2Provider Custom PBKDF2 provider implementation
-   */
-  public static void createVolume(EncFSFileProvider fileProvider, EncFSConfig config, String password, EncFSPBKDF2Provider pbkdf2Provider) throws EncFSInvalidConfigException, EncFSCorruptDataException, EncFSUnsupportedException, IOException {
-
-    // Create a random volume VolumeCryptKey + IV pair
-    byte[] randVolKey = new byte[config.getVolumeKeySizeInBits() / 8 + EncFSVolume.IV_LENGTH_IN_BYTES];
-    random.nextBytes(randVolKey);
-
-    EncFSCrypto.encodeVolumeKey(config, password, randVolKey, pbkdf2Provider);
-    EncFSConfigWriter.writeConfig(fileProvider, config, password);
-  }
-
-  /**
    * Creates a new file under the EncFS volume
    *
    * @param parentPath Absolute volume path of the parent directory

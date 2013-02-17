@@ -18,6 +18,7 @@ package org.mrpdaemon.sec.encfs.tests;
 import org.junit.Assert;
 import org.junit.Test;
 import org.mrpdaemon.sec.encfs.*;
+import org.mrpdaemon.sec.encfs.tests.vfs.CommonsVFSRamFileProvider;
 
 import java.io.*;
 
@@ -33,41 +34,32 @@ public class EncFSVolumeIntegrationTest {
     Assert.assertFalse(EncFSVolume.isEncFSVolume("test/encfs_samples"));
   }
 
-  @Test
+  @Test(expected = EncFSInvalidPasswordException.class)
   public void testBoxCryptor_1_badPassword() throws Exception {
-    File encFSDir = assertFileExists("test/encfs_samples/boxcryptor_1");
-
-    try {
-      new EncFSVolumeBuilder().withRootPath(encFSDir.getAbsolutePath()).withPassword("badPassword").access();
-      fail();
-    } catch (EncFSInvalidPasswordException e) {
-    /* this is correct that we should have got this exception */
-      assertNotNull(e);
-    }
+    new EncFSVolumeBuilder().withRootPath("test/encfs_samples/boxcryptor_1").withPassword("badPassword").access();
   }
 
-  private File assertFileExists(String s) {
-    File file = new File(s);
-    assertTrue(file.exists());
-    return file;
+  @Test(expected = EncFSInvalidConfigException.class)
+  public void testBoxCryptor_1_wrongPath() throws Exception {
+    new EncFSVolumeBuilder().withRootPath("test/encfs_samples/boxcryptor_12").withPassword("test").access();
   }
 
   @Test
   public void testDefaultVol() throws Exception {
-    File encFSDir = new File("test/encfs_samples/testvol-default");
-    assertTrue(encFSDir.exists());
-    String password = "test";
-    EncFSVolume volume = new EncFSVolumeBuilder().withRootPath(encFSDir.getAbsolutePath()).withPassword(password).access();
-    EncFSFile rootDir = volume.getRootDir();
+    String pathname = "test/encfs_samples/testvol-default";
+
+    EncFSFile rootDir = getVolumeRootDir(pathname, "test");
+
     EncFSFile[] files = rootDir.listFiles();
     assertEquals(3, files.length);
-    String contents;
+
     int numMatches = 0;
     for (EncFSFile encFSFile : files) {
       if (encFSFile.getName().equals("longfile.txt")) {
         numMatches++;
         Assert.assertFalse(encFSFile.isDirectory());
-        contents = readInputStreamAsString(encFSFile);
+
+        String contents = readInputStreamAsString(encFSFile);
         assertEquals(contents.length(), 6000);
         for (int i = 0; i < contents.length(); i++) {
           assertTrue(contents.charAt(i) == 'a');
@@ -75,40 +67,40 @@ public class EncFSVolumeIntegrationTest {
       } else if (encFSFile.getName().equals("zerofile.bin")) {
         numMatches++;
         Assert.assertFalse(encFSFile.isDirectory());
+
         byte zeroBytes[] = readInputStreamAsByteArray(encFSFile);
         assertEquals(zeroBytes.length, 10000);
-        for (int i = 0; i < zeroBytes.length; i++) {
-          assertTrue(zeroBytes[i] == 0);
+
+        for (byte zeroByte : zeroBytes) {
+          assertTrue(zeroByte == 0);
         }
       } else if (encFSFile.getName().equals("test.txt")) {
         numMatches++;
         Assert.assertFalse(encFSFile.isDirectory());
-        contents = readInputStreamAsString(encFSFile);
+
+        String contents = readInputStreamAsString(encFSFile);
         assertEquals("This is a test file.\n", contents);
       }
     }
     assertEquals(numMatches, 3);
-    assertFileNameEncoding(rootDir);
-    assertEncFSFileRoundTrip(rootDir);
-    assertLengthCalculations(rootDir);
+    assertFinalTests(rootDir);
   }
 
   @Test
   public void testNoUniqueIV() throws Exception {
-    File encFSDir = new File("test/encfs_samples/testvol-nouniqueiv");
-    assertTrue(encFSDir.exists());
-    String password = "test";
-    EncFSVolume volume = new EncFSVolumeBuilder().withRootPath(encFSDir.getAbsolutePath()).withPassword(password).access();
-    EncFSFile rootDir = volume.getRootDir();
+    String pathname = "test/encfs_samples/testvol-nouniqueiv";
+
+    EncFSFile rootDir = getVolumeRootDir(pathname, "test");
+
     EncFSFile[] files = rootDir.listFiles();
     assertEquals(2, files.length);
-    String contents;
+
     int numMatches = 0;
     for (EncFSFile encFSFile : files) {
       if (encFSFile.getName().equals("longfile.txt")) {
         numMatches++;
         Assert.assertFalse(encFSFile.isDirectory());
-        contents = readInputStreamAsString(encFSFile);
+        String contents = readInputStreamAsString(encFSFile);
         assertEquals(contents.length(), 6000);
         for (int i = 0; i < contents.length(); i++) {
           assertTrue(contents.charAt(i) == 'a');
@@ -117,199 +109,208 @@ public class EncFSVolumeIntegrationTest {
         numMatches++;
         Assert.assertFalse(encFSFile.isDirectory());
         assertEquals("testfile.txt", encFSFile.getName());
-        contents = readInputStreamAsString(encFSFile);
+        String contents = readInputStreamAsString(encFSFile);
         assertEquals("Test file for non-unique-IV file.\n", contents);
       }
     }
     assertEquals(numMatches, 2);
-    assertFileNameEncoding(rootDir);
-    assertEncFSFileRoundTrip(rootDir);
-    assertLengthCalculations(rootDir);
+    assertFinalTests(rootDir);
   }
 
   @Test
   public void testStreamName() throws Exception {
-    File encFSDir = new File("test/encfs_samples/testvol-streamname");
-    assertTrue(encFSDir.exists());
+    String pathname = "test/encfs_samples/testvol-streamname";
     String password = "test";
-    EncFSVolume volume = new EncFSVolumeBuilder().withRootPath(encFSDir.getAbsolutePath()).withPassword(password).access();
-    EncFSFile rootDir = volume.getRootDir();
+
+    EncFSFile rootDir = getVolumeRootDir(pathname, password);
+
     EncFSFile[] files = rootDir.listFiles();
     assertEquals(1, files.length);
+
     EncFSFile dir = files[0];
     assertTrue(dir.isDirectory());
     assertEquals("dir", dir.getName());
+
     EncFSFile[] dirFiles = dir.listFiles();
     assertEquals(1, files.length);
+
     EncFSFile encFSFile = dirFiles[0];
     Assert.assertFalse(encFSFile.isDirectory());
     assertEquals("testfile.txt", encFSFile.getName());
+
     String contents = readInputStreamAsString(encFSFile);
     assertEquals("stream name algorithm\n", contents);
-    assertFileNameEncoding(rootDir);
-    assertEncFSFileRoundTrip(rootDir);
-    assertLengthCalculations(rootDir);
+    assertFinalTests(rootDir);
   }
 
   @Test
   public void testBlockMAC() throws Exception {
-    File encFSDir = new File("test/encfs_samples/testvol-blockmac");
-    assertTrue(encFSDir.exists());
+    String pathname = "test/encfs_samples/testvol-blockmac";
     String password = "test";
-    EncFSVolume volume = new EncFSVolumeBuilder().withRootPath(encFSDir.getAbsolutePath()).withPassword(password).access();
-    EncFSFile rootDir = volume.getRootDir();
+
+    EncFSFile rootDir = getVolumeRootDir(pathname, password);
+
     EncFSFile[] files = rootDir.listFiles();
     assertEquals(1, files.length);
+
     EncFSFile encFSFile = files[0];
     Assert.assertFalse(encFSFile.isDirectory());
     assertEquals("longfile.txt", encFSFile.getName());
+
     String contents = readInputStreamAsString(encFSFile);
     assertEquals(contents.length(), 6000);
+
     for (int i = 0; i < contents.length(); i++) {
       assertTrue(contents.charAt(i) == 'a');
     }
-    assertFileNameEncoding(rootDir);
-    assertEncFSFileRoundTrip(rootDir);
-    assertLengthCalculations(rootDir);
+    assertFinalTests(rootDir);
   }
 
   @Test
   public void testExtIvChain() throws Exception {
-    File encFSDir = new File("test/encfs_samples/testvol-extivchn");
-    assertTrue(encFSDir.exists());
+    String pathname = "test/encfs_samples/testvol-extivchn";
     String password = "test";
-    EncFSVolume volume = new EncFSVolumeBuilder().withRootPath(encFSDir.getAbsolutePath()).withPassword(password).access();
-    EncFSFile rootDir = volume.getRootDir();
+
+    EncFSFile rootDir = getVolumeRootDir(pathname, password);
+
     EncFSFile[] files = rootDir.listFiles();
     assertEquals(2, files.length);
-    String contents;
-    int numOuterMatches = 0, numInnerMatches = 0;
+
+    int numOuterMatches = 0;
+    int numInnerMatches = 0;
     for (EncFSFile encFSFile : files) {
       if (encFSFile.getName().equals("test.txt")) {
         numOuterMatches++;
         Assert.assertFalse(encFSFile.isDirectory());
-        contents = readInputStreamAsString(encFSFile);
+
+        String contents = readInputStreamAsString(encFSFile);
         assertEquals("this is a test file with external IV chaining", contents);
       } else if (encFSFile.getName().equals("directory")) {
         numOuterMatches++;
         assertTrue(encFSFile.isDirectory());        /* Traverse down the directory */
+
         for (EncFSFile subFile : encFSFile.listFiles()) {
           numInnerMatches++;
           assertEquals(subFile.getName(), "another-test-file.txt");
-          contents = readInputStreamAsString(subFile);
+
+          String contents = readInputStreamAsString(subFile);
           assertEquals("this is another test file with external IV chaining", contents);
         }
       }
     }
     assertEquals(numOuterMatches, 2);
     assertEquals(numInnerMatches, 1);
-    assertFileNameEncoding(rootDir);
-    assertEncFSFileRoundTrip(rootDir);
-    assertLengthCalculations(rootDir);
+    assertFinalTests(rootDir);
   }
 
   @Test
   public void testBoxCryptor_1() throws Exception {
-    File encFSDir = new File("test/encfs_samples/boxcryptor_1");
-    assertTrue(encFSDir.exists());
+    String pathname = "test/encfs_samples/boxcryptor_1";
     String password = "test";
-    EncFSVolume volume = new EncFSVolumeBuilder().withRootPath(encFSDir.getAbsolutePath()).withPassword(password).access();
-    EncFSFile rootDir = volume.getRootDir();
+
+    EncFSFile rootDir = getVolumeRootDir(pathname, password);
+
     EncFSFile[] files = rootDir.listFiles();
     assertEquals(1, files.length);
+
     EncFSFile encFSFile = files[0];
     Assert.assertFalse(encFSFile.isDirectory());
     assertEquals("testfile.txt", encFSFile.getName());
+
     String contents = readInputStreamAsString(encFSFile);
     assertEquals("test file\r\n", contents);
-    assertFileNameEncoding(rootDir);
-    assertEncFSFileRoundTrip(rootDir);
-    assertLengthCalculations(rootDir);
+
+    assertFinalTests(rootDir);
   }
 
   @Test
   public void testBoxCryptor_2() throws Exception {
-    File encFSDir = new File("test/encfs_samples/boxcryptor_2");
-    assertTrue(encFSDir.exists());
+    String pathname = "test/encfs_samples/boxcryptor_2";
     String password = "test2";
-    EncFSVolume volume = new EncFSVolumeBuilder().withRootPath(encFSDir.getAbsolutePath()).withPassword(password).access();
-    EncFSFile rootDir = volume.getRootDir();
+
+    EncFSFile rootDir = getVolumeRootDir(pathname, password);
+
     EncFSFile[] files = rootDir.listFiles();
     assertEquals(2, files.length);
-    String contents;
+
     int numMatches = 0;
     for (EncFSFile encFSFile : files) {
       if (encFSFile.getName().equals("file1.txt")) {
         numMatches++;
         Assert.assertFalse(encFSFile.isDirectory());
-        contents = readInputStreamAsString(encFSFile);
+
+        String contents = readInputStreamAsString(encFSFile);
         assertEquals("Some contents for file1", contents);
       } else if (encFSFile.getName().equals("Dir1")) {
         numMatches++;
         assertTrue(encFSFile.isDirectory());
+
         EncFSFile[] subFiles = encFSFile.listFiles();
         assertEquals(subFiles.length, 1);
         assertEquals(subFiles[0].getName(), "file2.txt");
       }
     }
     assertEquals(numMatches, 2);
-    assertFileNameEncoding(rootDir);
-    assertEncFSFileRoundTrip(rootDir);
-    assertLengthCalculations(rootDir);
+    assertFinalTests(rootDir);
   }
 
   @Test
   public void testBoxCryptor_3() throws Exception {
-    File encFSDir = new File("test/encfs_samples/boxcryptor_3");
-    assertTrue(encFSDir.exists());
+    String pathname = "test/encfs_samples/boxcryptor_3";
     String password = "test";
-    EncFSVolume volume = new EncFSVolumeBuilder().withRootPath(encFSDir.getAbsolutePath()).withPassword(password).access();
-    EncFSFile rootDir = volume.getRootDir();
+    EncFSFile rootDir = getVolumeRootDir(pathname, password);
+
     EncFSFile[] files = rootDir.listFiles();
     assertEquals(1, files.length);
-    String dirListing = getDirListing(rootDir, true);
+
+    String dirListing = getDirListing(rootDir);
     assertNotNull(dirListing);
-    assertFileNameEncoding(rootDir);
-    assertEncFSFileRoundTrip(rootDir);
-    assertLengthCalculations(rootDir);
+
+    assertFinalTests(rootDir);
   }
 
   @Test
   public void testBoxCryptor_null() throws Exception {
-    File encFSDir = new File("test/encfs_samples/boxcryptor_null");
-    assertTrue(encFSDir.exists());
-    EncFSVolume volume = new EncFSVolumeBuilder().withRootPath(encFSDir.getAbsolutePath()).withPassword("test").access();
-    EncFSFile rootDir = volume.getRootDir();
+    String pathname = "test/encfs_samples/boxcryptor_null";
+    String password = "test";
+    EncFSFile rootDir = getVolumeRootDir(pathname, password);
+
     EncFSFile[] files = rootDir.listFiles();
     assertEquals(1, files.length);
+
     EncFSFile encFSFile = files[0];
     Assert.assertFalse(encFSFile.isDirectory());
+
     assertEquals("testfile.txt", encFSFile.getName());
+
     String contents = readInputStreamAsString(encFSFile);
     assertEquals("Contents for test fileAlpha.txt", contents);
+
+    assertFinalTests(rootDir);
+  }
+
+  private void assertFinalTests(EncFSFile rootDir) throws Exception {
     assertFileNameEncoding(rootDir);
     assertEncFSFileRoundTrip(rootDir);
     assertLengthCalculations(rootDir);
   }
 
+  private EncFSFile getVolumeRootDir(String pathname, String password) throws EncFSUnsupportedException, IOException, EncFSInvalidConfigException, EncFSInvalidPasswordException, EncFSCorruptDataException {
+    assertTrue(new File(pathname).exists());
+    EncFSVolume volume = new EncFSVolumeBuilder().withRootPath(pathname).withPassword(password).access();
+    return volume.getRootDir();
+  }
+
   @Test
   public void createVolume_1() throws Exception {
-    File rootDir = EncFSVolumeTestCommon.createTempDir();
+    CommonsVFSRamFileProvider fileProvider = new CommonsVFSRamFileProvider();
+    fileProvider.init();
 
     EncFSConfig config = EncFSConfigFactory.createDefault();
     String password = "test";
-    EncFSLocalFileProvider fileProvider = new EncFSLocalFileProvider(rootDir);
-    try {
-      EncFSVolume.createVolume(fileProvider, config, password);
-      new EncFSVolumeBuilder().withFileProvider(fileProvider).withConfig(config).withPassword(password).access();
-    } catch (Exception e) {
-      fail(e.getMessage());
-    }
-    /* Clean up after ourselves */
-    File configFile = new File(rootDir.getAbsolutePath(), EncFSVolume.CONFIG_FILE_NAME);
 
-    assertTrue(configFile.delete());
-    assertTrue(rootDir.delete());
+    new EncFSVolumeBuilder().withFileProvider(fileProvider).withConfig(config).withPassword(password).create();
+    new EncFSVolumeBuilder().withFileProvider(fileProvider).withConfig(config).withPassword(password).access();
   }
 
   private void assertFileNameEncoding(EncFSFile encfsFileDir) throws Exception {
@@ -326,11 +327,11 @@ public class EncFSVolumeIntegrationTest {
   }
 
   private void assertEncFSFileRoundTrip(EncFSFile encFsFile) throws Exception {
-    if (encFsFile.isDirectory() == false) {      /* Copy the file via input/output streams & then check that       the file is the same */
+    if (!encFsFile.isDirectory()) {      /* Copy the file via input/output streams & then check that       the file is the same */
       File t = File.createTempFile(this.getClass().getName(), ".tmp");
       try {
         EncFSUtil.copyWholeStream(new EncFSFileInputStream(encFsFile), new EncFSOutputStream(encFsFile.getVolume(), new BufferedOutputStream(new FileOutputStream(t)), encFsFile.getPath()), true, true);
-        if (encFsFile.getVolume().getVolumeConfiguration().isUseUniqueIV() == false) {
+        if (!encFsFile.getVolume().getVolumeConfiguration().isUseUniqueIV()) {
           FileInputStream reEncFSIs = new FileInputStream(t);
           try {
             InputStream origEncFSIs = encFsFile.getVolume().getFileProvider().openInputStream(encFsFile.getEncryptedPath());
@@ -368,9 +369,9 @@ public class EncFSVolumeIntegrationTest {
   }
 
   private void assertLengthCalculations(EncFSFile encFsFile) throws Exception {
-    if (encFsFile.isDirectory() == false) {
+    if (!encFsFile.isDirectory()) {
       long encryptedSize = encFsFile.getVolume().getFileProvider().getFileInfo(encFsFile.getEncryptedPath()).getSize();
-      assertInputStreamLength((InputStream) encFsFile.openInputStream(), encFsFile.getVolume().getDecryptedFileLength(encryptedSize));
+      assertInputStreamLength(encFsFile.openInputStream(), encFsFile.getVolume().getDecryptedFileLength(encryptedSize));
       assertEquals(encryptedSize, encFsFile.getVolume().getEncryptedFileLength(encFsFile.getLength()));
     } else {
       for (EncFSFile subEncfFile : encFsFile.listFiles()) {
@@ -380,7 +381,9 @@ public class EncFSVolumeIntegrationTest {
   }
 
   private void assertInputStreamsAreEqual(String msg, InputStream encfsIs, InputStream decFsIs) throws Exception {
-    int bytesRead = 0, bytesRead2 = 0;
+    int bytesRead = 0;
+    int bytesRead2;
+
     while (bytesRead >= 0) {
       byte[] readBuf = new byte[128];
       byte[] readBuf2 = new byte[128];
@@ -402,9 +405,9 @@ public class EncFSVolumeIntegrationTest {
     assertEquals(totalSize, length);
   }
 
-  private static String getDirListing(EncFSFile rootDir, boolean recursive) throws Exception {
+  private static String getDirListing(EncFSFile rootDir) throws Exception {
     StringBuilder sb = new StringBuilder();
-    getDirListing(rootDir, recursive, sb);
+    getDirListing(rootDir, true, sb);
     return sb.toString();
   }
 
@@ -414,7 +417,7 @@ public class EncFSVolumeIntegrationTest {
         sb.append("\n");
       }
       sb.append(encFile.getParentPath());
-      if (encFile.getParentPath().equals(EncFSVolume.ROOT_PATH) == false) {
+      if (!encFile.getParentPath().equals(EncFSVolume.ROOT_PATH)) {
         sb.append(EncFSVolume.PATH_SEPARATOR);
       }
       sb.append(encFile.getName());
@@ -424,13 +427,13 @@ public class EncFSVolumeIntegrationTest {
     }
   }
 
-  public static byte[] readInputStreamAsByteArray(EncFSFile encFSFile) throws Exception {
+  private static byte[] readInputStreamAsByteArray(EncFSFile encFSFile) throws Exception {
     ByteArrayOutputStream buf = new ByteArrayOutputStream();
     EncFSUtil.copyWholeStream(new EncFSFileInputStream(encFSFile), buf, true, false);
     return buf.toByteArray();
   }
 
-  public static String readInputStreamAsString(EncFSFile encFSFile) throws Exception {
+  private static String readInputStreamAsString(EncFSFile encFSFile) throws Exception {
     return new String(readInputStreamAsByteArray(encFSFile));
   }
 }

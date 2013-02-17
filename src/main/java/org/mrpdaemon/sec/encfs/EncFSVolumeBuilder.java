@@ -2,6 +2,7 @@ package org.mrpdaemon.sec.encfs;
 
 import java.io.File;
 import java.io.IOException;
+import java.security.SecureRandom;
 
 /**
  * User: lars
@@ -74,9 +75,7 @@ public final class EncFSVolumeBuilder {
     }
 
     public PasswordBuilder withPassword(String password) throws EncFSInvalidConfigException, EncFSUnsupportedException, EncFSCorruptDataException, IOException, EncFSInvalidPasswordException {
-      EncFSConfig config = volume.getVolumeConfiguration();
-      byte[] derivedPassword = EncFSCrypto.derivePasswordKey(config, password, provider);
-      return withDerivedPassword(derivedPassword);
+      return new PasswordBuilder(volume, password, provider);
     }
 
     public PasswordBuilder withDerivedPassword(byte[] derivedPassword) throws EncFSCorruptDataException, EncFSInvalidPasswordException, EncFSInvalidConfigException, EncFSUnsupportedException, IOException {
@@ -87,28 +86,44 @@ public final class EncFSVolumeBuilder {
   public static class PasswordBuilder {
 
     private final EncFSVolume volume;
+    private final EncFSPBKDF2Provider provider;
+    private final String password;
 
     public PasswordBuilder(EncFSVolume volume, byte[] derivedPassword) {
       this.volume = volume;
+      this.provider = null;
+      this.password = null;
       volume.setPasswordBasedVolumeKey(derivedPassword);
+
+    }
+
+    public PasswordBuilder(EncFSVolume volume, String password, EncFSPBKDF2Provider provider) {
+      this.volume = volume;
+      this.password = password;
+      this.provider = provider;
     }
 
     public EncFSVolume access() throws EncFSUnsupportedException, IOException, EncFSInvalidConfigException, EncFSInvalidPasswordException, EncFSCorruptDataException {
+      EncFSConfig config = volume.getVolumeConfiguration();
+      if (password != null) {
+        byte[] derivedPassword = EncFSCrypto.derivePasswordKey(config, password, provider);
+        volume.setPasswordBasedVolumeKey(derivedPassword);
+      }
       volume.readConfigAndInitializeVolume();
       return volume;
     }
 
-//    public EncFSVolume create() throws EncFSUnsupportedException, IOException, EncFSInvalidConfigException, EncFSInvalidPasswordException, EncFSCorruptDataException {
-//      SecureRandom random = new SecureRandom();
-//      EncFSConfig config = volume.getVolumeConfiguration();
-//
-//      byte[] randVolKey = new byte[config.getVolumeKeySizeInBits() / 8 + EncFSVolume.IV_LENGTH_IN_BYTES];
-//      random.nextBytes(randVolKey);
-//
-//      EncFSCrypto.encodeVolumeKey(config, password, randVolKey, volume.g);
-//      EncFSConfigWriter.writeConfig(fileProvider, config, password);
-//      return volume;
-//    }
+    public void create() throws EncFSUnsupportedException, IOException, EncFSInvalidConfigException, EncFSInvalidPasswordException, EncFSCorruptDataException {
+      EncFSConfig config = volume.getVolumeConfiguration();
+      EncFSFileProvider fileProvider = volume.getFileProvider();
+
+      // Create a random volume VolumeCryptKey + IV pair
+      byte[] randVolKey = new byte[config.getVolumeKeySizeInBits() / 8 + EncFSVolume.IV_LENGTH_IN_BYTES];
+      new SecureRandom().nextBytes(randVolKey);
+
+      EncFSCrypto.encodeVolumeKey(config, password, randVolKey, provider);
+      EncFSConfigWriter.writeConfig(fileProvider, config, password);
+    }
   }
 
   public FileProviderBuilder withRootPath(String rootPath) {
