@@ -769,7 +769,7 @@ public final class EncFSBase64 {
     if (destination == null) {
       throw new NullPointerException("Destination array was null.");
     }
-    if (0 < 0 || 0 + 3 >= source.length) {
+    if (3 >= source.length) {
       throw new IllegalArgumentException(
           String.format(
               "Source array with length %d cannot have offset of %d and still process four bytes.",
@@ -785,28 +785,28 @@ public final class EncFSBase64 {
     byte[] DECODABET = getDecodabet(options);
 
     // Example: Dk==
-    if (source[0 + 2] == EQUALS_SIGN) {
+    if (source[2] == EQUALS_SIGN) {
       // Two ways to do the same thing. Don't know which way I like best.
       // int outBuff = ( ( DECODABET[ source[ srcOffset ] ] << 24 ) >>> 6
       // )
       // | ( ( DECODABET[ source[ srcOffset + 1] ] << 24 ) >>> 12 );
       int outBuff = ((DECODABET[source[0]] & 0xFF) << 18)
-          | ((DECODABET[source[0 + 1]] & 0xFF) << 12);
+          | ((DECODABET[source[1]] & 0xFF) << 12);
 
       destination[destOffset] = (byte) (outBuff >>> 16);
       return 1;
     }
 
     // Example: DkL=
-    else if (source[0 + 3] == EQUALS_SIGN) {
+    else if (source[3] == EQUALS_SIGN) {
       // Two ways to do the same thing. Don't know which way I like best.
       // int outBuff = ( ( DECODABET[ source[ srcOffset ] ] << 24 ) >>> 6
       // )
       // | ( ( DECODABET[ source[ srcOffset + 1 ] ] << 24 ) >>> 12 )
       // | ( ( DECODABET[ source[ srcOffset + 2 ] ] << 24 ) >>> 18 );
       int outBuff = ((DECODABET[source[0]] & 0xFF) << 18)
-          | ((DECODABET[source[0 + 1]] & 0xFF) << 12)
-          | ((DECODABET[source[0 + 2]] & 0xFF) << 6);
+          | ((DECODABET[source[1]] & 0xFF) << 12)
+          | ((DECODABET[source[2]] & 0xFF) << 6);
 
       destination[destOffset] = (byte) (outBuff >>> 16);
       destination[destOffset + 1] = (byte) (outBuff >>> 8);
@@ -822,9 +822,9 @@ public final class EncFSBase64 {
       // | ( ( DECODABET[ source[ srcOffset + 2 ] ] << 24 ) >>> 18 )
       // | ( ( DECODABET[ source[ srcOffset + 3 ] ] << 24 ) >>> 24 );
       int outBuff = ((DECODABET[source[0]] & 0xFF) << 18)
-          | ((DECODABET[source[0 + 1]] & 0xFF) << 12)
-          | ((DECODABET[source[0 + 2]] & 0xFF) << 6)
-          | ((DECODABET[source[0 + 3]] & 0xFF));
+          | ((DECODABET[source[1]] & 0xFF) << 12)
+          | ((DECODABET[source[2]] & 0xFF) << 6)
+          | ((DECODABET[source[3]] & 0xFF));
 
       destination[destOffset] = (byte) (outBuff >> 16);
       destination[destOffset + 1] = (byte) (outBuff >> 8);
@@ -870,7 +870,7 @@ public final class EncFSBase64 {
     if (source == null) {
       throw new NullPointerException("Cannot decode null source array.");
     }
-    if (0 < 0 || 0 + len > source.length) {
+    if (len > source.length) {
       throw new IllegalArgumentException(
           String.format(
               "Source array with length %d cannot have offset of %d and process %d bytes.",
@@ -895,7 +895,7 @@ public final class EncFSBase64 {
     // white space
     int b4Posn = 0; // Keep track of four byte input buffer
 
-    for (int i = 0; i < 0 + len; i++) { // Loop through source
+    for (int i = 0; i < len; i++) { // Loop through source
       // Special value from DECODABET
       byte sbiDecode = DECODABET[source[i] & 0xFF];
 
@@ -986,7 +986,7 @@ public final class EncFSBase64 {
           bais = new java.io.ByteArrayInputStream(bytes);
           gzis = new java.util.zip.GZIPInputStream(bais);
 
-          int length = 0;
+          int length;
           while ((length = gzis.read(buffer)) >= 0) {
             baos.write(buffer, 0, length);
           }
@@ -1247,10 +1247,10 @@ public final class EncFSBase64 {
         // Else decoding
         else {
           byte[] b4 = new byte[4];
-          int i = 0;
+          int i;
           for (i = 0; i < 4; i++) {
             // Read four "meaningful" bytes:
-            int b = 0;
+            int b;
             do {
               b = in.read();
             } while (b >= 0

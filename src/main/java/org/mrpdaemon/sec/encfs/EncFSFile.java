@@ -179,10 +179,8 @@ public class EncFSFile {
   /**
    * List files/directory names contained by the directory represented by this
    * EncFSFile object.
-   *
-   * @return null if not a directory, array of String names otherwise
    */
-  public String[] list() throws EncFSCorruptDataException, EncFSChecksumException, IOException, IllegalAccessException {
+  public String[] list() throws IOException {
     EncFSFile[] files = listFiles();
 
     String[] fileNames = null;

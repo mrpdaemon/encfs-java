@@ -29,20 +29,10 @@ import java.util.List;
  */
 public class EncFSLocalFileProvider implements EncFSFileProvider {
 
-  /**
-   * Path separator for the local filesystem
-   */
   public final String separator;
 
-  // Root path of this file provider
   private final File rootPath;
 
-  /**
-   * Creates a new EncFSLocalFileProvider
-   *
-   * @param rootPath Root path of the file provider (all other paths will be
-   *                 relative to this)
-   */
   public EncFSLocalFileProvider(File rootPath) {
     this.rootPath = rootPath;
     this.separator = File.separator;
@@ -53,10 +43,6 @@ public class EncFSLocalFileProvider implements EncFSFileProvider {
    * underlying filesystem
    *
    * @param srcPath Path of the source file or directory
-   * @return true if path represents a directory, false otherwise
-   *         <p/>
-   *         <p/>
-   *         Source file/dir doesn't exist or misc. I/O error
    */
   public boolean isDirectory(String srcPath) {
     File file = new File(rootPath.getAbsoluteFile(), srcPath);
@@ -67,11 +53,9 @@ public class EncFSLocalFileProvider implements EncFSFileProvider {
    * Get a File object representing the given path
    *
    * @param path Path of the file or directory
-   * @return File object representing the given path
    */
   public File getFile(String path) {
-    File file = new File(rootPath.getAbsoluteFile(), path);
-    return file;
+    return new File(rootPath.getAbsoluteFile(), path);
   }
 
   /**
@@ -96,24 +80,15 @@ public class EncFSLocalFileProvider implements EncFSFileProvider {
    * Returns whether the file or directory exists
    *
    * @param srcPath Path of the file or directory
-   * @return true if file or directory exists, false otherwise
-   *         <p/>
-   *         <p/>
-   *         Misc. I/O error
    */
   public boolean exists(String srcPath) {
-    File file = new File(rootPath.getAbsoluteFile(), srcPath);
-    return file.exists();
+    return new File(rootPath.getAbsoluteFile(), srcPath).exists();
   }
 
   /**
    * Return EncFSFileInfo for the given file or directory
    *
    * @param srcPath Path of the file or directory
-   * @return EncFSFileInfo for the given file or directory
-   *         <p/>
-   *         <p/>
-   *         Path doesn't exist or misc. I/O error
    */
   public EncFSFileInfo getFileInfo(String srcPath) {
     File sourceFile = new File(rootPath.getAbsoluteFile(), srcPath);
@@ -124,10 +99,6 @@ public class EncFSLocalFileProvider implements EncFSFileProvider {
    * Returns the list of files under the given directory path
    *
    * @param dirPath Path of the directory to list files from
-   * @return a List of EncFSFileInfo representing files under the dir
-   *         <p/>
-   *         <p/>
-   *         Path not a directory or misc. I/O error
    */
   public List<EncFSFileInfo> listFiles(String dirPath) throws IOException {
     File srcDir = new File(rootPath.getAbsoluteFile(), dirPath);
@@ -148,18 +119,13 @@ public class EncFSLocalFileProvider implements EncFSFileProvider {
    *
    * @param srcPath Path to the source file or directory
    * @param dstPath Path for the destination file or directory
-   * @return true if the move is successful, false otherwise
-   *         <p/>
-   *         <p/>
-   *         Source file/dir doesn't exist or misc. I/O error
    */
   public boolean move(String srcPath, String dstPath) throws IOException {
     File sourceFile = new File(rootPath.getAbsoluteFile(), srcPath);
     File destFile = new File(rootPath.getAbsoluteFile(), dstPath);
 
     if (!sourceFile.exists()) {
-      throw new FileNotFoundException("Path '" + srcPath
-          + "' doesn't exist!");
+      throw new FileNotFoundException("Path '" + srcPath + "' doesn't exist!");
     }
 
     return sourceFile.renameTo(destFile);
@@ -184,9 +150,6 @@ public class EncFSLocalFileProvider implements EncFSFileProvider {
    *
    * @param srcPath Path of the source file or directory
    * @return true if deletion is successful, false otherwise
-   *         <p/>
-   *         <p/>
-   *         Source file/dir doesn't exist or misc. I/O error
    */
   public boolean delete(String srcPath) {
     File toEncFile = new File(rootPath.getAbsoluteFile(), srcPath);
@@ -207,20 +170,14 @@ public class EncFSLocalFileProvider implements EncFSFileProvider {
    * method. If that is not true mkdirs should be used instead
    *
    * @param dirPath Path to create a directory under
-   * @return true if creation succeeds, false otherwise
-   *         <p/>
-   *         <p/>
-   *         Path doesn't exist or misc. I/O error
    */
   public boolean mkdir(String dirPath) throws IOException {
     File file = new File(rootPath.getAbsoluteFile(), dirPath);
     File parentFile = file.getParentFile();
     if (!parentFile.exists()) {
-      throw new FileNotFoundException("Path '"
-          + parentFile.getAbsolutePath() + "' doesn't exist!");
+      throw new FileNotFoundException("Path '" + parentFile.getAbsolutePath() + "' doesn't exist!");
     }
-    boolean result = file.mkdir();
-    return result;
+    return file.mkdir();
   }
 
   /**
@@ -229,15 +186,10 @@ public class EncFSLocalFileProvider implements EncFSFileProvider {
    * Intermediate directories are also created by this method
    *
    * @param dirPath Path to create a directory under
-   * @return true if creation succeeds, false otherwise
-   *         <p/>
-   *         <p/>
-   *         Path doesn't exist or misc. I/O error
    */
   public boolean mkdirs(String dirPath) {
     File toEncFile = new File(rootPath.getAbsoluteFile(), dirPath);
-    boolean result = toEncFile.mkdirs();
-    return result;
+    return toEncFile.mkdirs();
   }
 
   /**
@@ -245,9 +197,6 @@ public class EncFSLocalFileProvider implements EncFSFileProvider {
    *
    * @param dstFilePath Path for the file to create
    * @return EncFSFileInfo for the created file
-   *         <p/>
-   *         <p/>
-   *         File already exists or misc. I/O error
    */
   public EncFSFileInfo createFile(String dstFilePath) throws IOException {
     if (exists(dstFilePath)) {
@@ -255,7 +204,7 @@ public class EncFSLocalFileProvider implements EncFSFileProvider {
     }
 
     File targetFile = getFile(dstFilePath);
-    if (targetFile.createNewFile() == false) {
+    if (!targetFile.createNewFile()) {
       throw new IOException("failed to create new file");
     }
 
@@ -267,11 +216,6 @@ public class EncFSLocalFileProvider implements EncFSFileProvider {
    *
    * @param srcFilePath Path to the file to copy
    * @param dstFilePath Path to the destination file
-   * @return true if copy was successful, false otherwise
-   *         <p/>
-   *         <p/>
-   *         Destination file already exists, source file doesn't exist or
-   *         misc. I/O error
    */
   public boolean copy(String srcFilePath, String dstFilePath)
       throws IOException {
@@ -312,9 +256,6 @@ public class EncFSLocalFileProvider implements EncFSFileProvider {
    *
    * @param srcFilePath Path to the source file
    * @return InputStream to read from the file
-   *         <p/>
-   *         <p/>
-   *         Source file doesn't exist or misc. I/O error
    */
   public InputStream openInputStream(String srcFilePath)
       throws FileNotFoundException {
@@ -326,10 +267,6 @@ public class EncFSLocalFileProvider implements EncFSFileProvider {
    * Open an OutputStream to the given file
    *
    * @param dstFilePath Path to the destination file
-   * @return OutputStream to write to the file
-   *         <p/>
-   *         <p/>
-   *         Misc. I/O error
    */
   public OutputStream openOutputStream(String dstFilePath) throws IOException {
     return openOutputStream(dstFilePath, 0);
@@ -341,15 +278,10 @@ public class EncFSLocalFileProvider implements EncFSFileProvider {
    * @param dstFilePath  Path to the destination file
    * @param outputLength Length in bytes of the stream that will be written to this
    *                     stream. It is ignored by this class.
-   * @return OutputStream to write to the file
-   *         <p/>
-   *         <p/>
-   *         Misc. I/O error
    */
-  public OutputStream openOutputStream(String dstFilePath, long outputLength)
-      throws IOException {
+  public OutputStream openOutputStream(String dstFilePath, long outputLength) throws IOException {
     File srcF = new File(rootPath.getAbsoluteFile(), dstFilePath);
-    if (srcF.exists() == false) {
+    if (!srcF.exists()) {
       try {
         srcF.createNewFile();
       } catch (Exception e) {
@@ -369,15 +301,11 @@ public class EncFSLocalFileProvider implements EncFSFileProvider {
       // File is child of the root path
       relativePath = separator;
     } else {
-      relativePath = file.getParentFile().getAbsolutePath()
-          .substring(rootPath.getAbsoluteFile().toString().length());
+      relativePath = file.getParentFile().getAbsolutePath().substring(rootPath.getAbsoluteFile().toString().length());
     }
 
     String name = file.getName();
-    EncFSFileInfo result = new EncFSFileInfo(name, relativePath,
-        file.isDirectory(), file.lastModified(), file.length(),
-        file.canRead(), file.canWrite(), file.canExecute());
-    return result;
+    return new EncFSFileInfo(name, relativePath, file.isDirectory(), file.lastModified(), file.length(), file.canRead(), file.canWrite(), file.canExecute());
   }
 
 }

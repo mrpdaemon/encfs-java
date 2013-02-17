@@ -74,11 +74,11 @@ public final class EncFSVolumeBuilder {
       this.provider = provider;
     }
 
-    public PasswordBuilder withPassword(String password) throws EncFSInvalidConfigException, EncFSUnsupportedException, EncFSCorruptDataException, IOException, EncFSInvalidPasswordException {
+    public PasswordBuilder withPassword(String password) {
       return new PasswordBuilder(volume, password, provider);
     }
 
-    public PasswordBuilder withDerivedPassword(byte[] derivedPassword) throws EncFSCorruptDataException, EncFSInvalidPasswordException, EncFSInvalidConfigException, EncFSUnsupportedException, IOException {
+    public PasswordBuilder withDerivedPassword(byte[] derivedPassword) {
       return new PasswordBuilder(volume, derivedPassword);
     }
   }
@@ -113,7 +113,7 @@ public final class EncFSVolumeBuilder {
       return volume;
     }
 
-    public void create() throws EncFSUnsupportedException, IOException, EncFSInvalidConfigException, EncFSInvalidPasswordException, EncFSCorruptDataException {
+    public void create() throws EncFSUnsupportedException, IOException, EncFSInvalidConfigException, EncFSCorruptDataException {
       EncFSConfig config = volume.getVolumeConfiguration();
       EncFSFileProvider fileProvider = volume.getFileProvider();
 

@@ -58,8 +58,7 @@ public class EncFSConfigWriter {
   }
 
   // Create config file contents from a given EncFSConfig / password
-  private static String createConfigFileContents(EncFSConfig config,
-                                                 String password) {
+  private static String createConfigFileContents(EncFSConfig config) {
     // XXX: This implementation is pretty horrible, but it works :)
     String result = "";
 
@@ -140,9 +139,7 @@ public class EncFSConfigWriter {
    * @param config       Object encapsulating configuration to write
    * @param password     Volume password to encode into the config file
    */
-  public static void writeConfig(EncFSFileProvider fileProvider,
-                                 EncFSConfig config, String password)
-      throws EncFSUnsupportedException, IOException {
+  public static void writeConfig(EncFSFileProvider fileProvider, EncFSConfig config, String password) throws EncFSUnsupportedException, IOException {
     String configFileName = fileProvider.getFilesystemRootPath()
         + EncFSVolume.CONFIG_FILE_NAME;
 
@@ -150,10 +147,9 @@ public class EncFSConfigWriter {
       throw new EncFSUnsupportedException("Config file already exists");
     }
 
-    String configFileContents = createConfigFileContents(config, password);
+    String configFileContents = createConfigFileContents(config);
 
-    OutputStream os = fileProvider.openOutputStream(configFileName,
-        configFileContents.length());
+    OutputStream os = fileProvider.openOutputStream(configFileName, configFileContents.length());
 
     os.write(configFileContents.getBytes());
     os.close();

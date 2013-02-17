@@ -11,7 +11,7 @@ public class BlockFilenameDecryptionStrategy extends NotNullFilenameDecryptionSt
     super(volume, volumePath, EncFSAlgorithm.BLOCK);
   }
 
-  protected byte[] decryptConcrete(EncFSVolume volume, byte[] chainIv, byte[] macBytes, byte[] encFileName, byte[] fileIv) throws EncFSCorruptDataException {
+  protected byte[] decryptConcrete(EncFSVolume volume, byte[] encFileName, byte[] fileIv) throws EncFSCorruptDataException {
     try {
       return BlockCryptography.blockDecode(volume, fileIv, encFileName);
     } catch (InvalidAlgorithmParameterException e) {

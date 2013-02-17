@@ -104,7 +104,7 @@ public class EncFSShell {
     System.out.print("No EncFS volume found at '" + path
         + "' would you like to create it? [Yes/No]: ");
 
-    String response = null;
+    String response;
     try {
       response = br.readLine();
     } catch (IOException e) {
@@ -494,7 +494,7 @@ public class EncFSShell {
             dstPath = EncFSVolume.combinePath(curDir, pathArray[1]);
           }
 
-          boolean result = false;
+          boolean result;
           try {
             result = volume.movePath(srcPath, dstPath,
                 new EncFSShellProgressListener());
@@ -555,7 +555,7 @@ public class EncFSShell {
               .getPath();
 
           // Need to convert destination path to an absolute path
-          String dstPath = null;
+          String dstPath;
           if (pathArray[1].startsWith(EncFSVolume.PATH_SEPARATOR)) {
             // Already an absolute path
             dstPath = pathArray[1];
@@ -564,7 +564,7 @@ public class EncFSShell {
             dstPath = EncFSVolume.combinePath(curDir, pathArray[1]);
           }
 
-          boolean result = false;
+          boolean result;
           try {
             result = volume.copyPath(srcPath, dstPath,
                 new EncFSShellProgressListener());
@@ -604,7 +604,7 @@ public class EncFSShell {
           }
 
           // regular directory path, find and cd into it
-          ArrayList<EncFSFile> pathList = null;
+          ArrayList<EncFSFile> pathList;
           try {
             pathList = getPath(dirPath);
           } catch (FileNotFoundException e) {
@@ -623,7 +623,7 @@ public class EncFSShell {
           }
 
 					/*
-					 * Current directory goes into the stack also Special
+           * Current directory goes into the stack also Special
 					 * handling for absolute paths
 					 */
           if (dirPath.startsWith(EncFSVolume.PATH_SEPARATOR)) {
@@ -651,7 +651,7 @@ public class EncFSShell {
           }
           String filePath = readFileName(st);
           // Find and print file
-          ArrayList<EncFSFile> pathList = null;
+          ArrayList<EncFSFile> pathList;
           try {
             pathList = getPath(filePath);
           } catch (FileNotFoundException e) {

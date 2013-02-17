@@ -76,9 +76,7 @@ public class EncFSComparer {
     return result;
   }
 
-  private int compare(EncFSFile encFsDir, File decodedFsDir)
-      throws EncFSCorruptDataException, EncFSChecksumException,
-      EncFSUnsupportedException, IOException {
+  private int compare(EncFSFile encFsDir, File decodedFsDir) throws EncFSUnsupportedException, IOException, EncFSCorruptDataException {
     logger.info("Comparing directory {}", decodedFsDir.getAbsoluteFile());
 
     EncFSFile[] encFsFiles = encFsDir.listFiles();
@@ -103,9 +101,7 @@ public class EncFSComparer {
           return -1;
         }
 
-        String reEncEncfsName = EncFSCrypto.encodeName(
-            encFsFile.getVolume(), encFsFile.getName(),
-            encFsFile.getParentPath());
+        String reEncEncfsName = EncFSCrypto.encodeName(encFsFile.getVolume(), encFsFile.getName(), encFsFile.getParentPath());
         String rawFileName = encFsFile.getEncrytedName();
         if (rawFileName.equals(reEncEncfsName) == false) {
           logger.error("Re-encoded name miss match ({}, {}, {}, {})",
@@ -139,8 +135,7 @@ public class EncFSComparer {
           // same as
           // reading the file directly from the mounted encfs volume
 
-          EncFSFileInputStream encfsIs = new EncFSFileInputStream(
-              encFsFile);
+          EncFSFileInputStream encfsIs = new EncFSFileInputStream(encFsFile);
           try {
             BufferedInputStream decFsIs = new BufferedInputStream(
                 new FileInputStream(decodedFsFile));
@@ -161,8 +156,7 @@ public class EncFSComparer {
 
           // Copy the file via input/output streams & then check that
           // the file is the same
-          File t = File.createTempFile(this.getClass().getName(),
-              ".tmp");
+          File t = File.createTempFile(this.getClass().getName(), ".tmp");
           try {
             EncFSUtil.copyWholeStream(new EncFSFileInputStream(encFsFile), new EncFSOutputStream(encFsDir.getVolume(), new BufferedOutputStream(new FileOutputStream(t)), encFsFile.getPath()), true, true);
 
@@ -171,8 +165,7 @@ public class EncFSComparer {
               InputStream origEncFSIs = encFsFile
                   .getVolume()
                   .getFileProvider()
-                  .openInputStream(
-                      encFsFile.getEncryptedPath());
+                  .openInputStream(encFsFile.getEncryptedPath());
               try {
                 int streamresult = compareInputStreams(
                     origEncFSIs, reEncFSIs,
@@ -201,7 +194,8 @@ public class EncFSComparer {
 
   private int compareInputStreams(InputStream encfsIs, InputStream decFsIs,
                                   String decodedFsFileName) throws IOException {
-    int bytesRead = 0, bytesRead2 = 0;
+    int bytesRead = 0;
+    int bytesRead2;
     while (bytesRead >= 0) {
       byte[] readBuf = new byte[128];
       byte[] readBuf2 = new byte[128];

@@ -110,9 +110,7 @@ public class EncFSConfigParser {
    * @return An EncFSConfig object containing the configuration data
    *         interpreted from the given file.
    */
-  public static EncFSConfig parseFile(InputStream inputStream)
-      throws ParserConfigurationException, SAXException, IOException,
-      EncFSInvalidConfigException, EncFSUnsupportedException {
+  public static EncFSConfig parseFile(InputStream inputStream) throws ParserConfigurationException, SAXException, IOException, EncFSInvalidConfigException {
     EncFSConfig config = EncFSConfigFactory.createDefault();
 
     DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();

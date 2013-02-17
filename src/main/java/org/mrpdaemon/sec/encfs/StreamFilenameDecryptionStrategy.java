@@ -10,7 +10,7 @@ public class StreamFilenameDecryptionStrategy extends NotNullFilenameDecryptionS
     super(volume, volumePath, EncFSAlgorithm.STREAM);
   }
 
-  protected byte[] decryptConcrete(EncFSVolume volume, byte[] chainIv, byte[] macBytes, byte[] encFileName, byte[] fileIv) throws EncFSCorruptDataException {
+  protected byte[] decryptConcrete(EncFSVolume volume, byte[] encFileName, byte[] fileIv) throws EncFSCorruptDataException {
     try {
       return StreamCryptography.streamDecode(volume, fileIv, encFileName);
     } catch (InvalidAlgorithmParameterException e) {

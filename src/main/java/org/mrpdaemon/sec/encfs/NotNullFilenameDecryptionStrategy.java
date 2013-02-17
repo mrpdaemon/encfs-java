@@ -8,7 +8,7 @@ public abstract class NotNullFilenameDecryptionStrategy extends FilenameDecrypti
     super(volume, volumePath, algorithm);
   }
 
-  protected abstract byte[] decryptConcrete(EncFSVolume volume, byte[] chainIv, byte[] macBytes, byte[] encFileName, byte[] fileIv) throws EncFSCorruptDataException;
+  protected abstract byte[] decryptConcrete(EncFSVolume volume, byte[] encFileName, byte[] fileIv) throws EncFSCorruptDataException;
 
   protected String decryptImpl(String fileName) throws EncFSCorruptDataException, EncFSChecksumException {
     EncFSVolume volume = getVolume();
@@ -21,7 +21,7 @@ public abstract class NotNullFilenameDecryptionStrategy extends FilenameDecrypti
     byte[] encFileName = Arrays.copyOfRange(base256FileName, 2, base256FileName.length);
     byte[] fileIv = EncFSCrypto.computeFileIV(chainIv, macBytes);
 
-    byte[] decFileName = decryptConcrete(volume, chainIv, macBytes, encFileName, fileIv);
+    byte[] decFileName = decryptConcrete(volume, encFileName, fileIv);
 
     verifyDecryptionWorked(volume, chainIv, base256FileName, decFileName);
 

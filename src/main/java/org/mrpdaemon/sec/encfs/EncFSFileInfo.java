@@ -58,9 +58,9 @@ public class EncFSFileInfo {
   public EncFSFileInfo(String name, String parentPath, boolean directory,
                        long lastModified, long size, boolean readable, boolean writable,
                        boolean executable) {
-    if (name.startsWith(EncFSVolume.PATH_SEPARATOR)
-        && (name.equals(EncFSVolume.ROOT_PATH) == false))
+    if (name.startsWith(EncFSVolume.PATH_SEPARATOR) && (!name.equals(EncFSVolume.ROOT_PATH))) {
       throw new IllegalArgumentException("Invalid name " + name);
+    }
 
     this.name = name;
     this.parentPath = parentPath;
@@ -98,8 +98,7 @@ public class EncFSFileInfo {
   public String getPath() {
     String result;
 
-    if (parentPath.endsWith(EncFSVolume.PATH_SEPARATOR)
-        || name.startsWith(EncFSVolume.PATH_SEPARATOR)) {
+    if (parentPath.endsWith(EncFSVolume.PATH_SEPARATOR) || name.startsWith(EncFSVolume.PATH_SEPARATOR)) {
       result = parentPath + name;
     } else {
       result = EncFSVolume.combinePath(parentPath, name);
@@ -172,9 +171,7 @@ public class EncFSFileInfo {
    * @param fileInfo          EncFSFileInfo for the file to be decoded
    * @return EncFSFileInfo for the decoded file
    */
-  public static EncFSFileInfo getDecodedFileInfo(EncFSVolume volume,
-                                                 String decodedParentPath, String decodedFileName,
-                                                 EncFSFileInfo fileInfo) {
+  public static EncFSFileInfo getDecodedFileInfo(EncFSVolume volume, String decodedParentPath, String decodedFileName, EncFSFileInfo fileInfo) {
     long size;
     if (fileInfo.isDirectory()) {
       size = 0;
@@ -182,10 +179,7 @@ public class EncFSFileInfo {
       size = volume.getDecryptedFileLength(fileInfo.getSize());
     }
 
-    EncFSFileInfo decEncFileInfo = new EncFSFileInfo(decodedFileName,
-        decodedParentPath, fileInfo.isDirectory(),
-        fileInfo.getLastModified(), size, fileInfo.isReadable(),
+    return new EncFSFileInfo(decodedFileName, decodedParentPath, fileInfo.isDirectory(), fileInfo.getLastModified(), size, fileInfo.isReadable(),
         fileInfo.isWritable(), fileInfo.isExecutable());
-    return decEncFileInfo;
   }
 }

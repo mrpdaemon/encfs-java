@@ -54,10 +54,7 @@ public class EncFSVolumeTestCommon {
     }
   }
 
-  public static void testFileOperations(EncFSVolume volume)
-      throws EncFSInvalidPasswordException, EncFSInvalidConfigException,
-      EncFSCorruptDataException, EncFSUnsupportedException, IOException,
-      EncFSChecksumException {
+  public static void testFileOperations(EncFSVolume volume) throws EncFSCorruptDataException, EncFSUnsupportedException, IOException {
     // Create a file
     Assert.assertFalse(volume.pathExists("/test.txt"));
     Assert.assertEquals(0,
@@ -281,7 +278,7 @@ public class EncFSVolumeTestCommon {
     // around OK
     InputStream is = volume.openInputStreamForPath("/dir2/dir3/test.txt");
     try {
-      StringBuffer sb = new StringBuffer();
+      StringBuilder sb = new StringBuilder();
       int bytesRead = 0;
       while (bytesRead >= 0) {
         byte[] readBuf = new byte[128];
