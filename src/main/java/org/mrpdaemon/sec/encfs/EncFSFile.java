@@ -310,7 +310,7 @@ public class EncFSFile {
 				 * used.
 				 */
         try {
-          EncFSUtil.copyWholeStream(openInputStream(), dstPath.openOutputStream(getLength()), true, true);
+          EncFSUtil.copyWholeStreamAndClose(openInputStream(), dstPath.openOutputStream(getLength()));
         } catch (EncFSException e) {
           throw new IOException(e);
         }

@@ -22,8 +22,11 @@ import java.nio.ByteBuffer;
 
 public class EncFSUtil {
 
+  private static final int EIGHT = 8;
+  private static final int EIGHT_KILO = 8192;
+
   public static int convertBigEndianByteArrayToInt(byte[] b) {
-    int capacity = Integer.SIZE / 8;
+    int capacity = Integer.SIZE / EIGHT;
     if (b.length > capacity) {
       return -1;
     }
@@ -31,11 +34,11 @@ public class EncFSUtil {
   }
 
   public static byte[] convertIntToByteArrayBigEndian(int i) {
-    return ByteBuffer.allocate(Integer.SIZE / 8).putInt(i).array();
+    return ByteBuffer.allocate(Integer.SIZE / EIGHT).putInt(i).array();
   }
 
   public static long convertByteArrayToLong(byte[] b) {
-    int capacity = Long.SIZE / 8;
+    int capacity = Long.SIZE / EIGHT;
     if (b.length > capacity) {
       return -1;
     }
@@ -43,27 +46,27 @@ public class EncFSUtil {
   }
 
   public static byte[] convertLongToByteArrayBigEndian(long l) {
-    return ByteBuffer.allocate(Long.SIZE / 8).putLong(l).array();
+    return ByteBuffer.allocate(Long.SIZE / EIGHT).putLong(l).array();
   }
 
-  public static void copyWholeStream(InputStream in, OutputStream out, boolean closeInput, boolean closeOutput) throws IOException {
+  public static void copyWholeStreamAndCloseInput(InputStream in, OutputStream out) throws IOException {
     try {
-      try {
-        readFromAndWriteTo(in, out);
-      } finally {
-        if (closeInput) {
-          in.close();
-        }
-      }
+      readFromAndWriteTo(in, out);
     } finally {
-      if (closeOutput) {
-        out.close();
-      }
+      in.close();
+    }
+  }
+
+  public static void copyWholeStreamAndClose(InputStream in, OutputStream out) throws IOException {
+    try {
+      copyWholeStreamAndCloseInput(in, out);
+    } finally {
+      out.close();
     }
   }
 
   private static void readFromAndWriteTo(InputStream in, OutputStream out) throws IOException {
-    byte[] buf = new byte[8192];
+    byte[] buf = new byte[EIGHT_KILO];
     int bytesRead = in.read(buf);
     while (bytesRead >= 0) {
       out.write(buf, 0, bytesRead);

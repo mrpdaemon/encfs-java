@@ -158,7 +158,7 @@ public class EncFSComparer {
           // the file is the same
           File t = File.createTempFile(this.getClass().getName(), ".tmp");
           try {
-            EncFSUtil.copyWholeStream(new EncFSFileInputStream(encFsFile), new EncFSOutputStream(encFsDir.getVolume(), new BufferedOutputStream(new FileOutputStream(t)), encFsFile.getPath()), true, true);
+            EncFSUtil.copyWholeStreamAndClose(new EncFSFileInputStream(encFsFile), new EncFSOutputStream(encFsDir.getVolume(), new BufferedOutputStream(new FileOutputStream(t)), encFsFile.getPath()));
 
             FileInputStream reEncFSIs = new FileInputStream(t);
             try {
