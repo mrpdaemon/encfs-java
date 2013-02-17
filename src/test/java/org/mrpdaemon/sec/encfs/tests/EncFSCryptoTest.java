@@ -16,7 +16,6 @@
 package org.mrpdaemon.sec.encfs.tests;
 
 import org.junit.Assert;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.mrpdaemon.sec.encfs.EncFSCrypto;
 import org.mrpdaemon.sec.encfs.EncFSVolume;
@@ -27,15 +26,10 @@ import java.util.Arrays;
 public class EncFSCryptoTest {
   private final static String password = "test";
   private final static String pathname = "test/encfs_samples/boxcryptor_1";
-  private static EncFSVolume volume;
-
-  @BeforeClass
-  public static void init() throws Exception {
-    volume = getEncFSVolume(pathname, password);
-  }
 
   @Test
   public void testStreamEncodeDecode() throws Exception {
+    EncFSVolume volume = getEncFSVolume(pathname, password);
     byte[] orig = new byte[]{116, 101, 115, 116, 102, 105, 108, 101, 46, 116, 120, 116};
     byte[] ivSeed = new byte[]{0, 0, 0, 0, 0, 0, 98, -63};
 
@@ -47,6 +41,7 @@ public class EncFSCryptoTest {
 
   @Test
   public void testStreamEncodeDecode2() throws Exception {
+    EncFSVolume volume = getEncFSVolume(pathname, password);
     byte[] orig = "test file\r".getBytes();
     byte[] ivSeed = new byte[]{0, 0, 0, 0, 0, 0, 0, 0};
 
