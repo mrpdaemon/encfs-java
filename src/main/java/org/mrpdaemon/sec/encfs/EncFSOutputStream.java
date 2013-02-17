@@ -103,14 +103,14 @@ public class EncFSOutputStream extends FilterOutputStream {
          * When using external IV chaining we compute initIv based on
 				 * the file path.
 				 */
-        initIv = EncFSCrypto.computeChainIv(volume, volumePath);
+        initIv = StreamCryptography.computeChainIv(volume, volumePath);
       } else {
         // When not using external IV chaining initIv is just zero's.
         initIv = new byte[8];
       }
 
       try {
-        this.fileIv = EncFSCrypto.streamDecode(volume, initIv, Arrays.copyOf(fileHeader, fileHeader.length));
+        this.fileIv = StreamCryptography.streamDecode(volume, initIv, Arrays.copyOf(fileHeader, fileHeader.length));
       } catch (InvalidAlgorithmParameterException e) {
         e.printStackTrace();
       } catch (IllegalBlockSizeException e) {
@@ -174,7 +174,7 @@ public class EncFSOutputStream extends FilterOutputStream {
     byte[] encBuffer;
     try {
       if (dataBytes == dataBuf.length) {
-				/*
+        /*
 				 * If allowHoles is configured, we scan the buffer to determine
 				 * whether we should pass this block through as a zero block.
 				 * Note that it is intended for the presence of a MAC header to
@@ -198,7 +198,7 @@ public class EncFSOutputStream extends FilterOutputStream {
               dataBuf);
         }
       } else {
-        encBuffer = EncFSCrypto.streamEncode(volume, getBlockIV(), dataBuf, 0, dataBytes);
+        encBuffer = StreamCryptography.streamEncode(volume, getBlockIV(), dataBuf, 0, dataBytes);
       }
     } catch (IllegalBlockSizeException e) {
       throw new IOException(e);

@@ -13,7 +13,7 @@ public class StreamFilenameEncryptionStrategy extends NotNullFilenameEncryptionS
   @Override
   protected byte[] encryptConcrete(EncFSVolume volume, byte[] paddedDecFileName, byte[] fileIv) throws EncFSCorruptDataException {
     try {
-      return EncFSCrypto.streamEncode(volume, fileIv, paddedDecFileName);
+      return StreamCryptography.streamEncode(volume, fileIv, paddedDecFileName);
     } catch (InvalidAlgorithmParameterException e) {
       throw new EncFSCorruptDataException(e);
     } catch (IllegalBlockSizeException e) {

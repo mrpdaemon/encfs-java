@@ -97,7 +97,7 @@ public class VolumeKey {
   private static byte[] decryptVolumeKeyData(byte[] encryptedVolKey, byte[] passIvData, Key passKey, byte[] ivSeed, Mac mac) throws EncFSUnsupportedException, EncFSInvalidConfigException, EncFSCorruptDataException {
     byte[] clearVolKeyData;
     try {
-      clearVolKeyData = EncFSCrypto.streamDecode(StreamCryptography.newStreamCipher(), mac, passKey, passIvData, ivSeed, encryptedVolKey);
+      clearVolKeyData = StreamCryptography.streamDecode(StreamCryptography.newStreamCipher(), mac, passKey, passIvData, ivSeed, encryptedVolKey);
     } catch (InvalidAlgorithmParameterException e) {
       throw new EncFSInvalidConfigException(e);
     } catch (IllegalBlockSizeException e) {

@@ -23,7 +23,6 @@ import java.security.InvalidKeyException;
 import java.security.Key;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
-import java.util.StringTokenizer;
 
 /**
  * Class containing static methods implementing crypto functionality for the
@@ -100,7 +99,7 @@ public class EncFSCrypto {
   }
 
   // Initialize the given cipher in the requested mode
-  private static void cipherInit(Key key, Mac mac, int opMode, Cipher cipher, byte[] iv, byte[] ivSeed) throws InvalidAlgorithmParameterException {
+  protected static void cipherInit(Key key, Mac mac, int opMode, Cipher cipher, byte[] iv, byte[] ivSeed) throws InvalidAlgorithmParameterException {
     try {
       cipher.init(opMode, key, newIvSpec(mac, iv, ivSeed));
     } catch (InvalidKeyException e) {
@@ -126,7 +125,7 @@ public class EncFSCrypto {
   protected static byte[] encryptTheKeyData(byte[] volKeyData, byte[] passIvData, Key passKey, Mac mac, byte[] mac32) throws EncFSUnsupportedException, EncFSInvalidConfigException, EncFSCorruptDataException {
     byte[] cipherVolKeyData;
     try {
-      cipherVolKeyData = streamEncode(StreamCryptography.newStreamCipher(), mac, passKey, passIvData, mac32, volKeyData);
+      cipherVolKeyData = StreamCryptography.streamEncode(StreamCryptography.newStreamCipher(), mac, passKey, passIvData, mac32, volKeyData);
     } catch (InvalidAlgorithmParameterException e) {
       throw new EncFSInvalidConfigException(e);
     } catch (IllegalBlockSizeException e) {
@@ -137,125 +136,7 @@ public class EncFSCrypto {
     return cipherVolKeyData;
   }
 
-  private static byte[] streamDecode(Cipher cipher, Mac mac, Key key, byte[] iv, byte[] ivSeed, byte[] data, int offset, int len) throws EncFSUnsupportedException, InvalidAlgorithmParameterException, IllegalBlockSizeException, BadPaddingException {
-    // First round uses IV seed + 1 for IV generation
-    byte[] ivSeedPlusOne = incrementIvSeedByOne(ivSeed);
-
-    cipherInit(key, mac, Cipher.DECRYPT_MODE, cipher, iv, ivSeedPlusOne);
-    byte[] firstDecResult = cipher.doFinal(data, offset, len);
-
-    unshuffleBytes(firstDecResult);
-
-    byte[] flipBytesResult = flipBytes(firstDecResult);
-
-    // Second round of decryption with IV seed itself used for IV generation
-    cipherInit(key, mac, Cipher.DECRYPT_MODE, cipher, iv, ivSeed);
-    byte[] result = cipher.doFinal(flipBytesResult);
-
-    unshuffleBytes(result);
-
-    return result;
-  }
-
-  protected static byte[] streamDecode(Cipher cipher, Mac mac, Key key, byte[] iv, byte[] ivSeed, byte[] data) throws EncFSUnsupportedException, InvalidAlgorithmParameterException, IllegalBlockSizeException, BadPaddingException {
-    return streamDecode(cipher, mac, key, iv, ivSeed, data, 0, data.length);
-  }
-
-  public static byte[] streamDecode(EncFSVolume volume, byte[] ivSeed, byte[] data) throws EncFSUnsupportedException, InvalidAlgorithmParameterException, IllegalBlockSizeException, BadPaddingException {
-    Cipher streamCipher = volume.getStreamCipher();
-    return streamDecode(streamCipher, volume.getVolumeMAC(), volume.getVolumeCryptKey(), volume.getIV(), ivSeed, data);
-  }
-
-  public static byte[] streamDecode(EncFSVolume volume, byte[] ivSeed, byte[] data, int offset, int len) throws EncFSUnsupportedException, InvalidAlgorithmParameterException, IllegalBlockSizeException, BadPaddingException {
-    return streamDecode(volume.getStreamCipher(), volume.getVolumeMAC(), volume.getVolumeCryptKey(), volume.getIV(), ivSeed, data, offset, len);
-  }
-
-  private static byte[] streamEncode(Cipher cipher, Mac mac, Key key, byte[] iv, byte[] ivSeed, byte[] data, int offset, int len) throws EncFSUnsupportedException, InvalidAlgorithmParameterException, IllegalBlockSizeException, BadPaddingException {
-    // First round uses IV seed + 1 for IV generation
-    byte[] ivSeedPlusOne = incrementIvSeedByOne(ivSeed);
-
-    byte[] encBuf = Arrays.copyOfRange(data, offset, offset + len);
-    shuffleBytes(encBuf);
-
-    cipherInit(key, mac, Cipher.ENCRYPT_MODE, cipher, iv, ivSeed);
-    byte[] firstEncResult = cipher.doFinal(encBuf);
-
-    byte[] flipBytesResult = flipBytes(firstEncResult);
-
-    shuffleBytes(flipBytesResult);
-
-    // Second round of encryption with IV seed itself used for IV generation
-    cipherInit(key, mac, Cipher.ENCRYPT_MODE, cipher, iv, ivSeedPlusOne);
-
-    return cipher.doFinal(flipBytesResult);
-  }
-
-  private static byte[] streamEncode(Cipher cipher, Mac mac, Key key, byte[] iv, byte[] ivSeed, byte[] data) throws EncFSUnsupportedException, InvalidAlgorithmParameterException, IllegalBlockSizeException, BadPaddingException {
-    return streamEncode(cipher, mac, key, iv, ivSeed, data, 0, data.length);
-  }
-
-  /**
-   * Encode the given data using stream mode
-   *
-   * @param volume Volume for the data
-   * @param ivSeed IV seed for the encryption
-   * @param data   Plaintext data contents
-   * @return Encrypted (ciphertext) data
-   *         <p/>
-   *         <p/>
-   *         Invalid algorithm parameters
-   */
-  public static byte[] streamEncode(EncFSVolume volume, byte[] ivSeed, byte[] data) throws EncFSUnsupportedException, InvalidAlgorithmParameterException, IllegalBlockSizeException, BadPaddingException {
-    return streamEncode(volume.getStreamCipher(), volume.getVolumeMAC(),
-        volume.getVolumeCryptKey(), volume.getIV(), ivSeed, data);
-  }
-
-  /**
-   * Encode the given data using stream mode
-   *
-   * @param volume Volume for the data
-   * @param ivSeed IV seed for the encryption
-   * @param data   Plaintext data contents
-   * @param offset Offset into the data buffer to start encoding from
-   * @param len    Length of the data in the data buffer to encode
-   * @return Encrypted (ciphertext) data
-   *         <p/>
-   *         <p/>
-   *         Invalid algorithm parameters
-   */
-  public static byte[] streamEncode(EncFSVolume volume, byte[] ivSeed, byte[] data, int offset, int len) throws EncFSUnsupportedException, InvalidAlgorithmParameterException, IllegalBlockSizeException, BadPaddingException {
-    return streamEncode(volume.getStreamCipher(), volume.getVolumeMAC(), volume.getVolumeCryptKey(), volume.getIV(), ivSeed, data, offset, len);
-  }
-
-  /**
-   * Compute chain IV for the given volume path
-   *
-   * @param volume     Volume to compute chain IV for
-   * @param volumePath Volume path to compute chain IV for
-   * @return Computed chain IV
-   */
-  public static byte[] computeChainIv(EncFSVolume volume, String volumePath) {
-    byte[] chainIv = new byte[8];
-    StringTokenizer st = new StringTokenizer(volumePath, EncFSVolume.PATH_SEPARATOR);
-    while (st.hasMoreTokens()) {
-      String curPath = st.nextToken();
-      if ((curPath.length() > 0) && (!curPath.equals(EncFSVolume.PATH_SEPARATOR))) {
-        byte[] encodeBytes;
-        if (volume.getVolumeConfiguration().getAlgorithm() == EncFSAlgorithm.BLOCK) {
-          encodeBytes = getBytesForBlockAlgorithm(curPath);
-        } else {
-          encodeBytes = curPath.getBytes();
-        }
-
-        // Update chain IV
-        EncFSCrypto.mac64(volume.getVolumeMAC(), encodeBytes, chainIv);
-      }
-    }
-
-    return chainIv;
-  }
-
-  private static byte[] getBytesForBlockAlgorithm(String curPath) {
+  protected static byte[] getBytesForBlockAlgorithm(String curPath) {
     byte[] encodeBytes;// Only pad for block mode
     int padLen = 16 - (curPath.length() % 16);
     if (padLen == 0) {
@@ -410,7 +291,7 @@ public class EncFSCrypto {
   }
 
   // Compute 64-bit MAC and update chainedIv
-  private static byte[] mac64(Mac mac, byte[] input, byte[] chainedIv) {
+  protected static byte[] mac64(Mac mac, byte[] input, byte[] chainedIv) {
     byte[] concat = new byte[input.length + chainedIv.length];
     System.arraycopy(input, 0, concat, 0, input.length);
     for (int i = input.length; i < input.length + chainedIv.length; i++) {
@@ -452,21 +333,21 @@ public class EncFSCrypto {
     return mac16;
   }
 
-  private static void unshuffleBytes(byte[] input) {
+  protected static void unshuffleBytes(byte[] input) {
     for (int i = (input.length - 1); i > 0; i--) {
       // Note size - 1
       input[i] ^= input[i - 1];
     }
   }
 
-  private static void shuffleBytes(byte[] buf) {
+  protected static void shuffleBytes(byte[] buf) {
     int size = buf.length;
     for (int i = 0; i < size - 1; ++i) {
       buf[i + 1] ^= buf[i];
     }
   }
 
-  private static byte[] flipBytes(byte[] input) {
+  protected static byte[] flipBytes(byte[] input) {
     byte[] result = new byte[input.length];
 
     int offset = 0;
@@ -486,7 +367,7 @@ public class EncFSCrypto {
     return result;
   }
 
-  private static byte[] incrementIvSeedByOne(byte[] ivSeed) throws EncFSUnsupportedException {
+  protected static byte[] incrementIvSeedByOne(byte[] ivSeed) throws EncFSUnsupportedException {
     if (ivSeed.length == 4) {
       return EncFSUtil.convertIntToByteArrayBigEndian(EncFSUtil.convertBigEndianByteArrayToInt(ivSeed) + 1);
     } else if (ivSeed.length == 8) {
@@ -516,7 +397,7 @@ public class EncFSCrypto {
     // Chained IV computation
     byte[] chainIv = new byte[8];
     if (config.isChainedNameIV()) {
-      chainIv = computeChainIv(volume, volumePath);
+      chainIv = StreamCryptography.computeChainIv(volume, volumePath);
     }
     return chainIv;
   }
