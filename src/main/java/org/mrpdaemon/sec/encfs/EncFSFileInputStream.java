@@ -6,7 +6,7 @@
  * it under the terms of the GNU Lesser General Public License as published
  * by the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- *  
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
@@ -24,23 +24,18 @@ import java.io.IOException;
  */
 public class EncFSFileInputStream extends FilterInputStream {
 
-	/**
-	 * Creates an EncFSFileInputStream to read decrypted data from a file under
-	 * and EncFS volume
-	 * 
-	 * @param encfsFile
-	 *            EncFSFile to open an input stream for
-	 * 
-	 * @throws EncFSCorruptDataException
-	 *             Filename encoding failed
-	 * @throws EncFSUnsupportedException
-	 *             File header uses an unsupported IV length
-	 * @throws IOException
-	 *             File provider returned I/O error
-	 */
-	public EncFSFileInputStream(EncFSFile encfsFile)
-			throws EncFSCorruptDataException, EncFSUnsupportedException,
-			IOException {
-		super(encfsFile.openInputStream());
-	}
+  /**
+   * Creates an EncFSFileInputStream to read decrypted data from a file under
+   * and EncFS volume
+   *
+   * @param encfsFile EncFSFile to open an input stream for
+   * @throws EncFSCorruptDataException Filename encoding failed
+   * @throws EncFSUnsupportedException File header uses an unsupported IV length
+   * @throws IOException               File provider returned I/O error
+   */
+  public EncFSFileInputStream(EncFSFile encfsFile)
+      throws EncFSCorruptDataException, EncFSUnsupportedException,
+      IOException {
+    super(encfsFile.openInputStream());
+  }
 }
