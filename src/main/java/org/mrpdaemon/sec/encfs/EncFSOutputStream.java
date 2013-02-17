@@ -15,16 +15,15 @@
 
 package org.mrpdaemon.sec.encfs;
 
+import javax.crypto.BadPaddingException;
+import javax.crypto.Cipher;
+import javax.crypto.IllegalBlockSizeException;
 import java.io.FilterOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.SecureRandom;
 import java.util.Arrays;
-
-import javax.crypto.BadPaddingException;
-import javax.crypto.Cipher;
-import javax.crypto.IllegalBlockSizeException;
 
 /**
  * FilterOutputStream extension that allows encrypted data to be written to a
@@ -41,10 +40,7 @@ public class EncFSOutputStream extends FilterOutputStream {
 	// Volume configuration
 	private final EncFSConfig config;
 
-	// Block size for the file
-	private final int blockSize;
-
-	// IV used for this file
+  // IV used for this file
 	private byte[] fileIv;
 
 	// Buffer to hold file header contents (uniqueIV)
@@ -68,13 +64,7 @@ public class EncFSOutputStream extends FilterOutputStream {
 	// Index of the current block to be written
 	private int curBlockIndex;
 
-	// Cipher to use for block encryption
-	private final Cipher blockCipher;
-
-	// Cipher to use for stream encryption
-	private final Cipher streamCipher;
-
-	/**
+  /**
 	 * Create a new EncFSOutputStream for writing encrypted data to a file on an
 	 * EncFS volume
 	 *
@@ -97,7 +87,7 @@ public class EncFSOutputStream extends FilterOutputStream {
 		super(out);
 		this.volume = volume;
 		this.config = volume.getConfig();
-		this.blockSize = config.getEncryptedFileBlockSizeInBytes();
+    int blockSize = config.getEncryptedFileBlockSizeInBytes();
 		this.blockHeaderSize = config.getNumberOfMACBytesForEachFileBlock()
 				+ config.getNumberOfRandomBytesInEachMACHeader();
 		this.dataBytes = this.blockHeaderSize;
@@ -137,14 +127,14 @@ public class EncFSOutputStream extends FilterOutputStream {
 			this.fileIv = new byte[8];
 		}
 
-		this.blockCipher = EncFSCrypto.newBlockCipher();
+    Cipher blockCipher = EncFSCrypto.newBlockCipher();
 		try {
 			EncFSCrypto.cipherInit(volume, Cipher.ENCRYPT_MODE, blockCipher,
 					fileIv);
 		} catch (InvalidAlgorithmParameterException e) {
 			throw new EncFSCorruptDataException(e);
 		}
-		this.streamCipher = EncFSCrypto.newStreamCipher();
+    Cipher streamCipher = EncFSCrypto.newStreamCipher();
 		try {
 			EncFSCrypto.cipherInit(volume, Cipher.ENCRYPT_MODE, streamCipher,
 					fileIv);
@@ -159,7 +149,7 @@ public class EncFSOutputStream extends FilterOutputStream {
 	// Flush the internal buffer
 	private void writeBuffer(boolean isFinal) throws IOException {
 
-		if (isFinal == false && dataBytes != dataBuf.length) {
+		if (!isFinal && dataBytes != dataBuf.length) {
 			throw new IllegalStateException("Buffer not full");
 		}
 
@@ -174,9 +164,7 @@ public class EncFSOutputStream extends FilterOutputStream {
 			if (blockMACRandLen > 0) {
 				byte randomBytes[] = new byte[blockMACRandLen];
 				secureRandom.nextBytes(randomBytes);
-				for (int i = 0; i < blockMACRandLen; i++) {
-					dataBuf[blockMACLen + i] = randomBytes[i];
-				}
+        System.arraycopy(randomBytes, 0, dataBuf, blockMACLen , blockMACRandLen);
 			}
 
 			// Compute MAC bytes and add them to the buffer
@@ -199,15 +187,15 @@ public class EncFSOutputStream extends FilterOutputStream {
 				boolean zeroBlock = false;
 				if (config.isHolesAllowedInFiles()) {
 					zeroBlock = true;
-					for (int i = 0; i < dataBuf.length; i++) {
-						if (dataBuf[i] != 0) {
-							zeroBlock = false;
-							break;
-						}
-					}
+          for (byte aDataBuf : dataBuf) {
+            if (aDataBuf != 0) {
+              zeroBlock = false;
+              break;
+            }
+          }
 				}
 
-				if (zeroBlock == true) {
+				if (zeroBlock) {
 					encBuffer = dataBuf;
 				} else {
 					encBuffer = EncFSCrypto.blockEncode(volume, getBlockIV(),

@@ -15,13 +15,12 @@
 
 package org.mrpdaemon.sec.encfs;
 
+import javax.crypto.BadPaddingException;
+import javax.crypto.IllegalBlockSizeException;
 import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.security.InvalidAlgorithmParameterException;
-
-import javax.crypto.BadPaddingException;
-import javax.crypto.IllegalBlockSizeException;
 
 /**
  * FilterInputStream extension that allows decrypted data to be read from a file
@@ -41,10 +40,7 @@ public class EncFSInputStream extends FilterInputStream {
 	// Number of MAC bytes for each block
 	private final int numMACBytes;
 
-	// Number of random bytes for each block header
-	private final int numRandBytes;
-
-	// Size of the block header for each block
+  // Size of the block header for each block
 	private final int blockHeaderSize;
 
 	// Current block number for generating block IV
@@ -70,13 +66,6 @@ public class EncFSInputStream extends FilterInputStream {
 	 * @param volumePath
 	 *            Volume path of the file being decrypted (needed for
 	 *            externalIVChaining)
-	 *
-	 * @throws EncFSCorruptDataException
-	 *             File data is corrupt
-	 * @throws EncFSUnsupportedException
-	 *             Unsupported EncFS configuration
-	 * @throws IOException
-	 *             File provider returned I/O error
 	 */
 	public EncFSInputStream(EncFSVolume volume, InputStream in,
 			String volumePath) throws EncFSCorruptDataException,
@@ -86,8 +75,8 @@ public class EncFSInputStream extends FilterInputStream {
 		this.config = volume.getConfig();
 		this.blockSize = config.getEncryptedFileBlockSizeInBytes();
 		this.numMACBytes = config.getNumberOfMACBytesForEachFileBlock();
-		this.numRandBytes = config.getNumberOfRandomBytesInEachMACHeader();
-		this.blockHeaderSize = this.numMACBytes + this.numRandBytes;
+    int numRandBytes = config.getNumberOfRandomBytesInEachMACHeader();
+		this.blockHeaderSize = this.numMACBytes + numRandBytes;
 		this.blockBuf = null;
 		this.bufCursor = 0;
 		this.blockNum = 0;
@@ -161,14 +150,12 @@ public class EncFSInputStream extends FilterInputStream {
 	 */
 	@Override
 	public int read(byte[] output, int offset, int size) throws IOException {
-		byte[] b = output;
-		int len = size;
-		int bytesRead = 0;
+    int bytesRead = 0;
 		int destOffset = offset;
 		int bytesToCopy;
 		int ret;
 
-		while (bytesRead < len) {
+		while (bytesRead < size) {
 
 			// Read more data if the data buffer is out
 			if ((blockBuf == null) || (bufCursor == (blockBuf.length))) {
@@ -190,8 +177,8 @@ public class EncFSInputStream extends FilterInputStream {
 			}
 
 			bytesToCopy = Math
-					.min(blockBuf.length - bufCursor, len - bytesRead);
-			System.arraycopy(blockBuf, bufCursor, b, destOffset, bytesToCopy);
+					.min(blockBuf.length - bufCursor, size - bytesRead);
+			System.arraycopy(blockBuf, bufCursor, output, destOffset, bytesToCopy);
 
 			bufCursor += bytesToCopy;
 			bytesRead += bytesToCopy;
@@ -260,7 +247,7 @@ public class EncFSInputStream extends FilterInputStream {
 		boolean zeroBlock = false;
 
 		int bytesRead = 0;
-		int lastBytesRead = 0;
+		int lastBytesRead ;
 
 		// Read until we read a whole block or we reach the end of the input
 		while (bytesRead < blockSize) {
@@ -288,15 +275,15 @@ public class EncFSInputStream extends FilterInputStream {
 			 */
 			if (config.isHolesAllowedInFiles()) {
 				zeroBlock = true;
-				for (int i = 0; i < cipherBuf.length; i++)
-					if (cipherBuf[i] != 0) {
-						zeroBlock = false;
-						break;
-					}
+        for (byte aCipherBuf : cipherBuf)
+          if (aCipherBuf != 0) {
+            zeroBlock = false;
+            break;
+          }
 			}
 
 			try {
-				if (zeroBlock == true) {
+				if (zeroBlock) {
 					blockBuf = cipherBuf;
 				} else {
 					blockBuf = EncFSCrypto.blockDecode(volume, getBlockIV(),
@@ -328,7 +315,7 @@ public class EncFSInputStream extends FilterInputStream {
 		}
 
 		// Verify the block header
-		if ((bytesRead > 0) && (blockHeaderSize > 0) && (zeroBlock == false)) {
+		if ((bytesRead > 0) && (blockHeaderSize > 0) && (!zeroBlock)) {
 			byte mac[] = EncFSCrypto.mac64(volume.getMac(), blockBuf,
 					numMACBytes);
 			for (int i = 0; i < numMACBytes; i++) {
