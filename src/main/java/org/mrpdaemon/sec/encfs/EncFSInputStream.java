@@ -90,7 +90,7 @@ public class EncFSInputStream extends FilterInputStream {
       byte[] initIv;
       if (config.isSupportedExternalIVChaining()) {
         /*
-				 * When using external IV chaining we compute initIv based on
+         * When using external IV chaining we compute initIv based on
 				 * the file path.
 				 */
         initIv = EncFSCrypto.computeChainIv(volume, volumePath);
@@ -100,8 +100,7 @@ public class EncFSInputStream extends FilterInputStream {
       }
 
       try {
-        this.fileIv = EncFSCrypto.streamDecode(volume, initIv,
-            fileHeader);
+        this.fileIv = EncFSCrypto.streamDecode(volume, initIv, fileHeader);
       } catch (InvalidAlgorithmParameterException e) {
         e.printStackTrace();
       } catch (IllegalBlockSizeException e) {
@@ -253,8 +252,8 @@ public class EncFSInputStream extends FilterInputStream {
       if (lastBytesRead > 0) {
         bytesRead += lastBytesRead;
       } else if (lastBytesRead < 0) {
-				/*
-				 * If we read some bytes return that, if not then we're at the
+        /*
+         * If we read some bytes return that, if not then we're at the
 				 * end of the stream
 				 */
         if (bytesRead == 0) {
@@ -283,7 +282,7 @@ public class EncFSInputStream extends FilterInputStream {
         if (zeroBlock) {
           blockBuf = cipherBuf;
         } else {
-          blockBuf = EncFSCrypto.blockDecode(volume, getBlockIV(),
+          blockBuf = BlockCryptography.blockDecode(volume, getBlockIV(),
               cipherBuf);
         }
       } catch (InvalidAlgorithmParameterException e) {
@@ -298,8 +297,7 @@ public class EncFSInputStream extends FilterInputStream {
       blockNum++;
     } else if (bytesRead > 0) { // stream decode
       try {
-        blockBuf = EncFSCrypto.streamDecode(volume, getBlockIV(),
-            cipherBuf, 0, bytesRead);
+        blockBuf = EncFSCrypto.streamDecode(volume, getBlockIV(), cipherBuf, 0, bytesRead);
       } catch (InvalidAlgorithmParameterException e) {
         e.printStackTrace();
       } catch (IllegalBlockSizeException e) {

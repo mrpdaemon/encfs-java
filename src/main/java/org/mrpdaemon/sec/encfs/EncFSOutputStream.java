@@ -100,7 +100,7 @@ public class EncFSOutputStream extends FilterOutputStream {
       byte[] initIv;
       if (config.isSupportedExternalIVChaining()) {
         /*
-				 * When using external IV chaining we compute initIv based on
+         * When using external IV chaining we compute initIv based on
 				 * the file path.
 				 */
         initIv = EncFSCrypto.computeChainIv(volume, volumePath);
@@ -110,8 +110,7 @@ public class EncFSOutputStream extends FilterOutputStream {
       }
 
       try {
-        this.fileIv = EncFSCrypto.streamDecode(volume, initIv,
-            Arrays.copyOf(fileHeader, fileHeader.length));
+        this.fileIv = EncFSCrypto.streamDecode(volume, initIv, Arrays.copyOf(fileHeader, fileHeader.length));
       } catch (InvalidAlgorithmParameterException e) {
         e.printStackTrace();
       } catch (IllegalBlockSizeException e) {
@@ -124,14 +123,14 @@ public class EncFSOutputStream extends FilterOutputStream {
       this.fileIv = new byte[8];
     }
 
-    Cipher blockCipher = EncFSCrypto.newBlockCipher();
+    Cipher blockCipher = BlockCryptography.newBlockCipher();
     try {
       EncFSCrypto.cipherInit(volume, Cipher.ENCRYPT_MODE, blockCipher,
           fileIv);
     } catch (InvalidAlgorithmParameterException e) {
       throw new EncFSCorruptDataException(e);
     }
-    Cipher streamCipher = EncFSCrypto.newStreamCipher();
+    Cipher streamCipher = StreamCryptography.newStreamCipher();
     try {
       EncFSCrypto.cipherInit(volume, Cipher.ENCRYPT_MODE, streamCipher,
           fileIv);
@@ -195,12 +194,11 @@ public class EncFSOutputStream extends FilterOutputStream {
         if (zeroBlock) {
           encBuffer = dataBuf;
         } else {
-          encBuffer = EncFSCrypto.blockEncode(volume, getBlockIV(),
+          encBuffer = BlockCryptography.blockEncode(volume, getBlockIV(),
               dataBuf);
         }
       } else {
-        encBuffer = EncFSCrypto.streamEncode(volume, getBlockIV(),
-            dataBuf, 0, dataBytes);
+        encBuffer = EncFSCrypto.streamEncode(volume, getBlockIV(), dataBuf, 0, dataBytes);
       }
     } catch (IllegalBlockSizeException e) {
       throw new IOException(e);

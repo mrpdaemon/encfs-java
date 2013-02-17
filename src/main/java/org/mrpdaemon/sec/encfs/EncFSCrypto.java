@@ -31,8 +31,8 @@ import java.util.StringTokenizer;
  * rest of the library
  */
 public class EncFSCrypto {
-  private final static String STREAM_CIPHER = "AES/CFB/NoPadding";
-  private final static String BLOCK_CIPHER = "AES/CBC/NoPadding";
+  public final static String STREAM_CIPHER = "AES/CFB/NoPadding";
+  public final static String BLOCK_CIPHER = "AES/CBC/NoPadding";
 
   /**
    * Create a new Mac object for the given key.
@@ -62,20 +62,7 @@ public class EncFSCrypto {
     return new SecretKeySpec(keyBytes, "AES");
   }
 
-  /**
-   * Returns a new stream cipher with AES/CFB/NoPadding.
-   *
-   * @return A new Cipher object.
-   */
-  public static Cipher newStreamCipher() throws EncFSUnsupportedException {
-    return getCipher(STREAM_CIPHER);
-  }
-
-  public static Cipher newBlockCipher() throws EncFSUnsupportedException {
-    return getCipher(BLOCK_CIPHER);
-  }
-
-  private static Cipher getCipher(String STREAM_CIPHER) throws EncFSUnsupportedException {
+  protected static Cipher getCipher(String STREAM_CIPHER) throws EncFSUnsupportedException {
     try {
       return Cipher.getInstance(STREAM_CIPHER);
     } catch (NoSuchAlgorithmException e) {
@@ -223,7 +210,7 @@ public class EncFSCrypto {
   private static byte[] decryptVolumeKeyData(byte[] encryptedVolKey, byte[] passIvData, Key passKey, byte[] ivSeed, Mac mac) throws EncFSUnsupportedException, EncFSInvalidConfigException, EncFSCorruptDataException {
     byte[] clearVolKeyData;
     try {
-      clearVolKeyData = streamDecode(newStreamCipher(), mac, passKey, passIvData, ivSeed, encryptedVolKey);
+      clearVolKeyData = streamDecode(StreamCryptography.newStreamCipher(), mac, passKey, passIvData, ivSeed, encryptedVolKey);
     } catch (InvalidAlgorithmParameterException e) {
       throw new EncFSInvalidConfigException(e);
     } catch (IllegalBlockSizeException e) {
@@ -278,7 +265,7 @@ public class EncFSCrypto {
   private static byte[] encryptTheKeyData(byte[] volKeyData, byte[] passIvData, Key passKey, Mac mac, byte[] mac32) throws EncFSUnsupportedException, EncFSInvalidConfigException, EncFSCorruptDataException {
     byte[] cipherVolKeyData;
     try {
-      cipherVolKeyData = streamEncode(newStreamCipher(), mac, passKey, passIvData, mac32, volKeyData);
+      cipherVolKeyData = streamEncode(StreamCryptography.newStreamCipher(), mac, passKey, passIvData, mac32, volKeyData);
     } catch (InvalidAlgorithmParameterException e) {
       throw new EncFSInvalidConfigException(e);
     } catch (IllegalBlockSizeException e) {
@@ -404,47 +391,7 @@ public class EncFSCrypto {
    *         Invalid algorithm parameters
    */
   public static byte[] streamEncode(EncFSVolume volume, byte[] ivSeed, byte[] data, int offset, int len) throws EncFSUnsupportedException, InvalidAlgorithmParameterException, IllegalBlockSizeException, BadPaddingException {
-    return streamEncode(volume.getStreamCipher(), volume.getVolumeMAC(),
-        volume.getVolumeCryptKey(), volume.getIV(), ivSeed, data, offset, len);
-  }
-
-  private static byte[] blockOperation(EncFSVolume volume, byte[] ivSeed, byte[] data, int opMode) throws InvalidAlgorithmParameterException, IllegalBlockSizeException, BadPaddingException {
-    // if (data.length != volume.getVolumeConfiguration().getEncryptedFileBlockSizeInBytes()) {
-    // throw new
-    // IllegalBlockSizeException("Data length must match block size ("
-    // + volume.getVolumeConfiguration().getEncryptedFileBlockSizeInBytes() + " vs. " + data.length);
-    // }
-    Cipher cipher = volume.getBlockCipher();
-    cipherInit(volume, opMode, cipher, ivSeed);
-    return cipher.doFinal(data);
-  }
-
-  /**
-   * Decode the given data using block mode
-   *
-   * @param volume Volume for the data
-   * @param ivSeed IV seed for the decryption
-   * @param data   Encrypted data contents
-   * @return Decrypted (plaintext) data
-   *         <p/>
-   *         Invalid algorithm parameters
-   */
-  public static byte[] blockDecode(EncFSVolume volume, byte[] ivSeed, byte[] data) throws InvalidAlgorithmParameterException, IllegalBlockSizeException, BadPaddingException {
-    return blockOperation(volume, ivSeed, data, Cipher.DECRYPT_MODE);
-  }
-
-  /**
-   * Encode the given data using block mode
-   *
-   * @param volume Volume for the data
-   * @param ivSeed IV seed for the encryption
-   * @param data   Plaintext data contents
-   * @return Encrypted (ciphertext) data
-   *         <p/>
-   *         Invalid algorithm parameters
-   */
-  public static byte[] blockEncode(EncFSVolume volume, byte[] ivSeed, byte[] data) throws IllegalBlockSizeException, InvalidAlgorithmParameterException, BadPaddingException {
-    return blockOperation(volume, ivSeed, data, Cipher.ENCRYPT_MODE);
+    return streamEncode(volume.getStreamCipher(), volume.getVolumeMAC(), volume.getVolumeCryptKey(), volume.getIV(), ivSeed, data, offset, len);
   }
 
   /**
@@ -577,7 +524,7 @@ public class EncFSCrypto {
     byte[] encFileName;
     try {
       if (volume.getVolumeConfiguration().getAlgorithm() == EncFSAlgorithm.BLOCK) {
-        encFileName = EncFSCrypto.blockEncode(volume, fileIv, paddedDecFileName);
+        encFileName = BlockCryptography.blockEncode(volume, fileIv, paddedDecFileName);
       } else {
         encFileName = EncFSCrypto.streamEncode(volume, fileIv, paddedDecFileName);
       }
