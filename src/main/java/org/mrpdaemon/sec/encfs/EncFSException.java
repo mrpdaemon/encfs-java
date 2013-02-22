@@ -15,51 +15,15 @@
 
 package org.mrpdaemon.sec.encfs;
 
-/**
- * Parent class of all encfs-java exceptions
- */
-public class EncFSException extends Exception {
+public abstract class EncFSException extends Exception {
 
-	// Serialization version
-	private static final long serialVersionUID = 1L;
+  private static final long serialVersionUID = 1L;
 
-	/**
-	 * Creates a new EncFSException
-	 */
-	public EncFSException() {
-		super();
-	}
+  EncFSException(String message) {
+    super(message);
+  }
 
-	/**
-	 * Creates a new EncFSException
-	 *
-	 * @param message
-	 *            Exception message
-	 */
-	public EncFSException(String message) {
-		super(message);
-	}
-
-	/**
-	 * Creates a new EncFSException
-	 *
-	 * @param cause
-	 *            Underlying Throwable for the exception
-	 */
-	public EncFSException(Throwable cause) {
-		super(cause);
-	}
-
-	/**
-	 * Creates a new EncFSException
-	 *
-	 * @param message
-	 *            Exception message
-	 * @param cause
-	 *            Underlying Throwable for the exception
-	 */
-	public EncFSException(String message, Throwable cause) {
-		super(message, cause);
-	}
-
+  EncFSException(Throwable cause) {
+    super(cause);
+  }
 }
