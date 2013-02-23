@@ -25,7 +25,6 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.security.InvalidKeyException;
 import java.security.Key;
-import java.security.SecureRandom;
 import java.util.Arrays;
 
 /**
@@ -38,7 +37,6 @@ import java.util.Arrays;
 public class EncFSVolume {
 	private final static Logger LOG = LoggerFactory
 			.getLogger(EncFSVolume.class);
-	private final static SecureRandom random = new SecureRandom();
 
 	public final static String CONFIG_FILE_NAME = ".encfs6.xml";
 	public final static String[] OLD_CONFIG_FILE_NAMES = { ".encfs5",

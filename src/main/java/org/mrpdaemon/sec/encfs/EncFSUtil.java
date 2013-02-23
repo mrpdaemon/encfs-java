@@ -30,7 +30,7 @@ public class EncFSUtil {
 		if (b.length > capacity) {
 			return -1;
 		}
-		return ByteBuffer.allocate(capacity).wrap(b).getInt();
+		return ByteBuffer.wrap(b).getInt();
 	}
 
 	public static byte[] convertIntToByteArrayBigEndian(int i) {
@@ -42,7 +42,7 @@ public class EncFSUtil {
 		if (b.length > capacity) {
 			return -1;
 		}
-		return ByteBuffer.allocate(capacity).wrap(b).getLong();
+		return ByteBuffer.wrap(b).getLong();
 	}
 
 	public static byte[] convertLongToByteArrayBigEndian(long l) {
