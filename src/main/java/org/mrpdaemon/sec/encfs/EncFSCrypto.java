@@ -139,8 +139,8 @@ public class EncFSCrypto {
 			EncFSCorruptDataException {
 		byte[] cipherVolKeyData;
 		try {
-			cipherVolKeyData = StreamCryptography.streamEncode(
-					StreamCryptography.newStreamCipher(), mac, passKey,
+			cipherVolKeyData = StreamCrypto.streamEncode(
+					StreamCrypto.newStreamCipher(), mac, passKey,
 					passIvData, mac32, volKeyData);
 		} catch (InvalidAlgorithmParameterException e) {
 			throw new EncFSInvalidConfigException(e);
@@ -441,7 +441,7 @@ public class EncFSCrypto {
 		// Chained IV computation
 		byte[] chainIv = new byte[8];
 		if (config.isChainedNameIV()) {
-			chainIv = StreamCryptography.computeChainIv(volume, volumePath);
+			chainIv = StreamCrypto.computeChainIv(volume, volumePath);
 		}
 		return chainIv;
 	}

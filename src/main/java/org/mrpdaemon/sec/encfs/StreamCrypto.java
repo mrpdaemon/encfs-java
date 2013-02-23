@@ -12,7 +12,7 @@ import java.util.StringTokenizer;
 /**
  * User: lars
  */
-public class StreamCryptography {
+public class StreamCrypto {
 
 	public static Cipher newStreamCipher() throws EncFSUnsupportedException {
 		return EncFSCrypto.getCipher(EncFSCrypto.STREAM_CIPHER);

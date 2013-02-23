@@ -31,7 +31,7 @@ public class BlockFilenameEncryptionStrategy extends
 			byte[] paddedDecFileName, byte[] fileIv)
 			throws EncFSCorruptDataException {
 		try {
-			return BlockCryptography.blockEncode(volume, fileIv,
+			return BlockCrypto.blockEncode(volume, fileIv,
 					paddedDecFileName);
 		} catch (InvalidAlgorithmParameterException e) {
 			throw new EncFSCorruptDataException(e);

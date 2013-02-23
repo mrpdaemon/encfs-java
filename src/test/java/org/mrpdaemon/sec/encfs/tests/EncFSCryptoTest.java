@@ -19,7 +19,7 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.mrpdaemon.sec.encfs.EncFSVolume;
 import org.mrpdaemon.sec.encfs.EncFSVolumeBuilder;
-import org.mrpdaemon.sec.encfs.StreamCryptography;
+import org.mrpdaemon.sec.encfs.StreamCrypto;
 
 import java.io.File;
 import java.util.Arrays;
@@ -35,9 +35,9 @@ public class EncFSCryptoTest {
 				116, 120, 116 };
 		byte[] ivSeed = new byte[] { 0, 0, 0, 0, 0, 0, 98, -63 };
 
-		byte[] b1 = StreamCryptography.streamEncode(volume, ivSeed,
+		byte[] b1 = StreamCrypto.streamEncode(volume, ivSeed,
 				Arrays.copyOf(orig, orig.length));
-		byte[] b2 = StreamCryptography.streamDecode(volume, ivSeed,
+		byte[] b2 = StreamCrypto.streamDecode(volume, ivSeed,
 				Arrays.copyOf(b1, b1.length));
 
 		Assert.assertArrayEquals(orig, b2);
@@ -49,9 +49,9 @@ public class EncFSCryptoTest {
 		byte[] orig = "test file\r".getBytes();
 		byte[] ivSeed = new byte[] { 0, 0, 0, 0, 0, 0, 0, 0 };
 
-		byte[] b1 = StreamCryptography.streamEncode(volume, ivSeed,
+		byte[] b1 = StreamCrypto.streamEncode(volume, ivSeed,
 				Arrays.copyOf(orig, orig.length));
-		byte[] b2 = StreamCryptography.streamDecode(volume, ivSeed,
+		byte[] b2 = StreamCrypto.streamDecode(volume, ivSeed,
 				Arrays.copyOf(b1, b1.length));
 
 		Assert.assertArrayEquals(orig, b2);

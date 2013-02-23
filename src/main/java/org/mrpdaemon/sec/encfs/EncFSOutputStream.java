@@ -106,14 +106,14 @@ public class EncFSOutputStream extends FilterOutputStream {
 				 * When using external IV chaining we compute initIv based on
 				 * the file path.
 				 */
-				initIv = StreamCryptography.computeChainIv(volume, volumePath);
+				initIv = StreamCrypto.computeChainIv(volume, volumePath);
 			} else {
 				// When not using external IV chaining initIv is just zero's.
 				initIv = new byte[8];
 			}
 
 			try {
-				this.fileIv = StreamCryptography.streamDecode(volume, initIv,
+				this.fileIv = StreamCrypto.streamDecode(volume, initIv,
 						Arrays.copyOf(fileHeader, fileHeader.length));
 			} catch (InvalidAlgorithmParameterException e) {
 				e.printStackTrace();
@@ -127,14 +127,14 @@ public class EncFSOutputStream extends FilterOutputStream {
 			this.fileIv = new byte[8];
 		}
 
-		Cipher blockCipher = BlockCryptography.newBlockCipher();
+		Cipher blockCipher = BlockCrypto.newBlockCipher();
 		try {
 			EncFSCrypto.cipherInit(volume, Cipher.ENCRYPT_MODE, blockCipher,
 					fileIv);
 		} catch (InvalidAlgorithmParameterException e) {
 			throw new EncFSCorruptDataException(e);
 		}
-		Cipher streamCipher = StreamCryptography.newStreamCipher();
+		Cipher streamCipher = StreamCrypto.newStreamCipher();
 		try {
 			EncFSCrypto.cipherInit(volume, Cipher.ENCRYPT_MODE, streamCipher,
 					fileIv);
@@ -199,11 +199,11 @@ public class EncFSOutputStream extends FilterOutputStream {
 				if (zeroBlock) {
 					encBuffer = dataBuf;
 				} else {
-					encBuffer = BlockCryptography.blockEncode(volume,
+					encBuffer = BlockCrypto.blockEncode(volume,
 							getBlockIV(), dataBuf);
 				}
 			} else {
-				encBuffer = StreamCryptography.streamEncode(volume,
+				encBuffer = StreamCrypto.streamEncode(volume,
 						getBlockIV(), dataBuf, 0, dataBytes);
 			}
 		} catch (IllegalBlockSizeException e) {

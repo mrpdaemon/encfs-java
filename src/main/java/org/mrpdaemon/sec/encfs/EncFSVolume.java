@@ -78,8 +78,8 @@ public class EncFSVolume {
 
 		volumeIV = copyIVdata(keyData, keyLength);
 		volumeMAC = createVolumeMAC();
-		streamCipher = StreamCryptography.newStreamCipher();
-		blockCipher = BlockCryptography.newBlockCipher();
+		streamCipher = StreamCrypto.newStreamCipher();
+		blockCipher = BlockCrypto.newBlockCipher();
 
 		rootDir = getFile(ROOT_PATH);
 	}

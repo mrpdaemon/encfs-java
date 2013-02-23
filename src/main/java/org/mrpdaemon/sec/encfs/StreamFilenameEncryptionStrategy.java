@@ -17,7 +17,7 @@ public class StreamFilenameEncryptionStrategy extends
 			byte[] paddedDecFileName, byte[] fileIv)
 			throws EncFSCorruptDataException {
 		try {
-			return StreamCryptography.streamEncode(volume, fileIv,
+			return StreamCrypto.streamEncode(volume, fileIv,
 					paddedDecFileName);
 		} catch (InvalidAlgorithmParameterException e) {
 			throw new EncFSCorruptDataException(e);

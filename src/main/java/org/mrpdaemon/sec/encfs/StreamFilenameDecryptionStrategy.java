@@ -15,7 +15,7 @@ public class StreamFilenameDecryptionStrategy extends
 	protected byte[] decryptConcrete(EncFSVolume volume, byte[] encFileName,
 			byte[] fileIv) throws EncFSCorruptDataException {
 		try {
-			return StreamCryptography.streamDecode(volume, fileIv, encFileName);
+			return StreamCrypto.streamDecode(volume, fileIv, encFileName);
 		} catch (InvalidAlgorithmParameterException e) {
 			throw new EncFSCorruptDataException(e);
 		} catch (IllegalBlockSizeException e) {

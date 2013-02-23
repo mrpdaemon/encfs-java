@@ -117,8 +117,8 @@ class VolumeKey {
 			EncFSCorruptDataException {
 		byte[] clearVolKeyData;
 		try {
-			clearVolKeyData = StreamCryptography.streamDecode(
-					StreamCryptography.newStreamCipher(), mac, passKey,
+			clearVolKeyData = StreamCrypto.streamDecode(
+					StreamCrypto.newStreamCipher(), mac, passKey,
 					passIvData, ivSeed, encryptedVolKey);
 		} catch (InvalidAlgorithmParameterException e) {
 			throw new EncFSInvalidConfigException(e);

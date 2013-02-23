@@ -29,7 +29,7 @@ public class BlockFilenameDecryptionStrategy extends
 	protected byte[] decryptConcrete(EncFSVolume volume, byte[] encFileName,
 			byte[] fileIv) throws EncFSCorruptDataException {
 		try {
-			return BlockCryptography.blockDecode(volume, fileIv, encFileName);
+			return BlockCrypto.blockDecode(volume, fileIv, encFileName);
 		} catch (InvalidAlgorithmParameterException e) {
 			throw new EncFSCorruptDataException(e);
 		} catch (IllegalBlockSizeException e) {
