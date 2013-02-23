@@ -4,7 +4,7 @@
   <groupId>org.mrpdaemon.sec.encfs</groupId>
   <artifactId>encfs-java</artifactId>
   <packaging>jar</packaging>
-  <version>0.4</version>
+  <version>0.4.99</version>
   <name>encfs-java</name>
   <url>http://maven.apache.org</url>
   <dependencies>
