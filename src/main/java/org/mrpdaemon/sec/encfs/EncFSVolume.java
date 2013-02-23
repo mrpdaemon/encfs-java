@@ -15,9 +15,6 @@
 
 package org.mrpdaemon.sec.encfs;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import javax.crypto.Cipher;
 import javax.crypto.Mac;
 import java.io.File;
@@ -35,9 +32,6 @@ import java.util.Arrays;
  * compliant EncFS implementation.
  */
 public class EncFSVolume {
-	private final static Logger LOG = LoggerFactory
-			.getLogger(EncFSVolume.class);
-
 	public final static String CONFIG_FILE_NAME = ".encfs6.xml";
 	public final static String[] OLD_CONFIG_FILE_NAMES = { ".encfs5",
 			".encfs4", ".encfs3", ".encfs2", ".encfs" };
@@ -152,7 +146,6 @@ public class EncFSVolume {
 					dirCount += countFiles(subFile);
 				}
 			} catch (Exception e) {
-				LOG.error(e.getMessage(), e);
 			}
 			return dirCount;
 		} else {
