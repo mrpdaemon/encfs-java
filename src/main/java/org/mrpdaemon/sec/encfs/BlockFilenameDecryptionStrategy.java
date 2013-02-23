@@ -20,7 +20,7 @@ import java.security.InvalidAlgorithmParameterException;
 import java.util.Arrays;
 
 public class BlockFilenameDecryptionStrategy extends
-		NotNullFilenameDecryptionStrategy {
+		BasicFilenameDecryptionStrategy {
 
 	public BlockFilenameDecryptionStrategy(EncFSVolume volume, String volumePath) {
 		super(volume, volumePath, EncFSAlgorithm.BLOCK);

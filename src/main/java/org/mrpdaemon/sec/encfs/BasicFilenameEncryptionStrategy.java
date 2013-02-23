@@ -2,10 +2,10 @@ package org.mrpdaemon.sec.encfs;
 
 import java.util.Arrays;
 
-public abstract class NotNullFilenameEncryptionStrategy extends
+public abstract class BasicFilenameEncryptionStrategy extends
 		FilenameEncryptionStrategy {
 
-	NotNullFilenameEncryptionStrategy(EncFSVolume volume, String volumePath,
+	BasicFilenameEncryptionStrategy(EncFSVolume volume, String volumePath,
 			EncFSAlgorithm algorithm) {
 		super(volume, volumePath, algorithm);
 	}

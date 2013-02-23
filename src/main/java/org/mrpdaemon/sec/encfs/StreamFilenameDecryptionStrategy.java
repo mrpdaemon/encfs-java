@@ -5,7 +5,7 @@ import javax.crypto.IllegalBlockSizeException;
 import java.security.InvalidAlgorithmParameterException;
 
 public class StreamFilenameDecryptionStrategy extends
-		NotNullFilenameDecryptionStrategy {
+		BasicFilenameDecryptionStrategy {
 
 	public StreamFilenameDecryptionStrategy(EncFSVolume volume,
 			String volumePath) {
