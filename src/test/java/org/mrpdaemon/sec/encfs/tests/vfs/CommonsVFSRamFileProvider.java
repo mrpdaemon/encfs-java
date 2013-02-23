@@ -8,32 +8,32 @@ import java.io.IOException;
 
 public class CommonsVFSRamFileProvider extends CommonsVFSFileProvider {
 
-  private DefaultFileSystemManager fileSystemManager;
+	private DefaultFileSystemManager fileSystemManager;
 
-  public CommonsVFSRamFileProvider() {
-    super(createFileSystemManager());
-    this.fileSystemManager = (DefaultFileSystemManager) super.fileSystemManager;
-  }
+	public CommonsVFSRamFileProvider() {
+		super(createFileSystemManager());
+		this.fileSystemManager = (DefaultFileSystemManager) super.fileSystemManager;
+	}
 
-  private static DefaultFileSystemManager createFileSystemManager() {
-    RamFileProvider ramFileProvider = new RamFileProvider();
-    DefaultFileSystemManager fileSystemManager = new DefaultFileSystemManager();
-    // this.fileSystemManager.setLogger(log);
-    try {
-      fileSystemManager.addProvider("ram", ramFileProvider);
-      fileSystemManager.setDefaultProvider(ramFileProvider);
-    } catch (FileSystemException e) {
-      throw new IllegalStateException(e);
-    }
+	private static DefaultFileSystemManager createFileSystemManager() {
+		RamFileProvider ramFileProvider = new RamFileProvider();
+		DefaultFileSystemManager fileSystemManager = new DefaultFileSystemManager();
+		// this.fileSystemManager.setLogger(log);
+		try {
+			fileSystemManager.addProvider("ram", ramFileProvider);
+			fileSystemManager.setDefaultProvider(ramFileProvider);
+		} catch (FileSystemException e) {
+			throw new IllegalStateException(e);
+		}
 
-    return fileSystemManager;
-  }
+		return fileSystemManager;
+	}
 
-  public void init() throws IOException {
-    fileSystemManager.init();
-  }
+	public void init() throws IOException {
+		fileSystemManager.init();
+	}
 
-  public void close() {
-    fileSystemManager.close();
-  }
+	public void close() {
+		fileSystemManager.close();
+	}
 }

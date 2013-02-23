@@ -23,17 +23,21 @@ import java.io.IOException;
  */
 class EncFSFileOutputStream extends FilterOutputStream {
 
-  /**
-   * Creates an EncFSFileOutputStream to write encrypted data to a file under
-   * and EncFS volume
-   *
-   * @param encfsFile   EncFSFile to open an output stream to
-   * @param inputLength Length of the input file that will be written to this output
-   *                    stream. Note that this parameter is optional if using
-   *                    EncFSLocalFileProvider, but some network based storage API's
-   *                    require knowing the file length in advance.
-   */
-  public EncFSFileOutputStream(EncFSFile encfsFile, long inputLength) throws IOException, EncFSUnsupportedException, EncFSCorruptDataException {
-    super(encfsFile.openOutputStream(inputLength));
-  }
+	/**
+	 * Creates an EncFSFileOutputStream to write encrypted data to a file under
+	 * and EncFS volume
+	 * 
+	 * @param encfsFile
+	 *            EncFSFile to open an output stream to
+	 * @param inputLength
+	 *            Length of the input file that will be written to this output
+	 *            stream. Note that this parameter is optional if using
+	 *            EncFSLocalFileProvider, but some network based storage API's
+	 *            require knowing the file length in advance.
+	 */
+	public EncFSFileOutputStream(EncFSFile encfsFile, long inputLength)
+			throws IOException, EncFSUnsupportedException,
+			EncFSCorruptDataException {
+		super(encfsFile.openOutputStream(inputLength));
+	}
 }

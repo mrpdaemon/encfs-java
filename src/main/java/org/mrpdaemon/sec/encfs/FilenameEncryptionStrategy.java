@@ -5,31 +5,34 @@ package org.mrpdaemon.sec.encfs;
  */
 abstract class FilenameEncryptionStrategy {
 
-  private final EncFSVolume volume;
-  private final String volumePath;
-  private final EncFSAlgorithm algorithm;
+	private final EncFSVolume volume;
+	private final String volumePath;
+	private final EncFSAlgorithm algorithm;
 
-  String getVolumePath() {
-    return volumePath;
-  }
+	String getVolumePath() {
+		return volumePath;
+	}
 
-  EncFSVolume getVolume() {
-    return volume;
-  }
+	EncFSVolume getVolume() {
+		return volume;
+	}
 
-  FilenameEncryptionStrategy(EncFSVolume volume, String volumePath, EncFSAlgorithm algorithm) {
-    this.volume = volume;
-    this.volumePath = volumePath;
-    this.algorithm = algorithm;
-  }
+	FilenameEncryptionStrategy(EncFSVolume volume, String volumePath,
+			EncFSAlgorithm algorithm) {
+		this.volume = volume;
+		this.volumePath = volumePath;
+		this.algorithm = algorithm;
+	}
 
-  protected abstract String encryptImpl(String fileName) throws EncFSCorruptDataException;
+	protected abstract String encryptImpl(String fileName)
+			throws EncFSCorruptDataException;
 
-  public String encrypt(String filename) throws EncFSCorruptDataException {
-    if (volume.getVolumeConfiguration().getAlgorithm() != algorithm) {
-      throw new IllegalStateException("only accessable when algorithm is " + algorithm);
-    }
+	public String encrypt(String filename) throws EncFSCorruptDataException {
+		if (volume.getVolumeConfiguration().getAlgorithm() != algorithm) {
+			throw new IllegalStateException(
+					"only accessable when algorithm is " + algorithm);
+		}
 
-    return encryptImpl(filename);
-  }
+		return encryptImpl(filename);
+	}
 }

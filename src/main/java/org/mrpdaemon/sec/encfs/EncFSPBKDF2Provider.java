@@ -20,17 +20,23 @@ package org.mrpdaemon.sec.encfs;
  */
 public abstract class EncFSPBKDF2Provider {
 
-  /**
-   * @param passwordLen Length of the password provided in 'password'
-   * @param password    Password to hash
-   * @param saltLen     Length of the salt provided in 'salt'
-   * @param salt        Salt data
-   * @param iterations  Number of PBKDF2 iterations to perform
-   * @param keyLen      Desired length of the resulting key material in bytes
-   * @return Byte array containing the result of the PBKDF2 computation. null
-   *         if the computation failed.
-   */
-  public abstract byte[] doPBKDF2(int passwordLen, String password,
-                                  int saltLen, byte[] salt, int iterations, int keyLen);
+	/**
+	 * @param passwordLen
+	 *            Length of the password provided in 'password'
+	 * @param password
+	 *            Password to hash
+	 * @param saltLen
+	 *            Length of the salt provided in 'salt'
+	 * @param salt
+	 *            Salt data
+	 * @param iterations
+	 *            Number of PBKDF2 iterations to perform
+	 * @param keyLen
+	 *            Desired length of the resulting key material in bytes
+	 * @return Byte array containing the result of the PBKDF2 computation. null
+	 *         if the computation failed.
+	 */
+	public abstract byte[] doPBKDF2(int passwordLen, String password,
+			int saltLen, byte[] salt, int iterations, int keyLen);
 
 }

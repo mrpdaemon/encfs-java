@@ -17,14 +17,14 @@ package org.mrpdaemon.sec.encfs;
 
 public class EncFSCorruptDataException extends EncFSException {
 
-  private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = 1L;
 
-  public EncFSCorruptDataException(String message) {
-    super(message);
-  }
+	public EncFSCorruptDataException(String message) {
+		super(message);
+	}
 
-  public EncFSCorruptDataException(Throwable cause) {
-    super(cause);
-  }
+	public EncFSCorruptDataException(Throwable cause) {
+		super(cause);
+	}
 
 }

@@ -22,55 +22,58 @@ import java.nio.ByteBuffer;
 
 public class EncFSUtil {
 
-  private static final int EIGHT = 8;
-  private static final int EIGHT_KILO = 8192;
+	private static final int EIGHT = 8;
+	private static final int EIGHT_KILO = 8192;
 
-  public static int convertBigEndianByteArrayToInt(byte[] b) {
-    int capacity = Integer.SIZE / EIGHT;
-    if (b.length > capacity) {
-      return -1;
-    }
-    return ByteBuffer.allocate(capacity).wrap(b).getInt();
-  }
+	public static int convertBigEndianByteArrayToInt(byte[] b) {
+		int capacity = Integer.SIZE / EIGHT;
+		if (b.length > capacity) {
+			return -1;
+		}
+		return ByteBuffer.allocate(capacity).wrap(b).getInt();
+	}
 
-  public static byte[] convertIntToByteArrayBigEndian(int i) {
-    return ByteBuffer.allocate(Integer.SIZE / EIGHT).putInt(i).array();
-  }
+	public static byte[] convertIntToByteArrayBigEndian(int i) {
+		return ByteBuffer.allocate(Integer.SIZE / EIGHT).putInt(i).array();
+	}
 
-  public static long convertByteArrayToLong(byte[] b) {
-    int capacity = Long.SIZE / EIGHT;
-    if (b.length > capacity) {
-      return -1;
-    }
-    return ByteBuffer.allocate(capacity).wrap(b).getLong();
-  }
+	public static long convertByteArrayToLong(byte[] b) {
+		int capacity = Long.SIZE / EIGHT;
+		if (b.length > capacity) {
+			return -1;
+		}
+		return ByteBuffer.allocate(capacity).wrap(b).getLong();
+	}
 
-  public static byte[] convertLongToByteArrayBigEndian(long l) {
-    return ByteBuffer.allocate(Long.SIZE / EIGHT).putLong(l).array();
-  }
+	public static byte[] convertLongToByteArrayBigEndian(long l) {
+		return ByteBuffer.allocate(Long.SIZE / EIGHT).putLong(l).array();
+	}
 
-  public static void copyWholeStreamAndCloseInput(InputStream in, OutputStream out) throws IOException {
-    try {
-      readFromAndWriteTo(in, out);
-    } finally {
-      in.close();
-    }
-  }
+	public static void copyWholeStreamAndCloseInput(InputStream in,
+			OutputStream out) throws IOException {
+		try {
+			readFromAndWriteTo(in, out);
+		} finally {
+			in.close();
+		}
+	}
 
-  public static void copyWholeStreamAndClose(InputStream in, OutputStream out) throws IOException {
-    try {
-      copyWholeStreamAndCloseInput(in, out);
-    } finally {
-      out.close();
-    }
-  }
+	public static void copyWholeStreamAndClose(InputStream in, OutputStream out)
+			throws IOException {
+		try {
+			copyWholeStreamAndCloseInput(in, out);
+		} finally {
+			out.close();
+		}
+	}
 
-  private static void readFromAndWriteTo(InputStream in, OutputStream out) throws IOException {
-    byte[] buf = new byte[EIGHT_KILO];
-    int bytesRead = in.read(buf);
-    while (bytesRead >= 0) {
-      out.write(buf, 0, bytesRead);
-      bytesRead = in.read(buf);
-    }
-  }
+	private static void readFromAndWriteTo(InputStream in, OutputStream out)
+			throws IOException {
+		byte[] buf = new byte[EIGHT_KILO];
+		int bytesRead = in.read(buf);
+		while (bytesRead >= 0) {
+			out.write(buf, 0, bytesRead);
+			bytesRead = in.read(buf);
+		}
+	}
 }

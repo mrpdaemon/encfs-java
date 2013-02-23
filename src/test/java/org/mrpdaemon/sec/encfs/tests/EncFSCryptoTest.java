@@ -25,41 +25,48 @@ import java.io.File;
 import java.util.Arrays;
 
 public class EncFSCryptoTest {
-  private final static String password = "test";
-  private final static String pathname = "test/encfs_samples/boxcryptor_1";
+	private final static String password = "test";
+	private final static String pathname = "test/encfs_samples/boxcryptor_1";
 
-  @Test
-  public void testStreamEncodeDecode() throws Exception {
-    EncFSVolume volume = getEncFSVolume();
-    byte[] orig = new byte[]{116, 101, 115, 116, 102, 105, 108, 101, 46, 116, 120, 116};
-    byte[] ivSeed = new byte[]{0, 0, 0, 0, 0, 0, 98, -63};
+	@Test
+	public void testStreamEncodeDecode() throws Exception {
+		EncFSVolume volume = getEncFSVolume();
+		byte[] orig = new byte[] { 116, 101, 115, 116, 102, 105, 108, 101, 46,
+				116, 120, 116 };
+		byte[] ivSeed = new byte[] { 0, 0, 0, 0, 0, 0, 98, -63 };
 
-    byte[] b1 = StreamCryptography.streamEncode(volume, ivSeed, Arrays.copyOf(orig, orig.length));
-    byte[] b2 = StreamCryptography.streamDecode(volume, ivSeed, Arrays.copyOf(b1, b1.length));
+		byte[] b1 = StreamCryptography.streamEncode(volume, ivSeed,
+				Arrays.copyOf(orig, orig.length));
+		byte[] b2 = StreamCryptography.streamDecode(volume, ivSeed,
+				Arrays.copyOf(b1, b1.length));
 
-    Assert.assertArrayEquals(orig, b2);
-  }
+		Assert.assertArrayEquals(orig, b2);
+	}
 
-  @Test
-  public void testStreamEncodeDecode2() throws Exception {
-    EncFSVolume volume = getEncFSVolume();
-    byte[] orig = "test file\r".getBytes();
-    byte[] ivSeed = new byte[]{0, 0, 0, 0, 0, 0, 0, 0};
+	@Test
+	public void testStreamEncodeDecode2() throws Exception {
+		EncFSVolume volume = getEncFSVolume();
+		byte[] orig = "test file\r".getBytes();
+		byte[] ivSeed = new byte[] { 0, 0, 0, 0, 0, 0, 0, 0 };
 
-    byte[] b1 = StreamCryptography.streamEncode(volume, ivSeed, Arrays.copyOf(orig, orig.length));
-    byte[] b2 = StreamCryptography.streamDecode(volume, ivSeed, Arrays.copyOf(b1, b1.length));
+		byte[] b1 = StreamCryptography.streamEncode(volume, ivSeed,
+				Arrays.copyOf(orig, orig.length));
+		byte[] b2 = StreamCryptography.streamDecode(volume, ivSeed,
+				Arrays.copyOf(b1, b1.length));
 
-    Assert.assertArrayEquals(orig, b2);
-  }
+		Assert.assertArrayEquals(orig, b2);
+	}
 
-  private static EncFSVolume getEncFSVolume() throws Exception {
-    File encFSDir = assertExistingPath(EncFSCryptoTest.pathname);
-    return new EncFSVolumeBuilder().withRootPath(encFSDir.getAbsolutePath()).withPassword(EncFSCryptoTest.password).access();
-  }
+	private static EncFSVolume getEncFSVolume() throws Exception {
+		File encFSDir = assertExistingPath(EncFSCryptoTest.pathname);
+		return new EncFSVolumeBuilder()
+				.withRootPath(encFSDir.getAbsolutePath())
+				.withPassword(EncFSCryptoTest.password).access();
+	}
 
-  private static File assertExistingPath(String pathname) {
-    File encFSDir = new File(pathname);
-    Assert.assertTrue(encFSDir.exists());
-    return encFSDir;
-  }
+	private static File assertExistingPath(String pathname) {
+		File encFSDir = new File(pathname);
+		Assert.assertTrue(encFSDir.exists());
+		return encFSDir;
+	}
 }

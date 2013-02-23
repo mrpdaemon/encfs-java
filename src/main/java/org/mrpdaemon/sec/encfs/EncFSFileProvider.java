@@ -29,40 +29,41 @@ import java.util.List;
  */
 public interface EncFSFileProvider {
 
-  boolean isDirectory(String srcPath) throws IOException;
+	boolean isDirectory(String srcPath) throws IOException;
 
-  boolean exists(String srcPath) throws IOException;
+	boolean exists(String srcPath) throws IOException;
 
-  String getFilesystemRootPath();
+	String getFilesystemRootPath();
 
-  EncFSFileInfo getFileInfo(String srcPath) throws IOException;
+	EncFSFileInfo getFileInfo(String srcPath) throws IOException;
 
-  List<EncFSFileInfo> listFiles(String dirPath) throws IOException;
+	List<EncFSFileInfo> listFiles(String dirPath) throws IOException;
 
-  boolean move(String srcPath, String dstPath) throws IOException;
+	boolean move(String srcPath, String dstPath) throws IOException;
 
-  boolean delete(String srcPath) throws IOException;
+	boolean delete(String srcPath) throws IOException;
 
-  /**
-   * Create a directory with the given path
-   * <p/>
-   * Note that all path elements except the last one must exist for this
-   * method. If that is not true mkdirs should be used instead
-   */
-  boolean mkdir(String dirPath) throws IOException;
+	/**
+	 * Create a directory with the given path
+	 * <p/>
+	 * Note that all path elements except the last one must exist for this
+	 * method. If that is not true mkdirs should be used instead
+	 */
+	boolean mkdir(String dirPath) throws IOException;
 
-  /**
-   * Create a directory with the given path
-   * <p/>
-   * Intermediate directories are also created by this method
-   */
-  boolean mkdirs(String dirPath) throws IOException;
+	/**
+	 * Create a directory with the given path
+	 * <p/>
+	 * Intermediate directories are also created by this method
+	 */
+	boolean mkdirs(String dirPath) throws IOException;
 
-  EncFSFileInfo createFile(String dstFilePath) throws IOException;
+	EncFSFileInfo createFile(String dstFilePath) throws IOException;
 
-  boolean copy(String srcFilePath, String dstFilePath) throws IOException;
+	boolean copy(String srcFilePath, String dstFilePath) throws IOException;
 
-  InputStream openInputStream(String srcFilePath) throws IOException;
+	InputStream openInputStream(String srcFilePath) throws IOException;
 
-  OutputStream openOutputStream(String dstFilePath, long outputLength) throws IOException;
+	OutputStream openOutputStream(String dstFilePath, long outputLength)
+			throws IOException;
 }

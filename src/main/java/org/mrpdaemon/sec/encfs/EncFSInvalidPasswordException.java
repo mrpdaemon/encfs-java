@@ -17,9 +17,9 @@ package org.mrpdaemon.sec.encfs;
 
 public class EncFSInvalidPasswordException extends EncFSException {
 
-  private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = 1L;
 
-  public EncFSInvalidPasswordException(Throwable cause) {
-    super(cause);
-  }
+	public EncFSInvalidPasswordException(Throwable cause) {
+		super(cause);
+	}
 }
