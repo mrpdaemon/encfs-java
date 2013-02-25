@@ -23,7 +23,7 @@ import java.util.Properties;
 /**
  * Writer methods that write an EncFSConfig into a file
  */
-class EncFSConfigWriter {
+public class EncFSConfigWriter {
 
 	// Version to use if the properties file can't be read
 	private static final String ENCFS_JAVA_LIB_VERSION_DEV = "dev";
@@ -77,7 +77,7 @@ class EncFSConfigWriter {
 
 		result += "\t<nameAlg>\n";
 
-		EncFSFilenameEncryptionAlgorithm algorithm = config.getAlgorithm();
+		EncFSFilenameEncryptionAlgorithm algorithm = config.getFilenameAlgorithm();
 		result += "\t\t<name>" + algorithm.getIdentifier() + "</name>\n";
 		result += "\t\t<major>" + algorithm.getMajor() + "</major>\n";
 		result += "\t\t<minor>" + algorithm.getMinor() + "</minor>\n";

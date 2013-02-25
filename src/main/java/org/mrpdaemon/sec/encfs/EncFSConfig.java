@@ -15,6 +15,10 @@
 
 package org.mrpdaemon.sec.encfs;
 
+/**
+ * Class representing an EncFS volume configuration.
+ * 
+ */
 public class EncFSConfig {
 
 	private int volumeKeySizeInBits;
@@ -43,7 +47,7 @@ public class EncFSConfig {
 	 */
 	private String base64Salt;
 	private int iterationForPasswordKeyDerivationCount;
-	private EncFSFilenameEncryptionAlgorithm algorithm;
+	private EncFSFilenameEncryptionAlgorithm filenameAlgorithm;
 	private int numberOfMACBytesForEachFileBlock;
 	private int numberOfRandomBytesInEachMACHeader;
 	private boolean supportedExternalIVChaining;
@@ -133,12 +137,13 @@ public class EncFSConfig {
 		this.iterationForPasswordKeyDerivationCount = iterationForPasswordKeyDerivationCount;
 	}
 
-	public EncFSFilenameEncryptionAlgorithm getAlgorithm() {
-		return algorithm;
+	public EncFSFilenameEncryptionAlgorithm getFilenameAlgorithm() {
+		return filenameAlgorithm;
 	}
 
-	public void setAlgorithm(EncFSFilenameEncryptionAlgorithm algorithm) {
-		this.algorithm = algorithm;
+	public void setFilenameAlgorithm(
+			EncFSFilenameEncryptionAlgorithm filenameAlgorithm) {
+		this.filenameAlgorithm = filenameAlgorithm;
 	}
 
 	public int getNumberOfMACBytesForEachFileBlock() {
@@ -188,7 +193,7 @@ public class EncFSConfig {
 				+ ", saltLengthBytes=" + saltLengthBytes + ", base64Salt="
 				+ base64Salt + ", iterationForPasswordKeyDerivationCount="
 				+ iterationForPasswordKeyDerivationCount + ", algorithm="
-				+ algorithm + ", numberOfMACBytesForEachFileBlock="
+				+ filenameAlgorithm + ", numberOfMACBytesForEachFileBlock="
 				+ numberOfMACBytesForEachFileBlock
 				+ ", numberOfRandomBytesInEachMACHeader="
 				+ numberOfRandomBytesInEachMACHeader

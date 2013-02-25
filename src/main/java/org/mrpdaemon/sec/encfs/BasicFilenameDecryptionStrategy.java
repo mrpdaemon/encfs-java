@@ -16,7 +16,8 @@ package org.mrpdaemon.sec.encfs;
 
 import java.util.Arrays;
 
-public abstract class BasicFilenameDecryptionStrategy extends
+// Common class for filename decryption strategies
+abstract class BasicFilenameDecryptionStrategy extends
 		FilenameDecryptionStrategy {
 
 	BasicFilenameDecryptionStrategy(EncFSVolume volume, String volumePath,
@@ -24,16 +25,18 @@ public abstract class BasicFilenameDecryptionStrategy extends
 		super(volume, volumePath, algorithm);
 	}
 
+	// Actual decryption to be implemented by the subclass
 	protected abstract byte[] decryptConcrete(EncFSVolume volume,
 			byte[] encFileName, byte[] fileIv) throws EncFSCorruptDataException;
 
+	// Filename decryption implementation
 	protected String decryptImpl(String fileName)
 			throws EncFSCorruptDataException, EncFSChecksumException {
 		EncFSVolume volume = getVolume();
 		String volumePath = getVolumePath();
 		EncFSConfig config = volume.getConfig();
 
-		byte[] chainIv = EncFSCrypto.computeChainedIVInCase(volume, volumePath,
+		byte[] chainIv = EncFSCrypto.computeChainedIV(volume, volumePath,
 				config);
 		byte[] base256FileName = EncFSBase64.decodeEncfs(fileName.getBytes());
 		byte[] macBytes = EncFSCrypto.getMacBytes(base256FileName);
@@ -48,8 +51,10 @@ public abstract class BasicFilenameDecryptionStrategy extends
 		return decryptPost(decFileName);
 	}
 
+	// Post decrpytion hook for subclasses
 	protected abstract String decryptPost(byte[] fileName);
 
+	// Verify that the decryption worked
 	private void verifyDecryptionWorked(EncFSVolume volume, byte[] chainIv,
 			byte[] base256FileName, byte[] decFileName)
 			throws EncFSChecksumException {
@@ -58,8 +63,7 @@ public abstract class BasicFilenameDecryptionStrategy extends
 		// stored checksums at the end)
 		byte[] mac16;
 		if (volume.getConfig().isChainedNameIV()) {
-			mac16 = EncFSCrypto.mac16(volume.getMAC(), decFileName,
-					chainIv);
+			mac16 = EncFSCrypto.mac16(volume.getMAC(), decFileName, chainIv);
 		} else {
 			mac16 = EncFSCrypto.mac16(volume.getMAC(), decFileName);
 		}

@@ -103,7 +103,7 @@ public class EncFSInputStream extends FilterInputStream {
 			}
 
 			try {
-				this.fileIv = StreamCrypto.streamDecode(volume, initIv,
+				this.fileIv = StreamCrypto.streamDecrypt(volume, initIv,
 						fileHeader);
 			} catch (InvalidAlgorithmParameterException e) {
 				e.printStackTrace();
@@ -288,7 +288,7 @@ public class EncFSInputStream extends FilterInputStream {
 				if (zeroBlock) {
 					blockBuf = cipherBuf;
 				} else {
-					blockBuf = BlockCrypto.blockDecode(volume,
+					blockBuf = BlockCrypto.blockDecrypt(volume,
 							getBlockIV(), cipherBuf);
 				}
 			} catch (InvalidAlgorithmParameterException e) {
@@ -303,7 +303,7 @@ public class EncFSInputStream extends FilterInputStream {
 			blockNum++;
 		} else if (bytesRead > 0) { // stream decode
 			try {
-				blockBuf = StreamCrypto.streamDecode(volume,
+				blockBuf = StreamCrypto.streamDecrypt(volume,
 						getBlockIV(), cipherBuf, 0, bytesRead);
 			} catch (InvalidAlgorithmParameterException e) {
 				e.printStackTrace();

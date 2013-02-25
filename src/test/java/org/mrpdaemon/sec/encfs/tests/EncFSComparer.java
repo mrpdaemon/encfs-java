@@ -66,7 +66,7 @@ public class EncFSComparer {
 
 		EncFSVolume volume = new EncFSVolumeBuilder()
 				.withRootPath(rawEncFSVolume.getAbsolutePath())
-				.withPassword(password).access();
+				.withPassword(password).buildVolume();
 		EncFSFile rootDir = volume.getRootDir();
 		int result = compare(rootDir, decodedEncFSOutput);
 

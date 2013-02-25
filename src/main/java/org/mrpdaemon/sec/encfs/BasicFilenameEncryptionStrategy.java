@@ -16,7 +16,8 @@ package org.mrpdaemon.sec.encfs;
 
 import java.util.Arrays;
 
-public abstract class BasicFilenameEncryptionStrategy extends
+// Common class for filename encryption strategies
+abstract class BasicFilenameEncryptionStrategy extends
 		FilenameEncryptionStrategy {
 
 	BasicFilenameEncryptionStrategy(EncFSVolume volume, String volumePath,
@@ -24,10 +25,12 @@ public abstract class BasicFilenameEncryptionStrategy extends
 		super(volume, volumePath, algorithm);
 	}
 
+	// Actual encryption to be implemented by the subclass
 	protected abstract byte[] encryptConcrete(EncFSVolume volume,
 			byte[] paddedDecFileName, byte[] fileIv)
 			throws EncFSCorruptDataException;
 
+	// Filename encryption implementation
 	protected String encryptImpl(String fileName)
 			throws EncFSCorruptDataException {
 		EncFSVolume volume = getVolume();
@@ -36,7 +39,7 @@ public abstract class BasicFilenameEncryptionStrategy extends
 
 		byte[] decFileName = fileName.getBytes();
 		byte[] paddedDecFileName = getPaddedDecFilename(decFileName);
-		byte[] chainIv = EncFSCrypto.computeChainedIVInCase(volume, volumePath,
+		byte[] chainIv = EncFSCrypto.computeChainedIV(volume, volumePath,
 				config);
 		byte[] mac16 = getMac16(volume, paddedDecFileName, chainIv);
 		byte[] macBytes = EncFSCrypto.getMacBytes(mac16);
@@ -47,6 +50,10 @@ public abstract class BasicFilenameEncryptionStrategy extends
 		return getBase256Filename(mac16, encFileName);
 	}
 
+	// Filename padding implementation hook for subclasses
+	protected abstract byte[] getPaddedDecFilename(byte[] decFileName);
+
+	// Returns the base 256 filename for the given encrypted filename
 	private String getBase256Filename(byte[] mac16, byte[] encFileName) {
 		// current versions store the checksum at the beginning (encfs 0.x
 		// stored checksums at the end)
@@ -61,6 +68,7 @@ public abstract class BasicFilenameEncryptionStrategy extends
 		return new String(fileNameOutput);
 	}
 
+	// Returns the mac16 of the given file name
 	private byte[] getMac16(EncFSVolume volume, byte[] paddedDecFileName,
 			byte[] chainIv) {
 		if (volume.getConfig().isChainedNameIV()) {
@@ -70,7 +78,5 @@ public abstract class BasicFilenameEncryptionStrategy extends
 			return EncFSCrypto.mac16(volume.getMAC(), paddedDecFileName);
 		}
 	}
-
-	protected abstract byte[] getPaddedDecFilename(byte[] decFileName);
 
 }

@@ -113,7 +113,7 @@ public class EncFSOutputStream extends FilterOutputStream {
 			}
 
 			try {
-				this.fileIv = StreamCrypto.streamDecode(volume, initIv,
+				this.fileIv = StreamCrypto.streamDecrypt(volume, initIv,
 						Arrays.copyOf(fileHeader, fileHeader.length));
 			} catch (InvalidAlgorithmParameterException e) {
 				e.printStackTrace();
@@ -199,11 +199,11 @@ public class EncFSOutputStream extends FilterOutputStream {
 				if (zeroBlock) {
 					encBuffer = dataBuf;
 				} else {
-					encBuffer = BlockCrypto.blockEncode(volume,
+					encBuffer = BlockCrypto.blockEncrypt(volume,
 							getBlockIV(), dataBuf);
 				}
 			} else {
-				encBuffer = StreamCrypto.streamEncode(volume,
+				encBuffer = StreamCrypto.streamEncrypt(volume,
 						getBlockIV(), dataBuf, 0, dataBytes);
 			}
 		} catch (IllegalBlockSizeException e) {

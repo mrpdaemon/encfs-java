@@ -33,10 +33,11 @@ class EncFSVolumeTestCommon {
 			EncFSFileProvider fileProvider) throws Exception {
 		try {
 			new EncFSVolumeBuilder().withFileProvider(fileProvider)
-					.withConfig(config).withPassword(password).create();
+					.withConfig(config).withPassword(password)
+					.writeVolumeConfig();
 			// EncFSVolume.createVolume(fileProvider, config, password);
 			return new EncFSVolumeBuilder().withFileProvider(fileProvider)
-					.withConfig(config).withPassword(password).access();
+					.withConfig(config).withPassword(password).buildVolume();
 		} catch (Exception e) {
 			Assert.fail(e.getMessage());
 			throw e;

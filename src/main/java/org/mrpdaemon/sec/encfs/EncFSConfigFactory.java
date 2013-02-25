@@ -14,11 +14,27 @@
  */
 package org.mrpdaemon.sec.encfs;
 
+/**
+ * Class for creating EncFSConfig objects
+ */
 public final class EncFSConfigFactory {
 
+	/**
+	 * Creates an EncFSConfig with default parameters:
+	 * 
+	 * nameio/block <br>
+	 * 192-bit key <br>
+	 * 1024 byte block size <br>
+	 * Unique IV <br>
+	 * Chained name IV <br>
+	 * AllowHoles <br>
+	 * 5000 PBKDF2 iterations <br>
+	 * 
+	 * @return An EncFSConfig object with default parameters
+	 */
 	public static EncFSConfig createDefault() {
 		EncFSConfig config = new EncFSConfig();
-		config.setAlgorithm(EncFSFilenameEncryptionAlgorithm.BLOCK);
+		config.setFilenameAlgorithm(EncFSFilenameEncryptionAlgorithm.BLOCK);
 		config.setVolumeKeySizeInBits(192);
 		config.setEncryptedFileBlockSizeInBytes(1024);
 		config.setUseUniqueIV(true);

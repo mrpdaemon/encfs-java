@@ -133,7 +133,8 @@ public class EncFSShell {
 				// new
 				// EncFSVolumeBuilder().withFileProvider(fileProvider).withConfig(config).withPassword(password).create();
 				new EncFSVolumeBuilder().withFileProvider(fileProvider)
-						.withConfig(config).withPassword(password).create();
+						.withConfig(config).withPassword(password)
+						.writeVolumeConfig();
 			} catch (Exception e) {
 				e.printStackTrace();
 				return false;
@@ -145,7 +146,7 @@ public class EncFSShell {
 			// Open the volume
 			try {
 				volume = new EncFSVolumeBuilder().withRootPath(path)
-						.withPassword(password).access();
+						.withPassword(password).buildVolume();
 			} catch (Exception e) {
 				System.out.println(e.getMessage());
 				return false;
@@ -183,7 +184,7 @@ public class EncFSShell {
 			// Try to open the EncFSVolume at args[0] using the given password
 			try {
 				volume = new EncFSVolumeBuilder().withRootPath(args[0])
-						.withPassword(password).access();
+						.withPassword(password).buildVolume();
 			} catch (EncFSInvalidPasswordException e) {
 				System.out.println("Invalid password!");
 				System.exit(1);

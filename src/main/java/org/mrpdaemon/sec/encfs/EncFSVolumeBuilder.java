@@ -1,3 +1,17 @@
+/*
+ * EncFS Java Library
+ * Copyright (C) 2013 encfs-java authors
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published
+ * by the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ */
 package org.mrpdaemon.sec.encfs;
 
 import java.io.File;
@@ -5,7 +19,21 @@ import java.io.IOException;
 import java.security.SecureRandom;
 
 /**
- * User: lars
+ * Class for building EncFSVolume objects and writing new volume files to file
+ * providers.
+ * 
+ * Usage (in order):
+ * 
+ * [Required] .withFileProvider(provider) OR .withRootPath(rootPath)
+ * 
+ * [Optional] .withConfig(config) AND/OR .withPbkdfProvider(pbkdf2provider)
+ * 
+ * [Required] .withPassword(password)
+ * 
+ * 
+ * Volume building methods: <br>
+ * .writeVolumeConfig() - Write volume configuration file to the file provider <br>
+ * .buildVolume() - Return an EncFSVolume
  */
 public final class EncFSVolumeBuilder {
 
@@ -54,9 +82,9 @@ public final class EncFSVolumeBuilder {
 
 		private final EncFSVolume volume;
 
-		public ConfigBuilder(EncFSVolume volume, EncFSConfig volumeConfiguration) {
+		public ConfigBuilder(EncFSVolume volume, EncFSConfig config) {
 			this.volume = volume;
-			volume.setVolumeConfig(volumeConfiguration);
+			volume.setVolumeConfig(config);
 		}
 
 		public ConfigBuilder(EncFSVolume volume)
@@ -79,6 +107,14 @@ public final class EncFSVolumeBuilder {
 				EncFSInvalidPasswordException, EncFSInvalidConfigException,
 				EncFSUnsupportedException, IOException {
 			return withPbkdf2Provider(null).withPassword(password);
+		}
+
+		public PasswordBuilder withDerivedPassword(byte[] derivedPassword)
+				throws EncFSUnsupportedException, IOException,
+				EncFSInvalidConfigException, EncFSCorruptDataException,
+				EncFSInvalidPasswordException {
+			return withPbkdf2Provider(null)
+					.withDerivedPassword(derivedPassword);
 		}
 	}
 
@@ -123,7 +159,21 @@ public final class EncFSVolumeBuilder {
 			this.provider = provider;
 		}
 
-		public EncFSVolume access() throws EncFSUnsupportedException,
+		/**
+		 * Creates a new object representing an existing EncFS volume
+		 * 
+		 * @throws EncFSInvalidPasswordException
+		 *             Given password is incorrect
+		 * @throws EncFSCorruptDataException
+		 *             Corrupt data detected (checksum error)
+		 * @throws EncFSInvalidConfigException
+		 *             Configuration file format not recognized
+		 * @throws EncFSUnsupportedException
+		 *             Unsupported EncFS version or options
+		 * @throws IOException
+		 *             File provider returned I/O error
+		 */
+		public EncFSVolume buildVolume() throws EncFSUnsupportedException,
 				IOException, EncFSInvalidConfigException,
 				EncFSInvalidPasswordException, EncFSCorruptDataException {
 			EncFSConfig config = volume.getConfig();
@@ -136,8 +186,23 @@ public final class EncFSVolumeBuilder {
 			return volume;
 		}
 
-		public void create() throws EncFSUnsupportedException, IOException,
-				EncFSInvalidConfigException, EncFSCorruptDataException {
+		/**
+		 * Writes EncFS volume configuration to the file provider
+		 * 
+		 * @throws EncFSInvalidPasswordException
+		 *             Given password is incorrect
+		 * @throws EncFSCorruptDataException
+		 *             Corrupt data detected (checksum error)
+		 * @throws EncFSInvalidConfigException
+		 *             Configuration file format not recognized
+		 * @throws EncFSUnsupportedException
+		 *             Unsupported EncFS version or options
+		 * @throws IOException
+		 *             File provider returned I/O error
+		 */
+		public void writeVolumeConfig() throws EncFSUnsupportedException,
+				IOException, EncFSInvalidConfigException,
+				EncFSCorruptDataException {
 			EncFSConfig config = volume.getConfig();
 			EncFSFileProvider fileProvider = volume.getFileProvider();
 

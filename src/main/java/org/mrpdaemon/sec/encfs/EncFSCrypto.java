@@ -28,18 +28,15 @@ import java.util.Arrays;
  * Class containing static methods implementing crypto functionality for the
  * rest of the library
  */
-public class EncFSCrypto {
+public final class EncFSCrypto {
 	public final static String STREAM_CIPHER = "AES/CFB/NoPadding";
 	public final static String BLOCK_CIPHER = "AES/CBC/NoPadding";
 
-	/**
-	 * Create a new Mac object for the given key.
-	 * 
-	 * @param key
-	 *            Key to create a new Mac for.
-	 * @return New Mac object.
-	 */
-	public static Mac newMac(Key key) throws InvalidKeyException,
+	public EncFSCrypto() {
+	}
+
+	// Create a new Mac object for the given key.
+	static Mac newMac(Key key) throws InvalidKeyException,
 			EncFSUnsupportedException {
 		Mac hmac;
 		try {
@@ -52,21 +49,15 @@ public class EncFSCrypto {
 		return hmac;
 	}
 
-	/**
-	 * Creates a new AES key with the given key bytes.
-	 * 
-	 * @param keyBytes
-	 *            Key data.
-	 * @return New AES key.
-	 */
-	public static Key newKey(byte[] keyBytes) {
+	// Creates a new AES key with the given key bytes.
+	static Key newKey(byte[] keyBytes) {
 		return new SecretKeySpec(keyBytes, "AES");
 	}
 
-	static Cipher getCipher(String STREAM_CIPHER)
-			throws EncFSUnsupportedException {
+	// Return a a cipher with the given specification
+	static Cipher getCipher(String cipherSpec) throws EncFSUnsupportedException {
 		try {
-			return Cipher.getInstance(STREAM_CIPHER);
+			return Cipher.getInstance(cipherSpec);
 		} catch (NoSuchAlgorithmException e) {
 			throw new EncFSUnsupportedException(e);
 		} catch (NoSuchPaddingException e) {
@@ -112,36 +103,23 @@ public class EncFSCrypto {
 		}
 	}
 
-	/**
-	 * Initialize the given cipher for a volume with the given parameters
-	 * 
-	 * @param volume
-	 *            Volume to initialize the cipher for
-	 * @param opMode
-	 *            Operation mode of the cipher
-	 * @param cipher
-	 *            Cipher object
-	 * @param ivSeed
-	 *            IV seed for initialization
-	 *            <p/>
-	 *            Inappropriate algorithm parameters
-	 */
-	public static void cipherInit(EncFSVolume volume, int opMode,
-			Cipher cipher, byte[] ivSeed)
-			throws InvalidAlgorithmParameterException {
-		cipherInit(volume.getKey(), volume.getMAC(), opMode,
-				cipher, volume.getIV(), ivSeed);
+	// Initialize the given cipher for a volume with the given parameters
+	static void cipherInit(EncFSVolume volume, int opMode, Cipher cipher,
+			byte[] ivSeed) throws InvalidAlgorithmParameterException {
+		cipherInit(volume.getKey(), volume.getMAC(), opMode, cipher,
+				volume.getIV(), ivSeed);
 	}
 
-	static byte[] encryptTheKeyData(byte[] volKeyData, byte[] passIvData,
+	// Encrypt the key data
+	static byte[] encryptKeyData(byte[] volKeyData, byte[] passIvData,
 			Key passKey, Mac mac, byte[] mac32)
 			throws EncFSUnsupportedException, EncFSInvalidConfigException,
 			EncFSCorruptDataException {
 		byte[] cipherVolKeyData;
 		try {
-			cipherVolKeyData = StreamCrypto.streamEncode(
-					StreamCrypto.newStreamCipher(), mac, passKey,
-					passIvData, mac32, volKeyData);
+			cipherVolKeyData = StreamCrypto.streamEncrypt(
+					StreamCrypto.newStreamCipher(), mac, passKey, passIvData,
+					mac32, volKeyData);
 		} catch (InvalidAlgorithmParameterException e) {
 			throw new EncFSInvalidConfigException(e);
 		} catch (IllegalBlockSizeException e) {
@@ -152,6 +130,7 @@ public class EncFSCrypto {
 		return cipherVolKeyData;
 	}
 
+	// Block encoding helper to do padding
 	static byte[] getBytesForBlockAlgorithm(String curPath) {
 		byte[] encodeBytes;// Only pad for block mode
 		int padLen = 16 - (curPath.length() % 16);
@@ -171,12 +150,29 @@ public class EncFSCrypto {
 		return encodeBytes;
 	}
 
+	/**
+	 * Decode the given fileName under the given volume and volume path
+	 * 
+	 * @param volume
+	 *            Volume hosting the file
+	 * @param fileName
+	 *            Encrypted file name
+	 * @param volumePath
+	 *            Cleartext path of the file in the volume
+	 * 
+	 * @return Decrypted file name
+	 * 
+	 * @throws EncFSCorruptDataException
+	 *             Corrupt data in input name
+	 * @throws EncFSChecksumException
+	 *             File checksum mismatch
+	 */
 	public static String decodeName(EncFSVolume volume, String fileName,
 			String volumePath) throws EncFSCorruptDataException,
 			EncFSChecksumException {
 
 		EncFSFilenameEncryptionAlgorithm algorithm = volume.getConfig()
-				.getAlgorithm();
+				.getFilenameAlgorithm();
 		switch (algorithm) {
 		case NULL:
 			return new NullFilenameDecryptionStrategy(volume, volumePath)
@@ -192,11 +188,26 @@ public class EncFSCrypto {
 		}
 	}
 
+	/**
+	 * Encode the given fileName under the given volume and volume path
+	 * 
+	 * @param volume
+	 *            Volume hosting the file
+	 * @param fileName
+	 *            Cleartext file name
+	 * @param volumePath
+	 *            Cleartext path of the file in the volume
+	 * 
+	 * @return Encrypted file name
+	 * 
+	 * @throws EncFSCorruptDataException
+	 *             Corrupt data in config file
+	 */
 	public static String encodeName(EncFSVolume volume, String fileName,
 			String volumePath) throws EncFSCorruptDataException {
 
 		EncFSFilenameEncryptionAlgorithm algorithm = volume.getConfig()
-				.getAlgorithm();
+				.getFilenameAlgorithm();
 		switch (algorithm) {
 		case NULL:
 			return new NullFilenameEncryptionStrategy(volume, volumePath)
@@ -256,34 +267,12 @@ public class EncFSCrypto {
 		return result;
 	}
 
-	/**
-	 * Compute 64-bit MAC over the given input bytes
-	 * 
-	 * @param mac
-	 *            MAC object to use
-	 * @param input
-	 *            Input bytes
-	 * @param inputOffset
-	 *            Offset into 'input' to start computing MAC from
-	 * @return Computed 64-bit MAC result
-	 */
+	// Compute 64-bit MAC over the given input bytes
 	static byte[] mac64(Mac mac, byte[] input, int inputOffset) {
 		return mac64(mac, input, inputOffset, input.length - inputOffset);
 	}
 
-	/**
-	 * Compute 64-bit MAC over the given input bytes
-	 * 
-	 * @param mac
-	 *            MAC object to use
-	 * @param input
-	 *            Input bytes
-	 * @param inputOffset
-	 *            Offset into 'input' to start computing MAC from
-	 * @param inputLen
-	 *            Number of bytes to compute MAC for
-	 * @return Computed 64-bit MAC result
-	 */
+	// Compute 64-bit MAC over the given input bytes
 	static byte[] mac64(Mac mac, byte[] input, int inputOffset, int inputLen) {
 		mac.reset();
 		mac.update(input, inputOffset, inputLen);
@@ -373,6 +362,7 @@ public class EncFSCrypto {
 		return mac16;
 	}
 
+	// Reverse the "shuffle bytes" transformation
 	static void unshuffleBytes(byte[] input) {
 		for (int i = (input.length - 1); i > 0; i--) {
 			// Note size - 1
@@ -380,6 +370,7 @@ public class EncFSCrypto {
 		}
 	}
 
+	// Apply the "shuffle bytes" transformation
 	static void shuffleBytes(byte[] buf) {
 		int size = buf.length;
 		for (int i = 0; i < size - 1; ++i) {
@@ -387,6 +378,7 @@ public class EncFSCrypto {
 		}
 	}
 
+	// Flip the given byte input stream
 	static byte[] flipBytes(byte[] input) {
 		byte[] result = new byte[input.length];
 
@@ -407,6 +399,7 @@ public class EncFSCrypto {
 		return result;
 	}
 
+	// Increment the given IV seed by one
 	static byte[] incrementIvSeedByOne(byte[] ivSeed)
 			throws EncFSUnsupportedException {
 		if (ivSeed.length == 4) {
@@ -420,6 +413,7 @@ public class EncFSCrypto {
 		}
 	}
 
+	// Compute file IV
 	static byte[] computeFileIV(byte[] chainIv, byte[] macBytes) {
 		byte[] fileIv = new byte[8];
 		for (int i = 0; i < 8; i++) {
@@ -428,6 +422,7 @@ public class EncFSCrypto {
 		return fileIv;
 	}
 
+	// Return first two bytes of a given 8 byte sequence
 	static byte[] getMacBytes(byte[] bytes) {
 		// TODO: make sure its multiple of 16
 		byte[] macBytes = new byte[8];
@@ -436,7 +431,8 @@ public class EncFSCrypto {
 		return macBytes;
 	}
 
-	static byte[] computeChainedIVInCase(EncFSVolume volume, String volumePath,
+	// Compute chained IV
+	static byte[] computeChainedIV(EncFSVolume volume, String volumePath,
 			EncFSConfig config) {
 		// Chained IV computation
 		byte[] chainIv = new byte[8];

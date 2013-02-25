@@ -20,11 +20,26 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
 
-public class EncFSUtil {
+/**
+ * Class containing static methods implementing misc. functionality for the rest
+ * of the library
+ */
+public final class EncFSUtil {
 
 	private static final int EIGHT = 8;
 	private static final int EIGHT_KILO = 8192;
 
+	EncFSUtil() {
+	}
+
+	/**
+	 * Convert the given byte array to 'int'
+	 * 
+	 * @param b
+	 *            A 4-byte array
+	 * 
+	 * @return int value of the array contents
+	 */
 	public static int convertBigEndianByteArrayToInt(byte[] b) {
 		int capacity = Integer.SIZE / EIGHT;
 		if (b.length > capacity) {
@@ -33,10 +48,25 @@ public class EncFSUtil {
 		return ByteBuffer.wrap(b).getInt();
 	}
 
+	/**
+	 * Convert the given int to a 4-byte array
+	 * 
+	 * @param i
+	 *            An 'int'
+	 * 
+	 * @return A 4-byte array in big endian (MSB) ordering
+	 */
 	public static byte[] convertIntToByteArrayBigEndian(int i) {
 		return ByteBuffer.allocate(Integer.SIZE / EIGHT).putInt(i).array();
 	}
 
+	/**
+	 * Convert the given byte array to 'long'
+	 * 
+	 * @param b
+	 *            An 8-byte array
+	 * @return long value of the array contents
+	 */
 	public static long convertByteArrayToLong(byte[] b) {
 		int capacity = Long.SIZE / EIGHT;
 		if (b.length > capacity) {
@@ -45,10 +75,30 @@ public class EncFSUtil {
 		return ByteBuffer.wrap(b).getLong();
 	}
 
+	/**
+	 * Convert the given long to an 8-byte array
+	 * 
+	 * @param l
+	 *            A 'long'
+	 * 
+	 * @return An 8-byte array in big endian (MSB) ordering
+	 */
 	public static byte[] convertLongToByteArrayBigEndian(long l) {
 		return ByteBuffer.allocate(Long.SIZE / EIGHT).putLong(l).array();
 	}
 
+	/**
+	 * Copy the entire content of an InputStream into an OutputStream and close
+	 * only the input stream.
+	 * 
+	 * @param in
+	 *            The InputStream to read data from
+	 * @param out
+	 *            The OutputStream to write data to
+	 * 
+	 * @throws IOException
+	 *             I/O exception from read or write
+	 */
 	public static void copyWholeStreamAndCloseInput(InputStream in,
 			OutputStream out) throws IOException {
 		try {
@@ -58,6 +108,18 @@ public class EncFSUtil {
 		}
 	}
 
+	/**
+	 * Copy the entire content of an InputStream into an OutputStream and close
+	 * both streams.
+	 * 
+	 * @param in
+	 *            The InputStream to read data from
+	 * @param out
+	 *            The OutputStream to write data to
+	 * 
+	 * @throws IOException
+	 *             I/O exception from read or write
+	 */
 	public static void copyWholeStreamAndClose(InputStream in, OutputStream out)
 			throws IOException {
 		try {

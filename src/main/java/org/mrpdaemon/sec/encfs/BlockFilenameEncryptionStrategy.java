@@ -19,20 +19,20 @@ import javax.crypto.IllegalBlockSizeException;
 import java.security.InvalidAlgorithmParameterException;
 import java.util.Arrays;
 
-public class BlockFilenameEncryptionStrategy extends
-		BasicFilenameEncryptionStrategy {
+// Implementation of block filename encryption strategy
+class BlockFilenameEncryptionStrategy extends BasicFilenameEncryptionStrategy {
 
-	public BlockFilenameEncryptionStrategy(EncFSVolume volume, String volumePath) {
+	BlockFilenameEncryptionStrategy(EncFSVolume volume, String volumePath) {
 		super(volume, volumePath, EncFSFilenameEncryptionAlgorithm.BLOCK);
 	}
 
+	// Block encryption
 	@Override
 	protected byte[] encryptConcrete(EncFSVolume volume,
 			byte[] paddedDecFileName, byte[] fileIv)
 			throws EncFSCorruptDataException {
 		try {
-			return BlockCrypto.blockEncode(volume, fileIv,
-					paddedDecFileName);
+			return BlockCrypto.blockEncrypt(volume, fileIv, paddedDecFileName);
 		} catch (InvalidAlgorithmParameterException e) {
 			throw new EncFSCorruptDataException(e);
 		} catch (IllegalBlockSizeException e) {
@@ -42,6 +42,7 @@ public class BlockFilenameEncryptionStrategy extends
 		}
 	}
 
+	// Padding implementation
 	protected byte[] getPaddedDecFilename(byte[] decFileName) {
 		// Pad to the nearest 16 bytes, add a full block if needed
 		int padBytesSize = 16;

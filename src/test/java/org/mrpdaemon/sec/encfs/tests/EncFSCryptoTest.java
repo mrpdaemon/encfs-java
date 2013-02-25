@@ -35,9 +35,9 @@ public class EncFSCryptoTest {
 				116, 120, 116 };
 		byte[] ivSeed = new byte[] { 0, 0, 0, 0, 0, 0, 98, -63 };
 
-		byte[] b1 = StreamCrypto.streamEncode(volume, ivSeed,
+		byte[] b1 = StreamCrypto.streamEncrypt(volume, ivSeed,
 				Arrays.copyOf(orig, orig.length));
-		byte[] b2 = StreamCrypto.streamDecode(volume, ivSeed,
+		byte[] b2 = StreamCrypto.streamDecrypt(volume, ivSeed,
 				Arrays.copyOf(b1, b1.length));
 
 		Assert.assertArrayEquals(orig, b2);
@@ -49,9 +49,9 @@ public class EncFSCryptoTest {
 		byte[] orig = "test file\r".getBytes();
 		byte[] ivSeed = new byte[] { 0, 0, 0, 0, 0, 0, 0, 0 };
 
-		byte[] b1 = StreamCrypto.streamEncode(volume, ivSeed,
+		byte[] b1 = StreamCrypto.streamEncrypt(volume, ivSeed,
 				Arrays.copyOf(orig, orig.length));
-		byte[] b2 = StreamCrypto.streamDecode(volume, ivSeed,
+		byte[] b2 = StreamCrypto.streamDecrypt(volume, ivSeed,
 				Arrays.copyOf(b1, b1.length));
 
 		Assert.assertArrayEquals(orig, b2);
@@ -61,7 +61,7 @@ public class EncFSCryptoTest {
 		File encFSDir = assertExistingPath(EncFSCryptoTest.pathname);
 		return new EncFSVolumeBuilder()
 				.withRootPath(encFSDir.getAbsolutePath())
-				.withPassword(EncFSCryptoTest.password).access();
+				.withPassword(EncFSCryptoTest.password).buildVolume();
 	}
 
 	private static File assertExistingPath(String pathname) {

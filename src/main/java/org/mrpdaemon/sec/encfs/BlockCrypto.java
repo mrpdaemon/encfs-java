@@ -19,12 +19,15 @@ import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
 import java.security.InvalidAlgorithmParameterException;
 
+// Static methods for block cryptography
 class BlockCrypto {
 
-	public static Cipher newBlockCipher() throws EncFSUnsupportedException {
+	// Returns a new block cipher object
+	protected static Cipher newBlockCipher() throws EncFSUnsupportedException {
 		return EncFSCrypto.getCipher(EncFSCrypto.BLOCK_CIPHER);
 	}
 
+	// Common method to perform a block operation
 	private static byte[] blockOperation(EncFSVolume volume, byte[] ivSeed,
 			byte[] data, int opMode) throws InvalidAlgorithmParameterException,
 			IllegalBlockSizeException, BadPaddingException {
@@ -33,13 +36,15 @@ class BlockCrypto {
 		return cipher.doFinal(data);
 	}
 
-	public static byte[] blockDecode(EncFSVolume volume, byte[] ivSeed,
+	// Perform block encryption
+	protected static byte[] blockDecrypt(EncFSVolume volume, byte[] ivSeed,
 			byte[] data) throws InvalidAlgorithmParameterException,
 			IllegalBlockSizeException, BadPaddingException {
 		return blockOperation(volume, ivSeed, data, Cipher.DECRYPT_MODE);
 	}
 
-	public static byte[] blockEncode(EncFSVolume volume, byte[] ivSeed,
+	// Perform block decryption
+	protected static byte[] blockEncrypt(EncFSVolume volume, byte[] ivSeed,
 			byte[] data) throws IllegalBlockSizeException,
 			InvalidAlgorithmParameterException, BadPaddingException {
 		return blockOperation(volume, ivSeed, data, Cipher.ENCRYPT_MODE);

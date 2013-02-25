@@ -31,7 +31,7 @@ import java.io.InputStream;
 /**
  * Parser methods that read and interpret EncFS configuration files.
  */
-class EncFSConfigParser {
+public class EncFSConfigParser {
 
 	private static String getNodeValue(Node n) {
 		return n.getChildNodes().item(0).getNodeValue();
@@ -144,7 +144,7 @@ class EncFSConfigParser {
 						if (nameAlgChildNode.getNodeName().equals("name")) {
 							String algName = getNodeValue(nameAlgChildNode);
 							try {
-								config.setAlgorithm(EncFSFilenameEncryptionAlgorithm
+								config.setFilenameAlgorithm(EncFSFilenameEncryptionAlgorithm
 										.parse(algName));
 							} catch (IllegalArgumentException e) {
 								throw new EncFSInvalidConfigException(

@@ -23,6 +23,10 @@ package org.mrpdaemon.sec.encfs;
 import java.io.IOException;
 import java.math.BigInteger;
 
+/**
+ * Static class to perform Base64 encoding/decoding
+ * 
+ */
 public final class EncFSBase64 {
 
 	/* ******** P U B L I C F I E L D S ******** */
@@ -1174,7 +1178,7 @@ public final class EncFSBase64 {
 	 * @see EncFSBase64
 	 * @since 1.3
 	 */
-	public static class InputStream extends java.io.FilterInputStream {
+	static class InputStream extends java.io.FilterInputStream {
 
 		private final boolean encode; // Encoding or decoding
 		private int position; // Current position in the buffer
@@ -1382,7 +1386,7 @@ public final class EncFSBase64 {
 	 * @see EncFSBase64
 	 * @since 1.3
 	 */
-	public static class OutputStream extends java.io.FilterOutputStream {
+	static class OutputStream extends java.io.FilterOutputStream {
 
 		private final boolean encode;
 		private int position;

@@ -1,3 +1,17 @@
+/*
+ * EncFS Java Library
+ * Copyright (C) 2013 encfs-java authors
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published
+ * by the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ */
 package org.mrpdaemon.sec.encfs;
 
 import javax.crypto.*;
@@ -8,19 +22,10 @@ import java.security.spec.InvalidKeySpecException;
 import java.security.spec.KeySpec;
 import java.util.Arrays;
 
-/**
- * User: lars
- */
+// Class containing static methods implementing volume key functionality
 class VolumeKey {
-	/**
-	 * Derive volume key for the given config and password-based key/IV data
-	 * 
-	 * @param config
-	 *            Volume configuration
-	 * @param pbkdf2Data
-	 *            PBKDF2 key material + IV (from derivePasswordKey())
-	 * @return Volume key + IV bits
-	 */
+
+	// Derive volume key for the given config and password-based key/IV data
 	private static byte[] encryptVolumeKey(EncFSConfig config,
 			byte[] pbkdf2Data, byte[] volKeyData)
 			throws EncFSUnsupportedException, EncFSInvalidConfigException,
@@ -38,7 +43,7 @@ class VolumeKey {
 
 		// Calculate MAC for the key
 		byte[] mac32 = EncFSCrypto.mac32(mac, volKeyData, new byte[0]);
-		byte[] cipherVolKeyData = EncFSCrypto.encryptTheKeyData(volKeyData,
+		byte[] cipherVolKeyData = EncFSCrypto.encryptKeyData(volKeyData,
 				passIvData, passKey, mac, mac32);
 
 		// Combine MAC with key data
@@ -62,18 +67,11 @@ class VolumeKey {
 		return mac;
 	}
 
-	/**
-	 * Derive volume key for the given config and password-based key/IV data
-	 * 
-	 * @param config
-	 *            Volume configuration
-	 * @param pbkdf2Data
-	 *            PBKDF2 key material + IV (from derivePasswordKey())
-	 * @return Volume key + IV bits
-	 */
-	public static byte[] decryptVolumeKey(EncFSConfig config, byte[] pbkdf2Data)
-			throws EncFSChecksumException, EncFSInvalidConfigException,
-			EncFSCorruptDataException, EncFSUnsupportedException {
+	// Derive volume key for the given config and password-based key/IV data
+	protected static byte[] decryptVolumeKey(EncFSConfig config,
+			byte[] pbkdf2Data) throws EncFSChecksumException,
+			EncFSInvalidConfigException, EncFSCorruptDataException,
+			EncFSUnsupportedException {
 		// Decode Base64 encoded ciphertext data
 		// TODO: validate key/IV lengths
 		byte[] cipherVolKeyData;
@@ -111,15 +109,16 @@ class VolumeKey {
 		return clearVolKeyData;
 	}
 
+	// Decrypt volume key data
 	private static byte[] decryptVolumeKeyData(byte[] encryptedVolKey,
 			byte[] passIvData, Key passKey, byte[] ivSeed, Mac mac)
 			throws EncFSUnsupportedException, EncFSInvalidConfigException,
 			EncFSCorruptDataException {
 		byte[] clearVolKeyData;
 		try {
-			clearVolKeyData = StreamCrypto.streamDecode(
-					StreamCrypto.newStreamCipher(), mac, passKey,
-					passIvData, ivSeed, encryptedVolKey);
+			clearVolKeyData = StreamCrypto.streamDecrypt(
+					StreamCrypto.newStreamCipher(), mac, passKey, passIvData,
+					ivSeed, encryptedVolKey);
 		} catch (InvalidAlgorithmParameterException e) {
 			throw new EncFSInvalidConfigException(e);
 		} catch (IllegalBlockSizeException e) {
@@ -130,19 +129,9 @@ class VolumeKey {
 		return clearVolKeyData;
 	}
 
-	/**
-	 * Derive password-based key from input/config parameters using PBKDF2
-	 * 
-	 * @param config
-	 *            Volume configuration
-	 * @param password
-	 *            Volume password
-	 * @param pbkdf2Provider
-	 *            Custom PBKDF2 provider implementation
-	 * @return Derived PBKDF2 key + IV bits
-	 */
-	public static byte[] derivePasswordKey(EncFSConfig config, String password,
-			EncFSPBKDF2Provider pbkdf2Provider)
+	// Derive password-based key from input/config parameters using PBKDF2
+	protected static byte[] derivePasswordKey(EncFSConfig config,
+			String password, EncFSPBKDF2Provider pbkdf2Provider)
 			throws EncFSInvalidConfigException, EncFSUnsupportedException {
 		// Decode base 64 salt data
 		byte[] cipherSaltData;
@@ -181,20 +170,8 @@ class VolumeKey {
 		}
 	}
 
-	/**
-	 * Encodes the given volume key using the supplied password parameters,
-	 * placing it into the EncFSConfig
-	 * 
-	 * @param config
-	 *            Partially initialized volume configuration
-	 * @param password
-	 *            Password to use for encoding the key
-	 * @param volKey
-	 *            Volume key to encode
-	 * @param pbkdf2Provider
-	 *            Custom PBKDF2 provider implementation
-	 */
-	public static void encodeVolumeKey(EncFSConfig config, String password,
+	// Encodes the given volume key using the supplied password parameters
+	protected static void encodeVolumeKey(EncFSConfig config, String password,
 			byte[] volKey, EncFSPBKDF2Provider pbkdf2Provider)
 			throws EncFSInvalidConfigException, EncFSUnsupportedException,
 			EncFSCorruptDataException {

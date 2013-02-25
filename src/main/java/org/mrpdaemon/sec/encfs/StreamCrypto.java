@@ -1,3 +1,17 @@
+/*
+ * EncFS Java Library
+ * Copyright (C) 2013 encfs-java authors
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published
+ * by the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ */
 package org.mrpdaemon.sec.encfs;
 
 import javax.crypto.BadPaddingException;
@@ -9,16 +23,16 @@ import java.security.Key;
 import java.util.Arrays;
 import java.util.StringTokenizer;
 
-/**
- * User: lars
- */
+// Static methods for stream cryptography
 public class StreamCrypto {
 
+	// Returns a stream cipher
 	public static Cipher newStreamCipher() throws EncFSUnsupportedException {
 		return EncFSCrypto.getCipher(EncFSCrypto.STREAM_CIPHER);
 	}
 
-	private static byte[] streamDecode(Cipher cipher, Mac mac, Key key,
+	// Stream decryption implementation
+	private static byte[] streamDecrypt(Cipher cipher, Mac mac, Key key,
 			byte[] iv, byte[] ivSeed, byte[] data, int offset, int len)
 			throws EncFSUnsupportedException,
 			InvalidAlgorithmParameterException, IllegalBlockSizeException,
@@ -44,32 +58,35 @@ public class StreamCrypto {
 		return result;
 	}
 
-	static byte[] streamDecode(Cipher cipher, Mac mac, Key key, byte[] iv,
+	// Stream decryption implementation
+	static byte[] streamDecrypt(Cipher cipher, Mac mac, Key key, byte[] iv,
 			byte[] ivSeed, byte[] data) throws EncFSUnsupportedException,
 			InvalidAlgorithmParameterException, IllegalBlockSizeException,
 			BadPaddingException {
-		return streamDecode(cipher, mac, key, iv, ivSeed, data, 0, data.length);
+		return streamDecrypt(cipher, mac, key, iv, ivSeed, data, 0, data.length);
 	}
 
-	public static byte[] streamDecode(EncFSVolume volume, byte[] ivSeed,
+	// Stream decryption implementation
+	public static byte[] streamDecrypt(EncFSVolume volume, byte[] ivSeed,
 			byte[] data) throws EncFSUnsupportedException,
 			InvalidAlgorithmParameterException, IllegalBlockSizeException,
 			BadPaddingException {
 		Cipher streamCipher = volume.getStreamCipher();
-		return streamDecode(streamCipher, volume.getMAC(),
-				volume.getKey(), volume.getIV(), ivSeed, data);
+		return streamDecrypt(streamCipher, volume.getMAC(), volume.getKey(),
+				volume.getIV(), ivSeed, data);
 	}
 
-	public static byte[] streamDecode(EncFSVolume volume, byte[] ivSeed,
+	// Stream decryption implementation
+	public static byte[] streamDecrypt(EncFSVolume volume, byte[] ivSeed,
 			byte[] data, int offset, int len) throws EncFSUnsupportedException,
 			InvalidAlgorithmParameterException, IllegalBlockSizeException,
 			BadPaddingException {
-		return streamDecode(volume.getStreamCipher(), volume.getMAC(),
-				volume.getKey(), volume.getIV(), ivSeed, data,
-				offset, len);
+		return streamDecrypt(volume.getStreamCipher(), volume.getMAC(),
+				volume.getKey(), volume.getIV(), ivSeed, data, offset, len);
 	}
 
-	private static byte[] streamEncode(Cipher cipher, Mac mac, Key key,
+	// Stream encryption implementation
+	private static byte[] streamEncrypt(Cipher cipher, Mac mac, Key key,
 			byte[] iv, byte[] ivSeed, byte[] data, int offset, int len)
 			throws EncFSUnsupportedException,
 			InvalidAlgorithmParameterException, IllegalBlockSizeException,
@@ -95,28 +112,30 @@ public class StreamCrypto {
 		return cipher.doFinal(flipBytesResult);
 	}
 
-	static byte[] streamEncode(Cipher cipher, Mac mac, Key key, byte[] iv,
+	// Stream encryption implementation
+	static byte[] streamEncrypt(Cipher cipher, Mac mac, Key key, byte[] iv,
 			byte[] ivSeed, byte[] data) throws EncFSUnsupportedException,
 			InvalidAlgorithmParameterException, IllegalBlockSizeException,
 			BadPaddingException {
-		return streamEncode(cipher, mac, key, iv, ivSeed, data, 0, data.length);
+		return streamEncrypt(cipher, mac, key, iv, ivSeed, data, 0, data.length);
 	}
 
-	public static byte[] streamEncode(EncFSVolume volume, byte[] ivSeed,
+	// Stream encryption implementation
+	public static byte[] streamEncrypt(EncFSVolume volume, byte[] ivSeed,
 			byte[] data) throws EncFSUnsupportedException,
 			InvalidAlgorithmParameterException, IllegalBlockSizeException,
 			BadPaddingException {
-		return streamEncode(volume.getStreamCipher(), volume.getMAC(),
+		return streamEncrypt(volume.getStreamCipher(), volume.getMAC(),
 				volume.getKey(), volume.getIV(), ivSeed, data);
 	}
 
-	public static byte[] streamEncode(EncFSVolume volume, byte[] ivSeed,
+	// Stream encryption implementation
+	public static byte[] streamEncrypt(EncFSVolume volume, byte[] ivSeed,
 			byte[] data, int offset, int len) throws EncFSUnsupportedException,
 			InvalidAlgorithmParameterException, IllegalBlockSizeException,
 			BadPaddingException {
-		return streamEncode(volume.getStreamCipher(), volume.getMAC(),
-				volume.getKey(), volume.getIV(), ivSeed, data,
-				offset, len);
+		return streamEncrypt(volume.getStreamCipher(), volume.getMAC(),
+				volume.getKey(), volume.getIV(), ivSeed, data, offset, len);
 	}
 
 	/**
@@ -137,7 +156,7 @@ public class StreamCrypto {
 			if ((curPath.length() > 0)
 					&& (!curPath.equals(EncFSVolume.PATH_SEPARATOR))) {
 				byte[] encodeBytes;
-				if (volume.getConfig().getAlgorithm() == EncFSFilenameEncryptionAlgorithm.BLOCK) {
+				if (volume.getConfig().getFilenameAlgorithm() == EncFSFilenameEncryptionAlgorithm.BLOCK) {
 					encodeBytes = EncFSCrypto
 							.getBytesForBlockAlgorithm(curPath);
 				} else {

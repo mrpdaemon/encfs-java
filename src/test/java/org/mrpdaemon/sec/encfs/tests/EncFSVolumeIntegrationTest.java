@@ -38,14 +38,14 @@ public class EncFSVolumeIntegrationTest {
 	public void testBoxCryptor_1_badPassword() throws Exception {
 		new EncFSVolumeBuilder()
 				.withRootPath("test/encfs_samples/boxcryptor_1")
-				.withPassword("badPassword").access();
+				.withPassword("badPassword").buildVolume();
 	}
 
 	@Test(expected = EncFSInvalidConfigException.class)
 	public void testBoxCryptor_1_wrongPath() throws Exception {
 		new EncFSVolumeBuilder()
 				.withRootPath("test/encfs_samples/boxcryptor_12")
-				.withPassword("test").access();
+				.withPassword("test").buildVolume();
 	}
 
 	@Test
@@ -311,7 +311,7 @@ public class EncFSVolumeIntegrationTest {
 			EncFSCorruptDataException {
 		assertTrue(new File(pathname).exists());
 		EncFSVolume volume = new EncFSVolumeBuilder().withRootPath(pathname)
-				.withPassword(password).access();
+				.withPassword(password).buildVolume();
 		return volume.getRootDir();
 	}
 
@@ -324,9 +324,9 @@ public class EncFSVolumeIntegrationTest {
 		String password = "test";
 
 		new EncFSVolumeBuilder().withFileProvider(fileProvider)
-				.withConfig(config).withPassword(password).create();
+				.withConfig(config).withPassword(password).writeVolumeConfig();
 		new EncFSVolumeBuilder().withFileProvider(fileProvider)
-				.withConfig(config).withPassword(password).access();
+				.withConfig(config).withPassword(password).buildVolume();
 	}
 
 	private void assertFileNameEncoding(EncFSFile encfsFileDir)
@@ -359,8 +359,7 @@ public class EncFSVolumeIntegrationTest {
 						encFsFile), new EncFSOutputStream(
 						encFsFile.getVolume(), new BufferedOutputStream(
 								new FileOutputStream(t)), encFsFile.getPath()));
-				if (!encFsFile.getVolume().getConfig()
-						.isUseUniqueIV()) {
+				if (!encFsFile.getVolume().getConfig().isUseUniqueIV()) {
 					FileInputStream reEncFSIs = new FileInputStream(t);
 					try {
 						InputStream origEncFSIs = encFsFile.getVolume()
