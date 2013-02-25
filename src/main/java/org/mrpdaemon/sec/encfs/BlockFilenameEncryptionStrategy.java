@@ -23,7 +23,7 @@ public class BlockFilenameEncryptionStrategy extends
 		BasicFilenameEncryptionStrategy {
 
 	public BlockFilenameEncryptionStrategy(EncFSVolume volume, String volumePath) {
-		super(volume, volumePath, EncFSAlgorithm.BLOCK);
+		super(volume, volumePath, EncFSFilenameEncryptionAlgorithm.BLOCK);
 	}
 
 	@Override

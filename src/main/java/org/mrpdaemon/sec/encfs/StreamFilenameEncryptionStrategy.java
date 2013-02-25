@@ -9,7 +9,7 @@ public class StreamFilenameEncryptionStrategy extends
 
 	public StreamFilenameEncryptionStrategy(EncFSVolume volume,
 			String volumePath) {
-		super(volume, volumePath, EncFSAlgorithm.STREAM);
+		super(volume, volumePath, EncFSFilenameEncryptionAlgorithm.STREAM);
 	}
 
 	@Override

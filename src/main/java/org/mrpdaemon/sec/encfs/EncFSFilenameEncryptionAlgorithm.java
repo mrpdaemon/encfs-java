@@ -15,9 +15,9 @@
 package org.mrpdaemon.sec.encfs;
 
 /**
- * User: lars
+ * Enum representing the filename encryption algorithms used in EncFS
  */
-public enum EncFSAlgorithm {
+public enum EncFSFilenameEncryptionAlgorithm {
 	BLOCK("nameio/block", 3, 0), STREAM("nameio/stream", 2, 1), NULL(
 			"nameio/null", 1, 0);
 
@@ -25,14 +25,22 @@ public enum EncFSAlgorithm {
 	private final int major;
 	private final int minor;
 
-	EncFSAlgorithm(String identifier, int major, int minor) {
+	EncFSFilenameEncryptionAlgorithm(String identifier, int major, int minor) {
 		this.identifier = identifier;
 		this.major = major;
 		this.minor = minor;
 	}
 
-	public static EncFSAlgorithm parse(String identifier) {
-		for (EncFSAlgorithm a : values()) {
+	/**
+	 * Parse the given string and return the corresponding algorithm value
+	 * 
+	 * @param identifier
+	 *            String to parse
+	 * 
+	 * @return EncFSFileNameEncryptionAlgorithm corresponding to the string.
+	 */
+	public static EncFSFilenameEncryptionAlgorithm parse(String identifier) {
+		for (EncFSFilenameEncryptionAlgorithm a : values()) {
 			if (a.identifier.equals(identifier)) {
 				return a;
 			}

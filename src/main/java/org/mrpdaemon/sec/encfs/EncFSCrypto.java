@@ -175,7 +175,7 @@ public class EncFSCrypto {
 			String volumePath) throws EncFSCorruptDataException,
 			EncFSChecksumException {
 
-		EncFSAlgorithm algorithm = volume.getConfig()
+		EncFSFilenameEncryptionAlgorithm algorithm = volume.getConfig()
 				.getAlgorithm();
 		switch (algorithm) {
 		case NULL:
@@ -195,7 +195,7 @@ public class EncFSCrypto {
 	public static String encodeName(EncFSVolume volume, String fileName,
 			String volumePath) throws EncFSCorruptDataException {
 
-		EncFSAlgorithm algorithm = volume.getConfig()
+		EncFSFilenameEncryptionAlgorithm algorithm = volume.getConfig()
 				.getAlgorithm();
 		switch (algorithm) {
 		case NULL:

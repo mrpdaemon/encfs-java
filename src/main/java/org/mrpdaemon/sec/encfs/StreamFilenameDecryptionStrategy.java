@@ -9,7 +9,7 @@ public class StreamFilenameDecryptionStrategy extends
 
 	public StreamFilenameDecryptionStrategy(EncFSVolume volume,
 			String volumePath) {
-		super(volume, volumePath, EncFSAlgorithm.STREAM);
+		super(volume, volumePath, EncFSFilenameEncryptionAlgorithm.STREAM);
 	}
 
 	protected byte[] decryptConcrete(EncFSVolume volume, byte[] encFileName,

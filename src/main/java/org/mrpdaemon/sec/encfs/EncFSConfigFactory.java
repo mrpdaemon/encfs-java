@@ -18,7 +18,7 @@ public final class EncFSConfigFactory {
 
 	public static EncFSConfig createDefault() {
 		EncFSConfig config = new EncFSConfig();
-		config.setAlgorithm(EncFSAlgorithm.BLOCK);
+		config.setAlgorithm(EncFSFilenameEncryptionAlgorithm.BLOCK);
 		config.setVolumeKeySizeInBits(192);
 		config.setEncryptedFileBlockSizeInBytes(1024);
 		config.setUseUniqueIV(true);

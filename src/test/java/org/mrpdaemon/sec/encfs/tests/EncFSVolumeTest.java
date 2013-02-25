@@ -107,7 +107,7 @@ public abstract class EncFSVolumeTest {
 	@Test
 	public void testStreamNameAlg() throws Exception {
 		EncFSConfig config = EncFSConfigFactory.createDefault();
-		config.setAlgorithm(EncFSAlgorithm.STREAM);
+		config.setAlgorithm(EncFSFilenameEncryptionAlgorithm.STREAM);
 
 		testFileOperations(config);
 	}

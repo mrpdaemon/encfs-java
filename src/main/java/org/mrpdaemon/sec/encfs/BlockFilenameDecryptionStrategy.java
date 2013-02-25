@@ -23,7 +23,7 @@ public class BlockFilenameDecryptionStrategy extends
 		BasicFilenameDecryptionStrategy {
 
 	public BlockFilenameDecryptionStrategy(EncFSVolume volume, String volumePath) {
-		super(volume, volumePath, EncFSAlgorithm.BLOCK);
+		super(volume, volumePath, EncFSFilenameEncryptionAlgorithm.BLOCK);
 	}
 
 	protected byte[] decryptConcrete(EncFSVolume volume, byte[] encFileName,

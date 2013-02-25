@@ -3,7 +3,7 @@ package org.mrpdaemon.sec.encfs;
 public class NullFilenameEncryptionStrategy extends FilenameEncryptionStrategy {
 
 	public NullFilenameEncryptionStrategy(EncFSVolume volume, String volumePath) {
-		super(volume, volumePath, EncFSAlgorithm.NULL);
+		super(volume, volumePath, EncFSFilenameEncryptionAlgorithm.NULL);
 	}
 
 	@Override

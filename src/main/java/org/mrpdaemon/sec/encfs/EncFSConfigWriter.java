@@ -77,7 +77,7 @@ class EncFSConfigWriter {
 
 		result += "\t<nameAlg>\n";
 
-		EncFSAlgorithm algorithm = config.getAlgorithm();
+		EncFSFilenameEncryptionAlgorithm algorithm = config.getAlgorithm();
 		result += "\t\t<name>" + algorithm.getIdentifier() + "</name>\n";
 		result += "\t\t<major>" + algorithm.getMajor() + "</major>\n";
 		result += "\t\t<minor>" + algorithm.getMinor() + "</minor>\n";

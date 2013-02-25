@@ -7,7 +7,7 @@ abstract class FilenameEncryptionStrategy {
 
 	private final EncFSVolume volume;
 	private final String volumePath;
-	private final EncFSAlgorithm algorithm;
+	private final EncFSFilenameEncryptionAlgorithm algorithm;
 
 	String getVolumePath() {
 		return volumePath;
@@ -18,7 +18,7 @@ abstract class FilenameEncryptionStrategy {
 	}
 
 	FilenameEncryptionStrategy(EncFSVolume volume, String volumePath,
-			EncFSAlgorithm algorithm) {
+			EncFSFilenameEncryptionAlgorithm algorithm) {
 		this.volume = volume;
 		this.volumePath = volumePath;
 		this.algorithm = algorithm;

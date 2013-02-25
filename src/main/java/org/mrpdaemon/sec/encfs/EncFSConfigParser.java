@@ -144,7 +144,7 @@ class EncFSConfigParser {
 						if (nameAlgChildNode.getNodeName().equals("name")) {
 							String algName = getNodeValue(nameAlgChildNode);
 							try {
-								config.setAlgorithm(EncFSAlgorithm
+								config.setAlgorithm(EncFSFilenameEncryptionAlgorithm
 										.parse(algName));
 							} catch (IllegalArgumentException e) {
 								throw new EncFSInvalidConfigException(

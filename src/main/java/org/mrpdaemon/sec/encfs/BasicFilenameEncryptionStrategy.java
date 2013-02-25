@@ -20,7 +20,7 @@ public abstract class BasicFilenameEncryptionStrategy extends
 		FilenameEncryptionStrategy {
 
 	BasicFilenameEncryptionStrategy(EncFSVolume volume, String volumePath,
-			EncFSAlgorithm algorithm) {
+			EncFSFilenameEncryptionAlgorithm algorithm) {
 		super(volume, volumePath, algorithm);
 	}
 

@@ -137,7 +137,7 @@ public class StreamCrypto {
 			if ((curPath.length() > 0)
 					&& (!curPath.equals(EncFSVolume.PATH_SEPARATOR))) {
 				byte[] encodeBytes;
-				if (volume.getConfig().getAlgorithm() == EncFSAlgorithm.BLOCK) {
+				if (volume.getConfig().getAlgorithm() == EncFSFilenameEncryptionAlgorithm.BLOCK) {
 					encodeBytes = EncFSCrypto
 							.getBytesForBlockAlgorithm(curPath);
 				} else {

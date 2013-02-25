@@ -43,7 +43,7 @@ public class EncFSConfig {
 	 */
 	private String base64Salt;
 	private int iterationForPasswordKeyDerivationCount;
-	private EncFSAlgorithm algorithm;
+	private EncFSFilenameEncryptionAlgorithm algorithm;
 	private int numberOfMACBytesForEachFileBlock;
 	private int numberOfRandomBytesInEachMACHeader;
 	private boolean supportedExternalIVChaining;
@@ -133,11 +133,11 @@ public class EncFSConfig {
 		this.iterationForPasswordKeyDerivationCount = iterationForPasswordKeyDerivationCount;
 	}
 
-	public EncFSAlgorithm getAlgorithm() {
+	public EncFSFilenameEncryptionAlgorithm getAlgorithm() {
 		return algorithm;
 	}
 
-	public void setAlgorithm(EncFSAlgorithm algorithm) {
+	public void setAlgorithm(EncFSFilenameEncryptionAlgorithm algorithm) {
 		this.algorithm = algorithm;
 	}
 
