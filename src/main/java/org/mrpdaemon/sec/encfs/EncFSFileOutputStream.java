@@ -21,7 +21,7 @@ import java.io.IOException;
  * FilterOutputStream abstraction that allows writing encrypted data to a file
  * on an EncFS volume.
  */
-class EncFSFileOutputStream extends FilterOutputStream {
+public class EncFSFileOutputStream extends FilterOutputStream {
 
 	/**
 	 * Creates an EncFSFileOutputStream to write encrypted data to a file under
