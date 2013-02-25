@@ -314,7 +314,7 @@ public class EncFSFile {
 			return copy(realDstPath);
 		} else {
 			// Trying to copy a file into a file
-			if (volume.getVolumeConfiguration().isSupportedExternalIVChaining()) {
+			if (volume.getConfig().isSupportedExternalIVChaining()) {
 				/*
 				 * Need to re-encrypt the file since external IV chaining is
 				 * used.

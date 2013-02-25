@@ -129,7 +129,7 @@ public class EncFSCrypto {
 	public static void cipherInit(EncFSVolume volume, int opMode,
 			Cipher cipher, byte[] ivSeed)
 			throws InvalidAlgorithmParameterException {
-		cipherInit(volume.getVolumeCryptKey(), volume.getVolumeMAC(), opMode,
+		cipherInit(volume.getKey(), volume.getMAC(), opMode,
 				cipher, volume.getIV(), ivSeed);
 	}
 
@@ -175,7 +175,7 @@ public class EncFSCrypto {
 			String volumePath) throws EncFSCorruptDataException,
 			EncFSChecksumException {
 
-		EncFSAlgorithm algorithm = volume.getVolumeConfiguration()
+		EncFSAlgorithm algorithm = volume.getConfig()
 				.getAlgorithm();
 		switch (algorithm) {
 		case NULL:
@@ -195,7 +195,7 @@ public class EncFSCrypto {
 	public static String encodeName(EncFSVolume volume, String fileName,
 			String volumePath) throws EncFSCorruptDataException {
 
-		EncFSAlgorithm algorithm = volume.getVolumeConfiguration()
+		EncFSAlgorithm algorithm = volume.getConfig()
 				.getAlgorithm();
 		switch (algorithm) {
 		case NULL:

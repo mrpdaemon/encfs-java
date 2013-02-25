@@ -86,7 +86,7 @@ public class EncFSOutputStream extends FilterOutputStream {
 			EncFSCorruptDataException {
 		super(out);
 		this.volume = volume;
-		this.config = volume.getVolumeConfiguration();
+		this.config = volume.getConfig();
 		int blockSize = config.getEncryptedFileBlockSizeInBytes();
 		this.blockHeaderSize = config.getNumberOfMACBytesForEachFileBlock()
 				+ config.getNumberOfRandomBytesInEachMACHeader();
@@ -169,7 +169,7 @@ public class EncFSOutputStream extends FilterOutputStream {
 			}
 
 			// Compute MAC bytes and add them to the buffer
-			byte mac[] = EncFSCrypto.mac64(volume.getVolumeMAC(), dataBuf,
+			byte mac[] = EncFSCrypto.mac64(volume.getMAC(), dataBuf,
 					blockMACLen, dataBytes - blockMACLen);
 			for (int i = 0; i < blockMACLen; i++) {
 				dataBuf[i] = mac[7 - i];

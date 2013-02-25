@@ -56,7 +56,7 @@ public final class EncFSVolumeBuilder {
 
 		public ConfigBuilder(EncFSVolume volume, EncFSConfig volumeConfiguration) {
 			this.volume = volume;
-			volume.setVolumeConfiguration(volumeConfiguration);
+			volume.setVolumeConfig(volumeConfiguration);
 		}
 
 		public ConfigBuilder(EncFSVolume volume)
@@ -66,7 +66,7 @@ public final class EncFSVolumeBuilder {
 			EncFSFileProvider fileProvider = volume.getFileProvider();
 			EncFSConfig volumeConfiguration = EncFSConfigParser.parseConfig(
 					fileProvider, EncFSVolume.CONFIG_FILE_NAME);
-			volume.setVolumeConfiguration(volumeConfiguration);
+			volume.setVolumeConfig(volumeConfiguration);
 		}
 
 		public Pbkdf2ProviderBuilder withPbkdf2Provider(
@@ -112,7 +112,7 @@ public final class EncFSVolumeBuilder {
 			this.volume = volume;
 			this.provider = null;
 			this.password = null;
-			volume.setPasswordBasedVolumeKey(derivedPassword);
+			volume.setPasswordDerivedKeyData(derivedPassword);
 
 		}
 
@@ -126,19 +126,19 @@ public final class EncFSVolumeBuilder {
 		public EncFSVolume access() throws EncFSUnsupportedException,
 				IOException, EncFSInvalidConfigException,
 				EncFSInvalidPasswordException, EncFSCorruptDataException {
-			EncFSConfig config = volume.getVolumeConfiguration();
+			EncFSConfig config = volume.getConfig();
 			if (password != null) {
 				byte[] derivedPassword = VolumeKey.derivePasswordKey(config,
 						password, provider);
-				volume.setPasswordBasedVolumeKey(derivedPassword);
+				volume.setPasswordDerivedKeyData(derivedPassword);
 			}
-			volume.readConfigAndInitializeVolume();
+			volume.readConfigAndInitVolume();
 			return volume;
 		}
 
 		public void create() throws EncFSUnsupportedException, IOException,
 				EncFSInvalidConfigException, EncFSCorruptDataException {
-			EncFSConfig config = volume.getVolumeConfiguration();
+			EncFSConfig config = volume.getConfig();
 			EncFSFileProvider fileProvider = volume.getFileProvider();
 
 			// Create a random volume VolumeCryptKey + IV pair

@@ -72,7 +72,7 @@ public class EncFSInputStream extends FilterInputStream {
 			EncFSUnsupportedException {
 		super(in);
 		this.volume = volume;
-		this.config = volume.getVolumeConfiguration();
+		this.config = volume.getConfig();
 		this.blockSize = config.getEncryptedFileBlockSizeInBytes();
 		this.numMACBytes = config.getNumberOfMACBytesForEachFileBlock();
 		int numRandBytes = config.getNumberOfRandomBytesInEachMACHeader();
@@ -318,7 +318,7 @@ public class EncFSInputStream extends FilterInputStream {
 
 		// Verify the block header
 		if ((bytesRead > 0) && (blockHeaderSize > 0) && (!zeroBlock)) {
-			byte mac[] = EncFSCrypto.mac64(volume.getVolumeMAC(), blockBuf,
+			byte mac[] = EncFSCrypto.mac64(volume.getMAC(), blockBuf,
 					numMACBytes);
 			for (int i = 0; i < numMACBytes; i++) {
 				if (mac[7 - i] != blockBuf[i]) {

@@ -29,7 +29,7 @@ abstract class FilenameDecryptionStrategy {
 
 	public String decrypt(String filename) throws EncFSChecksumException,
 			EncFSCorruptDataException {
-		if (volume.getVolumeConfiguration().getAlgorithm() != algorithm) {
+		if (volume.getConfig().getAlgorithm() != algorithm) {
 			throw new IllegalStateException(
 					"only accessable when algorithm is " + algorithm);
 		}

@@ -359,7 +359,7 @@ public class EncFSVolumeIntegrationTest {
 						encFsFile), new EncFSOutputStream(
 						encFsFile.getVolume(), new BufferedOutputStream(
 								new FileOutputStream(t)), encFsFile.getPath()));
-				if (!encFsFile.getVolume().getVolumeConfiguration()
+				if (!encFsFile.getVolume().getConfig()
 						.isUseUniqueIV()) {
 					FileInputStream reEncFSIs = new FileInputStream(t);
 					try {

@@ -32,22 +32,27 @@ import java.util.Arrays;
  * compliant EncFS implementation.
  */
 public class EncFSVolume {
+	/** Standard name of the EncFS volume configuration file */
 	public final static String CONFIG_FILE_NAME = ".encfs6.xml";
+	/** Old EncFS config file names */
 	public final static String[] OLD_CONFIG_FILE_NAMES = { ".encfs5",
 			".encfs4", ".encfs3", ".encfs2", ".encfs" };
-
+	/** String denoting the root path of an EncFS volume */
 	public final static String ROOT_PATH = "/";
+	/** String denoting the path separator for EncFS volumes */
 	public final static String PATH_SEPARATOR = "/";
+	/** Length in bytes of the volume initialization vector (IV) */
 	public final static int IV_LENGTH_IN_BYTES = 16;
 
 	private static enum PathOperation {
 		MOVE, COPY
 	}
 
-	private EncFSConfig volumeConfiguration;
-	private Key VolumeCryptKey;
+	// Volume fields
+	private EncFSConfig volumeConfig;
+	private Key volumeKey;
 	private byte[] volumeIV;
-	private byte[] passwordBasedVolumeKey;
+	private byte[] passwordDerivedKeyData;
 	private Mac volumeMAC;
 	private Cipher streamCipher;
 	private Cipher blockCipher;
@@ -57,24 +62,25 @@ public class EncFSVolume {
 	public EncFSVolume() {
 	}
 
-	void readConfigAndInitializeVolume() throws EncFSUnsupportedException,
+	// Decrypt volume key and initialize ciphers and other volume fields
+	void readConfigAndInitVolume() throws EncFSUnsupportedException,
 			EncFSInvalidConfigException, EncFSCorruptDataException,
 			EncFSInvalidPasswordException, IOException {
 
 		byte[] keyData;
 		try {
-			keyData = VolumeKey.decryptVolumeKey(volumeConfiguration,
-					passwordBasedVolumeKey);
+			keyData = VolumeKey.decryptVolumeKey(volumeConfig,
+					passwordDerivedKeyData);
 		} catch (EncFSChecksumException e) {
 			throw new EncFSInvalidPasswordException(e);
 		}
 
-		int keyLength = volumeConfiguration.getVolumeKeySizeInBits() / 8;
+		int keyLength = volumeConfig.getVolumeKeySizeInBits() / 8;
 		if (keyData.length < keyLength) {
 			throw new EncFSInvalidConfigException("Key size too large");
 		}
-		VolumeCryptKey = EncFSCrypto.newKey(Arrays.copyOfRange(keyData, 0,
-				keyLength));
+		volumeKey = EncFSCrypto.newKey(Arrays
+				.copyOfRange(keyData, 0, keyLength));
 
 		volumeIV = copyIVdata(keyData, keyLength);
 		volumeMAC = createVolumeMAC();
@@ -84,6 +90,7 @@ public class EncFSVolume {
 		rootDir = getFile(ROOT_PATH);
 	}
 
+	// Copy IV data from the given key data
 	private byte[] copyIVdata(byte[] keyData, int keyLength)
 			throws EncFSInvalidConfigException {
 		int ivLength = keyData.length - keyLength;
@@ -93,15 +100,26 @@ public class EncFSVolume {
 		return Arrays.copyOfRange(keyData, keyLength, keyLength + ivLength);
 	}
 
+	// Create the volume MAC
 	private Mac createVolumeMAC() throws EncFSUnsupportedException,
 			EncFSInvalidConfigException {
 		try {
-			return EncFSCrypto.newMac(VolumeCryptKey);
+			return EncFSCrypto.newMac(volumeKey);
 		} catch (InvalidKeyException e) {
 			throw new EncFSInvalidConfigException(e);
 		}
 	}
 
+	/**
+	 * Combine the given directory and file name into a path string
+	 * 
+	 * @param dir
+	 *            Directory forming the first path component
+	 * @param fileName
+	 *            Filename forming the second path component
+	 * 
+	 * @return String representing the combined path
+	 */
 	public static String combinePath(EncFSFile dir, String fileName) {
 		EncFSVolume volume = dir.getVolume();
 		String result;
@@ -115,6 +133,16 @@ public class EncFSVolume {
 		return result;
 	}
 
+	/**
+	 * Combine the given directory and file name into a path string
+	 * 
+	 * @param dir
+	 *            Directory forming the first path component
+	 * @param file
+	 *            File forming the second path component
+	 * 
+	 * @return String representing the combined path
+	 */
 	public static String combinePath(String dirPath, String fileName) {
 		if (dirPath.equals(ROOT_PATH)) {
 			return ROOT_PATH + fileName;
@@ -123,10 +151,30 @@ public class EncFSVolume {
 		}
 	}
 
+	/**
+	 * Combine the given directory and file name into a path string
+	 * 
+	 * @param dirPath
+	 *            Directory path forming the first path component
+	 * @param fileName
+	 *            File name forming the second path component
+	 * 
+	 * @return String representing the combined path
+	 */
 	public static String combinePath(EncFSFile dir, EncFSFile file) {
 		return combinePath(dir, file.getName());
 	}
 
+	/**
+	 * Combine the given directory and file name into a path string
+	 * 
+	 * @param dirPath
+	 *            Directory path forming the first path component
+	 * @param file
+	 *            File forming the second path component
+	 * 
+	 * @return String representing the combined path
+	 */
 	private static String combinePath(String dirPath, EncFSFile file) {
 		return combinePath(dirPath, file.getName());
 	}
@@ -153,14 +201,29 @@ public class EncFSVolume {
 		}
 	}
 
-	public EncFSConfig getVolumeConfiguration() {
-		return volumeConfiguration;
+	/**
+	 * Returns the configuration object for this volume
+	 * 
+	 * @return Configuration for this EncFS volume
+	 */
+	public EncFSConfig getConfig() {
+		return volumeConfig;
 	}
 
-	public Key getVolumeCryptKey() {
-		return VolumeCryptKey;
+	/**
+	 * Returns the volume key used for encryption/decryption
+	 * 
+	 * @return Volume key for encryption/decryption
+	 */
+	public Key getKey() {
+		return volumeKey;
 	}
 
+	/**
+	 * Returns the volume IV used for encryption/decryption
+	 * 
+	 * @return Volume initialization vector (IV) for encryption/decryption
+	 */
 	public byte[] getIV() {
 		return volumeIV;
 	}
@@ -170,30 +233,69 @@ public class EncFSVolume {
 	 * 
 	 * @return Password-based VolumeCryptKey/IV data for this volume
 	 */
-	public byte[] getPasswordBasedVolumeKey() {
-		return passwordBasedVolumeKey;
+	public byte[] getPasswordDerivedKeyData() {
+		return passwordDerivedKeyData;
 	}
 
-	public Mac getVolumeMAC() {
+	/**
+	 * Returns the MAC object used for checksum verification
+	 * 
+	 * @return Volume MAC for checksum verification
+	 */
+	public Mac getMAC() {
 		return volumeMAC;
 	}
 
+	/**
+	 * Returns the stream cipher instance for stream encryption/decryption
+	 * 
+	 * @return Stream cipher instance for stream encryption/decryption
+	 */
 	public Cipher getStreamCipher() {
 		return streamCipher;
 	}
 
+	/**
+	 * Returns the block cipher instance for block encryption/decryption
+	 * 
+	 * @return Block cipher instance for block encryption/decryption
+	 */
 	public Cipher getBlockCipher() {
 		return blockCipher;
 	}
 
+	/**
+	 * Returns a file object representing the root directory of the volume
+	 * 
+	 * @return EncFSFile representing the root directory of this volume
+	 */
 	public EncFSFile getRootDir() {
 		return rootDir;
 	}
 
+	/**
+	 * Returns the file provider used for this volume
+	 * 
+	 * @return EncFSFileProvider for this volume
+	 */
 	public EncFSFileProvider getFileProvider() {
 		return fileProvider;
 	}
 
+	/**
+	 * Get an EncFSFile object representing the provided absolute path in the
+	 * volume
+	 * 
+	 * @param filePath
+	 *            Absolute volume path of the file
+	 * 
+	 * @return EncFSFile representing the requested file
+	 * 
+	 * @throws EncFSCorruptDataException
+	 *             Corrupt data detected (checksum error)
+	 * @throws IOException
+	 *             File provider returned I/O error
+	 */
 	public EncFSFile getFile(String filePath) throws EncFSCorruptDataException,
 			IOException {
 		validateAbsoluteFileName(filePath, "filePath");
@@ -225,17 +327,16 @@ public class EncFSVolume {
 		}
 
 		// Account for file header
-		if (volumeConfiguration.isUseUniqueIV()) {
+		if (volumeConfig.isUseUniqueIV()) {
 			size -= EncFSFile.HEADER_SIZE;
 		}
 
 		// Account for block headers
-		long headerLength = volumeConfiguration
-				.getNumberOfMACBytesForEachFileBlock()
-				+ volumeConfiguration.getNumberOfRandomBytesInEachMACHeader();
+		long headerLength = volumeConfig.getNumberOfMACBytesForEachFileBlock()
+				+ volumeConfig.getNumberOfRandomBytesInEachMACHeader();
 		if (headerLength > 0) {
-			long blockLength = volumeConfiguration
-					.getEncryptedFileBlockSizeInBytes() + headerLength;
+			long blockLength = volumeConfig.getEncryptedFileBlockSizeInBytes()
+					+ headerLength;
 
 			long numBlocks = ((size - 1) / blockLength) + 1;
 
@@ -261,12 +362,11 @@ public class EncFSVolume {
 		}
 
 		// Account for block headers
-		long headerLength = volumeConfiguration
-				.getNumberOfMACBytesForEachFileBlock()
-				+ volumeConfiguration.getNumberOfRandomBytesInEachMACHeader();
+		long headerLength = volumeConfig.getNumberOfMACBytesForEachFileBlock()
+				+ volumeConfig.getNumberOfRandomBytesInEachMACHeader();
 		if (headerLength > 0) {
-			long blockLength = volumeConfiguration
-					.getEncryptedFileBlockSizeInBytes() + headerLength;
+			long blockLength = volumeConfig.getEncryptedFileBlockSizeInBytes()
+					+ headerLength;
 
 			long numBlocks = ((size - 1) / blockLength) + 1;
 
@@ -274,13 +374,27 @@ public class EncFSVolume {
 		}
 
 		// Account for file header
-		if (volumeConfiguration.isUseUniqueIV()) {
+		if (volumeConfig.isUseUniqueIV()) {
 			size += EncFSFile.HEADER_SIZE;
 		}
 
 		return size;
 	}
 
+	/**
+	 * Checks whether the file or directory with the given path exists in the
+	 * volume
+	 * 
+	 * @param path
+	 *            Absolute volume path of the file or directory
+	 * 
+	 * @return true if path exists in the volume, false otherwise
+	 * 
+	 * @throws EncFSCorruptDataException
+	 *             Filename encoding failed
+	 * @throws IOException
+	 *             File provider returned I/O error
+	 */
 	public boolean pathExists(String path) throws EncFSCorruptDataException,
 			IOException {
 		validateAbsoluteFileName(path, "fileName");
@@ -288,11 +402,29 @@ public class EncFSVolume {
 		return fileProvider.exists(encryptedPath);
 	}
 
+	/**
+	 * Tests if the provided path contains EncFS volume
+	 * 
+	 * @param path
+	 *            Path to the presumed EncFS volume
+	 * @return true if the volume is EncFS, false otherwise
+	 * @throws IOException
+	 *             File provider returned I/O error
+	 */
 	public static boolean isEncFSVolume(String path) throws IOException {
 		return isEncFSVolume(new File(path));
 	}
 
-	private static boolean isEncFSVolume(File file) throws IOException {
+	/**
+	 * Tests if the provided path contains EncFS volume
+	 * 
+	 * @param file
+	 *            File for the presumed EncFS volume
+	 * @return true if the volume is EncFS, false otherwise
+	 * @throws IOException
+	 *             File provider returned I/O error
+	 */
+	public static boolean isEncFSVolume(File file) throws IOException {
 		return isEncFSVolume(new EncFSLocalFileProvider(file));
 	}
 
@@ -303,7 +435,7 @@ public class EncFSVolume {
 	 *            File provider for the presumed EncFS volume
 	 * @return true if the volume is EncFS, false otherwise
 	 */
-	private static boolean isEncFSVolume(EncFSFileProvider fileProvider)
+	public static boolean isEncFSVolume(EncFSFileProvider fileProvider)
 			throws IOException {
 		return (fileProvider.exists(fileProvider.getFilesystemRootPath()
 				+ EncFSVolume.CONFIG_FILE_NAME));
@@ -316,14 +448,15 @@ public class EncFSVolume {
 	 *            Absolute volume path of the parent directory
 	 * @param fileName
 	 *            Name of the file to create
+	 * 
 	 * @return EncFSFile handle for the newly created file
-	 *         <p/>
-	 *         <p/>
-	 *         Filename encoding failed
-	 *         <p/>
-	 *         Filename encoding failed
-	 *         <p/>
-	 *         File provider returned I/O error
+	 * 
+	 * @throws EncFSCorruptDataException
+	 *             Filename encoding failed
+	 * @throws EncFSChecksumException
+	 *             Filename encoding failed
+	 * @throws IOException
+	 *             File provider returned I/O error
 	 */
 	public EncFSFile createFile(String parentPath, String fileName)
 			throws EncFSCorruptDataException, IOException {
@@ -331,6 +464,19 @@ public class EncFSVolume {
 		return createFile(combinePath(parentPath, fileName));
 	}
 
+	/**
+	 * Creates a new file under the EncFS volume
+	 * 
+	 * @param filePath
+	 *            Absolute volume path of the file to create
+	 * 
+	 * @return EncFSFile handle for the newly created file
+	 * 
+	 * @throws EncFSCorruptDataException
+	 *             Filename encoding failed
+	 * @throws IOException
+	 *             File provider returned I/O error
+	 */
 	public EncFSFile createFile(String filePath)
 			throws EncFSCorruptDataException, IOException {
 		validateAbsoluteFileName(filePath, "fileName");
@@ -343,6 +489,7 @@ public class EncFSVolume {
 		return new EncFSFile(this, decodedFileInfo, fileInfo);
 	}
 
+	// Returns the decoded file information for the given file path
 	private EncFSFileInfo getDecodedFileInfo(String filePath,
 			EncFSFileInfo fileInfo) {
 		EncFSFileInfo decodedFileInfo;
@@ -366,6 +513,19 @@ public class EncFSVolume {
 		return decodedFileInfo;
 	}
 
+	/**
+	 * Create a new directory under the EncFS volume
+	 * 
+	 * @param dirPath
+	 *            Absolute volume path of the directory to create
+	 * 
+	 * @return true if creation succeeds, false otherwise
+	 * 
+	 * @throws EncFSCorruptDataException
+	 *             Filename encoding failed
+	 * @throws IOException
+	 *             File provider returned I/O error
+	 */
 	public boolean makeDir(String dirPath) throws EncFSCorruptDataException,
 			IOException {
 		validateAbsoluteFileName(dirPath, "dirPath");
@@ -395,6 +555,7 @@ public class EncFSVolume {
 		return fileProvider.mkdirs(encryptedPath);
 	}
 
+	// Recursive method to delete a directory tree
 	private boolean recursiveDelete(EncFSFile file,
 			EncFSProgressListener progressListener) throws IOException {
 		boolean result = true;
@@ -500,6 +661,7 @@ public class EncFSVolume {
 		return deletePath(filePath, recursive, null);
 	}
 
+	// Helper function to perform copy/move path operations
 	private boolean copyOrMovePath(String srcPath, String dstPath,
 			PathOperation op, EncFSProgressListener progressListener)
 			throws EncFSCorruptDataException, IOException {
@@ -519,7 +681,7 @@ public class EncFSVolume {
 		String encDstPath = EncFSCrypto.encodePath(this, dstPath, ROOT_PATH);
 
 		if (fileProvider.isDirectory(encSrcPath)
-				&& (getVolumeConfiguration().isChainedNameIV() || op == PathOperation.COPY)) {
+				&& (getConfig().isChainedNameIV() || op == PathOperation.COPY)) {
 			/*
 			 * To make this safe (for if we fail halfway through) we need to:
 			 * 
@@ -603,8 +765,7 @@ public class EncFSVolume {
 				}
 
 				if (op == PathOperation.MOVE) {
-					if (getVolumeConfiguration()
-							.isSupportedExternalIVChaining()) {
+					if (getConfig().isSupportedExternalIVChaining()) {
 						/*
 						 * Need to re-encrypt the file contents while moving
 						 * since external IV chaining is being used. We'll just
@@ -633,25 +794,7 @@ public class EncFSVolume {
 		}
 	}
 
-	public boolean copyPath(String srcPath, String dstPath,
-			EncFSProgressListener progressListener)
-			throws EncFSCorruptDataException, IOException {
-		return copyOrMove(srcPath, dstPath, progressListener,
-				PathOperation.COPY);
-	}
-
-	public boolean copyPath(String srcPath, String dstPath)
-			throws EncFSCorruptDataException, IOException {
-		return copyPath(srcPath, dstPath, null);
-	}
-
-	public boolean movePath(String srcPath, String dstPath,
-			EncFSProgressListener progressListener)
-			throws EncFSCorruptDataException, IOException {
-		return copyOrMove(srcPath, dstPath, progressListener,
-				PathOperation.MOVE);
-	}
-
+	// Helper function to post completion event around copyOrMovePath
 	private boolean copyOrMove(String srcPath, String dstPath,
 			EncFSProgressListener progressListener, PathOperation operation)
 			throws EncFSCorruptDataException, IOException {
@@ -669,11 +812,107 @@ public class EncFSVolume {
 		return result;
 	}
 
+	/**
+	 * Copies the source file or directory to the target file or directory
+	 * 
+	 * @param srcPath
+	 *            Absolute volume path of the source file or directory
+	 * @param dstPath
+	 *            Absolute volume path of the target file or directory
+	 * @param progressListener
+	 *            Progress listener for getting individual file updates
+	 * 
+	 * @return true if copy succeeds, false otherwise
+	 * 
+	 * @throws EncFSCorruptDataException
+	 *             Filename encoding failed
+	 * @throws IOException
+	 *             File provider returned I/O error
+	 */
+	public boolean copyPath(String srcPath, String dstPath,
+			EncFSProgressListener progressListener)
+			throws EncFSCorruptDataException, IOException {
+		return copyOrMove(srcPath, dstPath, progressListener,
+				PathOperation.COPY);
+	}
+
+	/**
+	 * Copies the source file or directory to the target file or directory
+	 * 
+	 * @param srcPath
+	 *            Absolute volume path of the source file or directory
+	 * @param dstPath
+	 *            Absolute volume path of the target file or directory
+	 * 
+	 * @return true if copy succeeds, false otherwise
+	 * 
+	 * @throws EncFSCorruptDataException
+	 *             Filename encoding failed
+	 * @throws IOException
+	 *             File provider returned I/O error
+	 */
+	public boolean copyPath(String srcPath, String dstPath)
+			throws EncFSCorruptDataException, IOException {
+		return copyPath(srcPath, dstPath, null);
+	}
+
+	/**
+	 * Moves a file / directory
+	 * 
+	 * @param srcPath
+	 *            Absolute volume path of the file or directory to move
+	 * @param dstPath
+	 *            Absolute volume path of the destination file or directory
+	 * @param progressListener
+	 *            Progress listener for getting individual file updates
+	 * 
+	 * @return true if the move succeeds, false otherwise
+	 * 
+	 * @throws EncFSCorruptDataException
+	 *             Filename encoding failed
+	 * @throws IOException
+	 *             File provider returned I/O error
+	 */
+	public boolean movePath(String srcPath, String dstPath,
+			EncFSProgressListener progressListener)
+			throws EncFSCorruptDataException, IOException {
+		return copyOrMove(srcPath, dstPath, progressListener,
+				PathOperation.MOVE);
+	}
+
+	/**
+	 * Moves a file / directory
+	 * 
+	 * @param srcPath
+	 *            Absolute volume path of the file or directory to move
+	 * @param dstPath
+	 *            Absolute volume path of the destination file or directory
+	 * 
+	 * @return true if the move succeeds, false otherwise
+	 * 
+	 * @throws EncFSCorruptDataException
+	 *             Filename encoding failed
+	 * @throws IOException
+	 *             File provider returned I/O error
+	 */
 	public boolean movePath(String srcPath, String dstPath)
 			throws EncFSCorruptDataException, IOException {
 		return movePath(srcPath, dstPath, null);
 	}
 
+	/**
+	 * Get list of EncFSFile's under the given directory
+	 * 
+	 * @param dirPath
+	 *            Absolute volume path of the directory to list
+	 * 
+	 * @return list of EncFSFile under the given directory
+	 * 
+	 * @throws EncFSCorruptDataException
+	 *             Filename encoding failed
+	 * @throws IOException
+	 *             File provider returned I/O error
+	 */
 	public EncFSFile[] listFilesForPath(String dirPath)
 			throws EncFSCorruptDataException, IOException {
 		return getFile(dirPath).listFiles();
@@ -707,6 +946,7 @@ public class EncFSVolume {
 		return getFile(filePath).openOutputStream(outputLength);
 	}
 
+	// Validate the given absolute file name format
 	private void validateAbsoluteFileName(String fileName, String name) {
 		if (name == null || name.length() == 0) {
 			throw new IllegalStateException("name should not be blank");
@@ -723,16 +963,19 @@ public class EncFSVolume {
 		}
 	}
 
-	public void setPasswordBasedVolumeKey(byte[] passwordBasedVolumeKey) {
-		this.passwordBasedVolumeKey = passwordBasedVolumeKey;
+	// Used by EncFSVolumeBuilder to set password-derived key data
+	protected void setPasswordDerivedKeyData(byte[] passwordDerivedKeyData) {
+		this.passwordDerivedKeyData = passwordDerivedKeyData;
 	}
 
-	public void setFileProvider(EncFSFileProvider fileProvider) {
+	// Used by EncFSVolumeBuilder to set file provider
+	protected void setFileProvider(EncFSFileProvider fileProvider) {
 		this.fileProvider = fileProvider;
 	}
 
-	public void setVolumeConfiguration(EncFSConfig volumeConfiguration) {
-		this.volumeConfiguration = volumeConfiguration;
+	// Used by EncFSVolumeBuilder to set volume configuration
+	protected void setVolumeConfig(EncFSConfig volumeConfig) {
+		this.volumeConfig = volumeConfig;
 	}
 
 }

@@ -1,3 +1,17 @@
+/*
+ * EncFS Java Library
+ * Copyright (C) 2013 encfs-java authors
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published
+ * by the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ */
 package org.mrpdaemon.sec.encfs;
 
 import java.util.Arrays;
@@ -17,7 +31,7 @@ public abstract class BasicFilenameDecryptionStrategy extends
 			throws EncFSCorruptDataException, EncFSChecksumException {
 		EncFSVolume volume = getVolume();
 		String volumePath = getVolumePath();
-		EncFSConfig config = volume.getVolumeConfiguration();
+		EncFSConfig config = volume.getConfig();
 
 		byte[] chainIv = EncFSCrypto.computeChainedIVInCase(volume, volumePath,
 				config);
@@ -43,11 +57,11 @@ public abstract class BasicFilenameDecryptionStrategy extends
 		// current versions store the checksum at the beginning (encfs 0.x
 		// stored checksums at the end)
 		byte[] mac16;
-		if (volume.getVolumeConfiguration().isChainedNameIV()) {
-			mac16 = EncFSCrypto.mac16(volume.getVolumeMAC(), decFileName,
+		if (volume.getConfig().isChainedNameIV()) {
+			mac16 = EncFSCrypto.mac16(volume.getMAC(), decFileName,
 					chainIv);
 		} else {
-			mac16 = EncFSCrypto.mac16(volume.getVolumeMAC(), decFileName);
+			mac16 = EncFSCrypto.mac16(volume.getMAC(), decFileName);
 		}
 
 		byte[] expectedMac = Arrays.copyOfRange(base256FileName, 0, 2);

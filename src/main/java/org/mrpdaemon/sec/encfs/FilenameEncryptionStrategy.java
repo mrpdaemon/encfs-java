@@ -28,7 +28,7 @@ abstract class FilenameEncryptionStrategy {
 			throws EncFSCorruptDataException;
 
 	public String encrypt(String filename) throws EncFSCorruptDataException {
-		if (volume.getVolumeConfiguration().getAlgorithm() != algorithm) {
+		if (volume.getConfig().getAlgorithm() != algorithm) {
 			throw new IllegalStateException(
 					"only accessable when algorithm is " + algorithm);
 		}

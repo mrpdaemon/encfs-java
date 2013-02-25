@@ -56,16 +56,16 @@ public class StreamCrypto {
 			InvalidAlgorithmParameterException, IllegalBlockSizeException,
 			BadPaddingException {
 		Cipher streamCipher = volume.getStreamCipher();
-		return streamDecode(streamCipher, volume.getVolumeMAC(),
-				volume.getVolumeCryptKey(), volume.getIV(), ivSeed, data);
+		return streamDecode(streamCipher, volume.getMAC(),
+				volume.getKey(), volume.getIV(), ivSeed, data);
 	}
 
 	public static byte[] streamDecode(EncFSVolume volume, byte[] ivSeed,
 			byte[] data, int offset, int len) throws EncFSUnsupportedException,
 			InvalidAlgorithmParameterException, IllegalBlockSizeException,
 			BadPaddingException {
-		return streamDecode(volume.getStreamCipher(), volume.getVolumeMAC(),
-				volume.getVolumeCryptKey(), volume.getIV(), ivSeed, data,
+		return streamDecode(volume.getStreamCipher(), volume.getMAC(),
+				volume.getKey(), volume.getIV(), ivSeed, data,
 				offset, len);
 	}
 
@@ -106,16 +106,16 @@ public class StreamCrypto {
 			byte[] data) throws EncFSUnsupportedException,
 			InvalidAlgorithmParameterException, IllegalBlockSizeException,
 			BadPaddingException {
-		return streamEncode(volume.getStreamCipher(), volume.getVolumeMAC(),
-				volume.getVolumeCryptKey(), volume.getIV(), ivSeed, data);
+		return streamEncode(volume.getStreamCipher(), volume.getMAC(),
+				volume.getKey(), volume.getIV(), ivSeed, data);
 	}
 
 	public static byte[] streamEncode(EncFSVolume volume, byte[] ivSeed,
 			byte[] data, int offset, int len) throws EncFSUnsupportedException,
 			InvalidAlgorithmParameterException, IllegalBlockSizeException,
 			BadPaddingException {
-		return streamEncode(volume.getStreamCipher(), volume.getVolumeMAC(),
-				volume.getVolumeCryptKey(), volume.getIV(), ivSeed, data,
+		return streamEncode(volume.getStreamCipher(), volume.getMAC(),
+				volume.getKey(), volume.getIV(), ivSeed, data,
 				offset, len);
 	}
 
@@ -137,7 +137,7 @@ public class StreamCrypto {
 			if ((curPath.length() > 0)
 					&& (!curPath.equals(EncFSVolume.PATH_SEPARATOR))) {
 				byte[] encodeBytes;
-				if (volume.getVolumeConfiguration().getAlgorithm() == EncFSAlgorithm.BLOCK) {
+				if (volume.getConfig().getAlgorithm() == EncFSAlgorithm.BLOCK) {
 					encodeBytes = EncFSCrypto
 							.getBytesForBlockAlgorithm(curPath);
 				} else {
@@ -145,7 +145,7 @@ public class StreamCrypto {
 				}
 
 				// Update chain IV
-				EncFSCrypto.mac64(volume.getVolumeMAC(), encodeBytes, chainIv);
+				EncFSCrypto.mac64(volume.getMAC(), encodeBytes, chainIv);
 			}
 		}
 
