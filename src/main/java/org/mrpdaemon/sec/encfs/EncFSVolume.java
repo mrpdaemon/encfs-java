@@ -138,7 +138,7 @@ public class EncFSVolume {
 	 *            File to count under
 	 * @return Number of files/directories under the file
 	 */
-	private static int countFiles(EncFSFile file) {
+	public static int countFiles(EncFSFile file) {
 		if (file.isDirectory()) {
 			int dirCount = 1;
 			try {
