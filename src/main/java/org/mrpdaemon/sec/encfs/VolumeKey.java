@@ -130,7 +130,7 @@ class VolumeKey {
 	}
 
 	// Derive password-based key from input/config parameters using PBKDF2
-	protected static byte[] derivePasswordKey(EncFSConfig config,
+	protected static byte[] deriveKeyDataFromPassword(EncFSConfig config,
 			String password, EncFSPBKDF2Provider pbkdf2Provider)
 			throws EncFSInvalidConfigException, EncFSUnsupportedException {
 		// Decode base 64 salt data
@@ -184,7 +184,8 @@ class VolumeKey {
 		config.setBase64Salt(EncFSBase64.encodeBytes(salt));
 
 		// Get password key data
-		byte[] pbkdf2Data = derivePasswordKey(config, password, pbkdf2Provider);
+		byte[] pbkdf2Data = deriveKeyDataFromPassword(config, password,
+				pbkdf2Provider);
 
 		// Encode volume key
 		byte[] encodedVolKey = encryptVolumeKey(config, pbkdf2Data, volKey);

@@ -69,12 +69,11 @@ public final class EncFSVolumeBuilder {
 			return withPbkdf2Provider(null).withPassword(password);
 		}
 
-		public PasswordBuilder withDerivedPassword(byte[] derivedPassword)
+		public PasswordBuilder withDerivedKeyData(byte[] derivedKeyData)
 				throws EncFSUnsupportedException, IOException,
 				EncFSInvalidConfigException, EncFSCorruptDataException,
 				EncFSInvalidPasswordException {
-			return withPbkdf2Provider(null)
-					.withDerivedPassword(derivedPassword);
+			return withPbkdf2Provider(null).withDerivedKeyData(derivedKeyData);
 		}
 	}
 
@@ -109,12 +108,11 @@ public final class EncFSVolumeBuilder {
 			return withPbkdf2Provider(null).withPassword(password);
 		}
 
-		public PasswordBuilder withDerivedPassword(byte[] derivedPassword)
+		public PasswordBuilder withDerivedKeyData(byte[] derivedKeyData)
 				throws EncFSUnsupportedException, IOException,
 				EncFSInvalidConfigException, EncFSCorruptDataException,
 				EncFSInvalidPasswordException {
-			return withPbkdf2Provider(null)
-					.withDerivedPassword(derivedPassword);
+			return withPbkdf2Provider(null).withDerivedKeyData(derivedKeyData);
 		}
 	}
 
@@ -133,8 +131,8 @@ public final class EncFSVolumeBuilder {
 			return new PasswordBuilder(volume, password, provider);
 		}
 
-		public PasswordBuilder withDerivedPassword(byte[] derivedPassword) {
-			return new PasswordBuilder(volume, derivedPassword);
+		public PasswordBuilder withDerivedKeyData(byte[] derivedKeyData) {
+			return new PasswordBuilder(volume, derivedKeyData);
 		}
 	}
 
@@ -148,7 +146,7 @@ public final class EncFSVolumeBuilder {
 			this.volume = volume;
 			this.provider = null;
 			this.password = null;
-			volume.setPasswordDerivedKeyData(derivedPassword);
+			volume.setDerivedKeyData(derivedPassword);
 
 		}
 
@@ -178,9 +176,9 @@ public final class EncFSVolumeBuilder {
 				EncFSInvalidPasswordException, EncFSCorruptDataException {
 			EncFSConfig config = volume.getConfig();
 			if (password != null) {
-				byte[] derivedPassword = VolumeKey.derivePasswordKey(config,
-						password, provider);
-				volume.setPasswordDerivedKeyData(derivedPassword);
+				byte[] derivedKeyData = VolumeKey.deriveKeyDataFromPassword(
+						config, password, provider);
+				volume.setDerivedKeyData(derivedKeyData);
 			}
 			volume.readConfigAndInitVolume();
 			return volume;

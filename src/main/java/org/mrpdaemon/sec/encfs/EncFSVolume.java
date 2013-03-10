@@ -52,7 +52,7 @@ public class EncFSVolume {
 	private EncFSConfig volumeConfig;
 	private Key volumeKey;
 	private byte[] volumeIV;
-	private byte[] passwordDerivedKeyData;
+	private byte[] derivedKeyData;
 	private Mac volumeMAC;
 	private Cipher streamCipher;
 	private Cipher blockCipher;
@@ -69,8 +69,7 @@ public class EncFSVolume {
 
 		byte[] keyData;
 		try {
-			keyData = VolumeKey.decryptVolumeKey(volumeConfig,
-					passwordDerivedKeyData);
+			keyData = VolumeKey.decryptVolumeKey(volumeConfig, derivedKeyData);
 		} catch (EncFSChecksumException e) {
 			throw new EncFSInvalidPasswordException(e);
 		}
@@ -233,8 +232,8 @@ public class EncFSVolume {
 	 * 
 	 * @return Password-based VolumeCryptKey/IV data for this volume
 	 */
-	public byte[] getPasswordDerivedKeyData() {
-		return passwordDerivedKeyData;
+	public byte[] getDerivedKeyData() {
+		return derivedKeyData;
 	}
 
 	/**
@@ -964,8 +963,8 @@ public class EncFSVolume {
 	}
 
 	// Used by EncFSVolumeBuilder to set password-derived key data
-	protected void setPasswordDerivedKeyData(byte[] passwordDerivedKeyData) {
-		this.passwordDerivedKeyData = passwordDerivedKeyData;
+	protected void setDerivedKeyData(byte[] passwordDerivedKeyData) {
+		this.derivedKeyData = passwordDerivedKeyData;
 	}
 
 	// Used by EncFSVolumeBuilder to set file provider

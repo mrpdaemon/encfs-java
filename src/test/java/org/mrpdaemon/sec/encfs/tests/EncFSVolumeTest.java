@@ -19,7 +19,7 @@ public abstract class EncFSVolumeTest {
 	public void testNoExistingConfigFile() throws Exception {
 		try {
 			new EncFSVolumeBuilder().withFileProvider(fileProvider)
-					.withDerivedPassword(new byte[] {});
+					.withDerivedKeyData(new byte[] {});
 		} catch (EncFSInvalidConfigException e) {
 			Assert.assertEquals("No EncFS configuration file found",
 					e.getMessage());
