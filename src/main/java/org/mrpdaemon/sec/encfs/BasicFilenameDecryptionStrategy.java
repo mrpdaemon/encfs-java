@@ -39,7 +39,19 @@ abstract class BasicFilenameDecryptionStrategy extends
 		byte[] chainIv = EncFSCrypto.computeChainedIV(volume, volumePath,
 				config);
 		byte[] base256FileName = EncFSBase64.decodeEncfs(fileName.getBytes());
-		byte[] macBytes = EncFSCrypto.getMacBytes(base256FileName);
+		byte[] macBytes;
+
+		try {
+			macBytes = EncFSCrypto.getMacBytes(base256FileName);
+		} catch (ArrayIndexOutOfBoundsException e) {
+			/*
+			 * It's possible for fileName to be malformed so as to make
+			 * base256FileName shorter than 2 bytes. In this case, getMacBytes()
+			 * will throw an exception.
+			 */
+			throw new EncFSCorruptDataException(e);
+		}
+
 		byte[] encFileName = Arrays.copyOfRange(base256FileName, 2,
 				base256FileName.length);
 		byte[] fileIv = EncFSCrypto.computeFileIV(chainIv, macBytes);
