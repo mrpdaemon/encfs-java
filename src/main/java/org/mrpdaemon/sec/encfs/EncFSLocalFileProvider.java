@@ -112,6 +112,15 @@ public class EncFSLocalFileProvider implements EncFSFileProvider {
 		}
 
 		File[] files = srcDir.listFiles();
+		if (files == null) {
+			/*
+			 * It's possible for a race condition to occur and srcDir to be
+			 * renamed or deleted between the isDirectory() check above and the
+			 * listFiles() call after it. We throw an exception in this case.
+			 */
+			throw new IOException("Path: " + dirPath + " was removed!");
+		}
+
 		List<EncFSFileInfo> results = new ArrayList<EncFSFileInfo>(files.length);
 		for (File file : files) {
 			results.add(convertToFileInfo(file));
