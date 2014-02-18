@@ -162,8 +162,8 @@ class VolumeKey {
 
 			return pbkdf2Key.getEncoded();
 		} else {
-			return pbkdf2Provider.doPBKDF2(password.length(), password,
-					cipherSaltData.length, cipherSaltData,
+			return pbkdf2Provider.doPBKDF2(password, cipherSaltData.length,
+					cipherSaltData,
 					config.getIterationForPasswordKeyDerivationCount(),
 					(config.getVolumeKeySizeInBits() / 8)
 							+ EncFSVolume.IV_LENGTH_IN_BYTES);

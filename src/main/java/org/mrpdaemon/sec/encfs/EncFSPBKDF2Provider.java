@@ -36,7 +36,7 @@ public abstract class EncFSPBKDF2Provider {
 	 * @return Byte array containing the result of the PBKDF2 computation. null
 	 *         if the computation failed.
 	 */
-	public abstract byte[] doPBKDF2(int passwordLen, String password,
-			int saltLen, byte[] salt, int iterations, int keyLen);
+	public abstract byte[] doPBKDF2(String password, int saltLen, byte[] salt,
+			int iterations, int keyLen);
 
 }
