@@ -133,19 +133,22 @@ public final class EncFSCrypto {
 	// Block encoding helper to do padding
 	static byte[] getBytesForBlockAlgorithm(String curPath) {
 		byte[] encodeBytes;// Only pad for block mode
-		int padLen = 16 - (curPath.length() % 16);
+
+		int byteLen = curPath.getBytes().length;
+
+		int padLen = 16 - (byteLen % 16);
 		if (padLen == 0) {
 			padLen = 16;
 		}
-		encodeBytes = new byte[curPath.length() + padLen];
+		encodeBytes = new byte[byteLen + padLen];
 
-		for (int i = 0; i < curPath.length(); i++) {
+		for (int i = 0; i < byteLen; i++) {
 			encodeBytes[i] = curPath.getBytes()[i];
 		}
 
 		// Pad to the nearest 16 bytes, add a full block if needed
 		for (int i = 0; i < padLen; i++) {
-			encodeBytes[curPath.length() + i] = (byte) padLen;
+			encodeBytes[byteLen + i] = (byte) padLen;
 		}
 		return encodeBytes;
 	}
