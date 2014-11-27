@@ -128,9 +128,9 @@ public class EncFSInputStream extends FilterInputStream {
 		byte[] oneByte = new byte[1];
 		int ret = this.read(oneByte, 0, 1);
 		if (ret == 1) {
-			return oneByte[0];
+			return oneByte[0] & 0xFF;
 		}
-		return ret;
+		return -1;
 	}
 
 	/*
@@ -288,8 +288,8 @@ public class EncFSInputStream extends FilterInputStream {
 				if (zeroBlock) {
 					blockBuf = cipherBuf;
 				} else {
-					blockBuf = BlockCrypto.blockDecrypt(volume,
-							getBlockIV(), cipherBuf);
+					blockBuf = BlockCrypto.blockDecrypt(volume, getBlockIV(),
+							cipherBuf);
 				}
 			} catch (InvalidAlgorithmParameterException e) {
 				e.printStackTrace();
@@ -303,8 +303,8 @@ public class EncFSInputStream extends FilterInputStream {
 			blockNum++;
 		} else if (bytesRead > 0) { // stream decode
 			try {
-				blockBuf = StreamCrypto.streamDecrypt(volume,
-						getBlockIV(), cipherBuf, 0, bytesRead);
+				blockBuf = StreamCrypto.streamDecrypt(volume, getBlockIV(),
+						cipherBuf, 0, bytesRead);
 			} catch (InvalidAlgorithmParameterException e) {
 				e.printStackTrace();
 			} catch (IllegalBlockSizeException e) {
