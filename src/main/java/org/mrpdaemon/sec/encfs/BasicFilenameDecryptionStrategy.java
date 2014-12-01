@@ -54,6 +54,12 @@ abstract class BasicFilenameDecryptionStrategy extends
 
 		byte[] encFileName = Arrays.copyOfRange(base256FileName, 2,
 				base256FileName.length);
+
+		if (encFileName.length == 0) {
+			throw new EncFSCorruptDataException(
+					"Malformed file name (too short)");
+		}
+
 		byte[] fileIv = EncFSCrypto.computeFileIV(chainIv, macBytes);
 
 		byte[] decFileName = decryptConcrete(volume, encFileName, fileIv);
