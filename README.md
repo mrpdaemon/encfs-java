@@ -56,7 +56,8 @@ If you are getting an exception due to "Illegal key size" and you are using Sun'
 you need to install the Java Cryptography Extension (JCE) Unlimited Strength Jurisdiction
 Policy Files. See the following link for more information:
 
-http://www.oracle.com/technetwork/java/javase/downloads/jce-6-download-429243.html
+Java 6 JCE Link http://www.oracle.com/technetwork/java/javase/downloads/jce-6-download-429243.html
+Java 7 JCE Link http://www.oracle.com/technetwork/java/javase/downloads/jce-7-download-432124.html
 
 Thanks to aormerod for pointing this out!
 
