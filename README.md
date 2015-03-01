@@ -58,6 +58,8 @@ Policy Files. See the following link for more information:
 
 Java 6 JCE Link http://www.oracle.com/technetwork/java/javase/downloads/jce-6-download-429243.html
 Java 7 JCE Link http://www.oracle.com/technetwork/java/javase/downloads/jce-7-download-432124.html
+Java 8 JCE Link http://www.oracle.com/technetwork/java/javase/downloads/jce8-download-2133166.html
+Extract files into JDK/JRE/lib/security folder (To whichever version of JRE/JDK x64/x86 you are using)
 
 Thanks to aormerod for pointing this out!
 
