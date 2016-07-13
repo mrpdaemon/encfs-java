@@ -1,3 +1,4 @@
+[![Build Status](https://travis-ci.org/CIResearchGroup/encfs-java.svg?branch=master)](https://travis-ci.org/CIResearchGroup/encfs-java)
 encfs-java
 ==========
 
